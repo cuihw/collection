@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@mipmap/login_background"
+    android:gravity="center"
+    android:orientation="vertical"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/transparent_white"
+        android:layout_margin="@dimen/login_margin"
+        android:orientation="vertical"
+        >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="采集系统"
+            android:textColor="@color/background1"
+            android:textSize="@dimen/font1"
+            android:gravity="center"
+            android:layout_margin="@dimen/login_margin"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/item_padding_large"
+            android:layout_marginLeft="@dimen/item_padding_large"
+            android:text="用户名"
+            android:textColor="@color/font4"
+            android:textSize="@dimen/font6"
+            />
+
+        <EditText
+            android:id="@+id/username_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/item_padding_large"
+            android:layout_marginLeft="@dimen/item_padding_large"
+            android:background="@drawable/round_white_button"
+            android:padding="@dimen/item_padding"
+            android:hint="输入用户名"
+            />
+
+        <TextView
+            android:layout_marginTop="@dimen/item_padding_large"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/item_padding_large"
+            android:layout_marginLeft="@dimen/item_padding_large"
+            android:text="密码"
+            android:textColor="@color/font4"
+            android:textSize="@dimen/font6"
+            />
+        <EditText
+            android:id="@+id/password_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/item_padding_large"
+            android:layout_marginLeft="@dimen/item_padding_large"
+            android:background="@drawable/round_white_button"
+            android:padding="@dimen/item_padding"
+            android:hint="输入密码"
+            android:inputType="textPassword"
+            />
+
+        <TextView
+            android:id="@+id/login_button"
+            android:layout_marginTop="@dimen/title_image"
+            android:layout_marginRight="@dimen/item_padding_large"
+            android:layout_marginLeft="@dimen/item_padding_large"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/round_blue_button"
+            android:text="登录"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:textSize="@dimen/font3"
+            android:padding="@dimen/item_padding"
+            />
+    </LinearLayout>
+
+
+
+</LinearLayout>

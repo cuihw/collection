@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:title="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_view"
+    android:layout_height="match_parent">
+
+    <com.data.collection.view.TitleView
+        android:id="@+id/title_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        title:TitleText="检查记录"
+        title:IconRight="@mipmap/top_list"
+        >
+    </com.data.collection.view.TitleView>
+    <!-- open map -->
+    <com.baidu.mapapi.map.TextureMapView
+        android:id="@+id/mapview"
+        android:layout_below="@+id/title_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true" />
+
+    <TextView
+        android:id="@+id/map_my_position"
+        android:layout_width="@dimen/home_button"
+        android:layout_height="@dimen/home_button"
+        android:layout_marginBottom="@dimen/item_padding"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:text="我的\n位置"
+        android:textSize="@dimen/font6"
+        android:textColor="@color/font6"
+        android:gravity="center"
+        android:clickable="true"
+        android:background="@drawable/button_selector"
+        android:layout_marginLeft="@dimen/item_padding"
+        />
+</RelativeLayout>

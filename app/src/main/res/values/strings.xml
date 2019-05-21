@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">数据采集</string>
+    <string name="collect">采集</string>
+    <string name="navi">导航</string>
+    <string name="record">检查记录</string>
+    <string name="settings">设置</string>
+    <string name="title">title</string>
+    <string name="exit_toast">再按一次退出应用</string>
+</resources>

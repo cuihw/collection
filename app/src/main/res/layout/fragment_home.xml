@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:title="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_view"
+    android:layout_height="match_parent">
+
+    <com.data.collection.view.TitleView
+        android:id="@+id/title_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        title:TitleText="信息采集"
+        title:IconRight="@mipmap/icon_list_point"
+        >
+    </com.data.collection.view.TitleView>
+    <!-- open map -->
+    <FrameLayout
+        android:layout_below="@+id/title_view"
+        android:id="@+id/map_framelayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:id="@+id/recode_trace"
+        android:layout_width="@dimen/home_button"
+        android:layout_height="@dimen/home_button"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="100dp"
+        android:text="记录\n轨迹"
+        android:textSize="@dimen/font6"
+        android:textColor="@color/font6"
+        android:gravity="center"
+        android:clickable="true"
+        android:background="@drawable/button_selector"
+        android:layout_marginLeft="@dimen/item_padding"
+        />
+    <TextView
+        android:id="@+id/map_type"
+        android:layout_width="@dimen/home_button"
+        android:layout_height="@dimen/home_button"
+        android:layout_above="@+id/recode_trace"
+        android:layout_marginBottom="@dimen/item_padding"
+        android:text="卫星\n地图"
+        android:textSize="@dimen/font6"
+        android:textColor="@color/font6"
+        android:gravity="center"
+        android:clickable="true"
+        android:background="@drawable/button_selector"
+        android:layout_marginLeft="@dimen/item_padding"
+        />
+
+    <ImageButton
+        android:id="@+id/get_point"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:background="@null"
+        android:src="@drawable/point_collect_selector"/>
+
+</RelativeLayout>

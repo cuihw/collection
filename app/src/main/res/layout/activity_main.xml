@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:jp="http://schemas.android.com/apk/res-auto"
+    tools:context=".MainActivity">
+
+    <com.jpeng.jptabbar.JPTabBar
+        android:id="@+id/tabbar"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:background="@mipmap/top_background"
+        jp:TabTextSize="@dimen/font5"
+        jp:TabIconSize="25dp"
+        jp:TabSelectColor="@color/font0"
+        jp:TabNormalColor="@color/font3"/>
+    <FrameLayout
+        android:id="@+id/container"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:layout_above="@id/tabbar" />
+
+</RelativeLayout>

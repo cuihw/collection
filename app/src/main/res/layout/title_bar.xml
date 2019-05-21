@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:id="@+id/title_layout"
+    android:orientation="vertical"
+    android:background="@mipmap/top_background"
+    android:layout_height="56dp">
+    <ImageView
+        android:id="@+id/left_icon"
+        android:layout_width="@dimen/title_image"
+        android:layout_height="@dimen/title_image"
+        android:layout_centerVertical="true"
+        android:src="@mipmap/top_back"
+        android:layout_marginLeft="@dimen/item_padding"
+        />
+    <ImageView
+        android:id="@+id/divide_left"
+        android:layout_width="3dp"
+        android:layout_height="match_parent"
+        android:layout_toRightOf="@+id/left_icon"
+        android:layout_marginLeft="@dimen/item_padding"
+        android:src="@mipmap/divide"/>
+    <TextView
+        android:id="@+id/title_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="@string/title"
+        android:textSize="@dimen/font3"
+        android:textColor="@color/white"
+        />
+
+    <ImageView
+        android:id="@+id/divide_right"
+        android:layout_width="3dp"
+        android:layout_height="match_parent"
+        android:layout_toLeftOf="@+id/right_icon"
+        android:layout_marginRight="@dimen/item_padding"
+        android:src="@mipmap/divide"/>
+
+    <ImageView
+        android:id="@+id/right_icon"
+        android:layout_width="@dimen/title_image"
+        android:layout_height="@dimen/title_image"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:src="@mipmap/top_list"
+        android:layout_marginRight="@dimen/item_padding"
+        />
+
+</RelativeLayout>
