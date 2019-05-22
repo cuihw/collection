@@ -9,7 +9,8 @@
         android:id="@+id/title_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        title:TitleText="信息采集"
+        title:TitleText="工具"
+        title:IconLeft="@mipmap/top_back"
         >
     </com.data.collection.view.TitleView>
     <LinearLayout
@@ -18,72 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/background1"
-            android:orientation="horizontal"
-            android:layout_marginBottom="@dimen/item_padding_small"
-            >
-            <ImageView
-                android:layout_width="34dp"
-                android:layout_height="34dp"
-                android:src="@mipmap/icon_user_avater"
-                android:layout_margin="@dimen/item_padding_large"
-                />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:text="用户名：张三"
-                android:textSize="@dimen/font3"
-                />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_margin="@dimen/item_padding_small"
-            android:layout_width="match_parent"
-            android:background="@drawable/round_background"
-            android:layout_height="wrap_content">
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/left_round"
-                android:src="@mipmap/icon_message"
-                android:padding="@dimen/item_padding_large"
-                />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_margin="@dimen/item_padding"
-                android:textSize="@dimen/font3"
-                android:text="消息中心"/>
 
-
-            <RelativeLayout
-                android:layout_gravity="center_vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="@dimen/font4"
-                    android:layout_gravity="center_vertical"
-                    android:layout_centerVertical="true"
-                    android:text="未读消息3"
-                    android:layout_marginRight="@dimen/item_padding"
-                    android:layout_toLeftOf="@+id/arrow_right"
-                    />
-                <ImageView
-                    android:id="@+id/arrow_right"
-                    android:layout_alignParentRight="true"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@mipmap/icon_arrow_right"
-                    android:padding="@dimen/item_padding"
-                    />
-            </RelativeLayout>
-        </LinearLayout>
         <LinearLayout
             android:layout_margin="@dimen/item_padding_small"
             android:layout_width="match_parent"
@@ -102,7 +38,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_margin="@dimen/item_padding"
                 android:textSize="@dimen/font3"
-                android:text="项目信息"/>
+                android:text="指南针"/>
             <RelativeLayout
                 android:layout_gravity="center_vertical"
                 android:layout_width="match_parent"
@@ -134,7 +70,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_margin="@dimen/item_padding"
                 android:textSize="@dimen/font3"
-                android:text="轨迹"/>
+                android:text="卫星"/>
             <RelativeLayout
                 android:layout_gravity="center_vertical"
                 android:layout_width="match_parent"
@@ -167,7 +103,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_margin="@dimen/item_padding"
                 android:textSize="@dimen/font3"
-                android:text="工具"/>
+                android:text="离线地图"/>
             <RelativeLayout
                 android:layout_gravity="center_vertical"
                 android:layout_width="match_parent"
@@ -181,35 +117,5 @@
                     />
             </RelativeLayout>
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/login_button"
-            android:gravity="center"
-            android:text="退出登录"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/item_padding_large"
-            android:background="@drawable/round_background"
-            android:textSize="@dimen/font3"
-            android:layout_margin="@dimen/item_padding_small"
-            />
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/version_info"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="版本号:2.01"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="@dimen/item_padding_large"
-        />
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="版权所有，众望地信"
-        android:layout_above="@+id/version_info"
-        android:layout_centerHorizontal="true"
-        />
-
 </RelativeLayout>

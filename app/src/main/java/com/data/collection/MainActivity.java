@@ -118,8 +118,6 @@ public class MainActivity extends BaseActivity {
             firstExitTime = curTime;
 
         }
-
     }
-
 
 }

@@ -42,5 +42,7 @@ public class App extends Application {
         LsLog.i(TAG, "SHA1 signInfo = " + signInfo);
     }
 
+    public void getUserInfo() {
 
+    }
 }

@@ -17,11 +17,10 @@
     <dimen name="item_padding_largest">20dp</dimen>
     <dimen name="item_padding_large">15dp</dimen>
     <dimen name="title_image">30dp</dimen>
-
     <dimen name="search_size">40dp</dimen>
     <dimen name="home_button">44dp</dimen>
     <dimen name="button_margin">30dp</dimen>
     <dimen name="point_flag_size">30dp</dimen>
-
     <dimen name="login_margin">60dp</dimen>
+    <dimen name="icon_size">44dp</dimen>
 </resources>

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@color/background3"
+    android:background="@color/background4"
     android:layout_height="match_parent">
 
     <LinearLayout
@@ -91,7 +91,7 @@
     </RadioGroup>
 
     <ListView
-        android:background="@drawable/round_top_background"
+        android:background="@drawable/round_top_background2"
         android:layout_marginTop="@dimen/item_padding"
         android:layout_marginLeft="@dimen/item_padding_small"
         android:layout_marginRight="@dimen/item_padding_small"

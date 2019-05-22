@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
@@ -28,9 +29,11 @@ import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.map.SupportMapFragment;
 import com.baidu.mapapi.model.LatLng;
 import com.data.collection.R;
+import com.data.collection.activity.AddCollectionActivity;
 import com.data.collection.util.LocationController;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.PositionUtil;
+import com.data.collection.view.TitleView;
 
 import butterknife.BindView;
 
@@ -48,6 +51,15 @@ public class FragmentHome extends FragmentBase {
 
     @BindView(R.id.map_framelayout)
     FrameLayout map_framelayout;
+
+    @BindView(R.id.title_view)
+    TitleView titleView;
+
+    @BindView(R.id.add_point)
+    ImageView addPoint;
+
+
+
     private SupportMapFragment mapFragment;
     BaiduMap mBaiduMap;
 
@@ -75,7 +87,17 @@ public class FragmentHome extends FragmentBase {
         initMap();
 
         initSensor();
+
+        initListener();
         return view;
+    }
+
+    private void initListener() {
+        titleView.getRighticon().setOnClickListener(v->{
+            // 显示采集列表。
+        });
+        addPoint.setOnClickListener(v-> AddCollectionActivity.start(getContext(),null));
+
     }
 
     private void initSensor() {

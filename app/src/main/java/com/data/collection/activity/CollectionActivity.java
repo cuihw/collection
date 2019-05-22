@@ -8,12 +8,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.data.collection.R;
-import com.data.collection.util.PackageUtils;
 import com.data.collection.util.ToastUtil;
 
 import butterknife.BindView;
 
-public class LoginActivity extends BaseActivity {
+// 采集点列表
+
+public class CollectionActivity extends BaseActivity {
 
     private static final String TAG = "LoginActivity";
 
@@ -26,11 +27,8 @@ public class LoginActivity extends BaseActivity {
     @BindView(R.id.username_edit)
     EditText usernameEdit;
 
-    @BindView(R.id.version_info)
-    TextView versionInfo;
-
     public static void start(Context context, Bundle bundle){
-        Intent intent = new Intent(context, LoginActivity.class);
+        Intent intent = new Intent(context, CollectionActivity.class);
         if (bundle != null) {
             intent.putExtras(bundle);
         }
@@ -41,14 +39,8 @@ public class LoginActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        initView();
+
         initListener();
-    }
-
-    private void initView() {
-
-        String versionName = PackageUtils.getVersionName(this);
-        versionInfo.setText("众望科技\n版本号：" + versionName);
     }
 
     private void initListener() {

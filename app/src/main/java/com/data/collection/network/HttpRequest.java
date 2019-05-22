@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.data.collection.App;
+import com.data.collection.data.CacheData;
 import com.data.collection.util.LsLog;
 import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
@@ -12,6 +13,7 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.cookie.CookieJarImpl;
 import com.lzy.okgo.cookie.store.MemoryCookieStore;
 import com.lzy.okgo.interceptor.HttpLoggingInterceptor;
+import com.lzy.okgo.model.HttpParams;
 import com.lzy.okgo.model.Response;
 
 import org.json.JSONObject;
@@ -19,6 +21,7 @@ import org.json.JSONObject;
 import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
@@ -77,10 +80,15 @@ public class HttpRequest {
             clz = context.getClass().getSimpleName();
             LsLog.i(TAG, "set the class name as tag clz = " + clz);
         }
+        HttpParams hparams = new HttpParams();
+        for (String key : params.keySet()) {
+            hparams.put(key, params.get(key).toString());
+        }
+
         OkGo.<String>post(url).tag(clz)
-                //.headers("SessionKey", CacheData.SessionKey)
+                .headers("token", CacheData.TOKEN)
                 .headers("platform", "Android")
-                .params("params", jsonObject.toString())
+                .params(hparams)
                 .execute(new HStringCallback(context) {
                     String body = null;
 

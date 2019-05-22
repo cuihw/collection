@@ -1,0 +1,1489 @@
+
+        <html xmlns:v="urn:schemas-microsoft-com:vml"
+        xmlns:o="urn:schemas-microsoft-com:office:office"
+        xmlns:w="urn:schemas-microsoft-com:office:word"
+        xmlns="http://www.w3.org/TR/REC-html40">
+        <head><meta http-equiv=Content-Type content="text/html;  
+        charset=utf-8">
+        <style type="text/css">
+            table  
+            {  
+                border-collapse: collapse;
+                border: none;  
+                width: 100%;  
+            }  
+            td  
+            {  
+                border: solid #CCC 1px;  
+            }  
+            .codestyle{
+                word-break: break-all;
+                background:silver;mso-highlight:silver;
+            }
+        </style>
+        <meta name=ProgId content=Word.Document>
+        <meta name=Generator content="Microsoft Word 11">
+        <meta name=Originator content="Microsoft Word 11">
+        <xml><w:WordDocument><w:View>Print</w:View></xml></head>
+        <body><h1>1、全局状态码</h1><div style="margin-left:20px;"><table>
+<thead><tr style='background-color: rgb(0, 136, 204); color: rgb(255, 255, 255);'>
+<th>状态码</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>101</td>
+<td>未登录</td>
+</tr>
+<tr>
+<td>102</td>
+<td>登陆凭证已过期</td>
+</tr>
+<tr>
+<td>103</td>
+<td>用户已被禁用</td>
+</tr>
+<tr>
+<td>405</td>
+<td>请求方式错误</td>
+</tr>
+<tr>
+<td>-1</td>
+<td>普通错误（具体错误看msg）</td>
+</tr>
+<tr>
+<td>1</td>
+<td>操作成功（具体看msg）</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>注：状态码为响应体中的code且都为字符串</p>
+</blockquote></div><h1>2、登录接口</h1><div style="margin-left:20px;"><p><strong>简要描述：</strong> </p>
+<ul>
+<li>登录接口</li>
+</ul>
+<p><strong>请求URL：</strong> </p>
+<ul>
+<li><code>/app/v1/login</code></li>
+</ul>
+<p><strong>请求方式：</strong></p>
+<ul>
+<li>POST </li>
+</ul>
+<p><strong>参数：</strong> </p>
+<table>
+<thead><tr style='background-color: rgb(0, 136, 204); color: rgb(255, 255, 255);'>
+<th style="text-align: left;">参数名</th>
+<th style="text-align: left;">必选</th>
+<th style="text-align: left;">类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">username</td>
+<td style="text-align: left;">是</td>
+<td style="text-align: left;">string</td>
+<td>用户名</td>
+</tr>
+<tr>
+<td style="text-align: left;">password</td>
+<td style="text-align: left;">是</td>
+<td style="text-align: left;">string</td>
+<td>密码</td>
+</tr>
+</tbody>
+</table>
+<p><strong>返回示例</strong></p>
+<table width='100%' class='codestyle'><pre><code>{
+    "code": "1",
+    "msg": "登陆成功",
+    "data": {
+        "user": {
+            "user_id": "10",
+            "name": "赵海洋",
+            "dept": "部门1"
+        },
+        "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpZCI6IjEwIiwiZXhwaXJlZF9hdCI6MTU1OTA5MDU1MX0.Lql-ToPqLkMIjFRMoG15r0o-a4xDus11IglDwGtrmQtOx4XRZrvjPF_TjEIhLBNyrB2Q1hogfi687F0QPwifdGjpMD5Y332okMXoTD1TrjCI6IdEkaNQKcGWwvbW7jmEYAm6wzNkUytx1Z-lR-xIO2KpqKseJQf8jCCcLsCHijY",
+        "project": {
+            "id": "1",
+            "name": "项目1",
+            "types": [
+                {
+                    "id": "1",
+                    "name": "树木",
+                    "icon": "/tree.png",
+                    "attrs": [
+                        {
+                            "id": "1",
+                            "label": "树名",
+                            "options": [
+                                {
+                                    "value": "1",
+                                    "label": "杨树"
+                                }
+                            ],
+                            "default": "1",
+                            "required": "1",
+                            "type": "2"
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}</code></pre></table>
+<p><strong>返回参数说明</strong> </p>
+<table>
+<thead><tr style='background-color: rgb(0, 136, 204); color: rgb(255, 255, 255);'>
+<th style="text-align: left;">参数名</th>
+<th style="text-align: left;">类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">data</td>
+<td style="text-align: left;">json</td>
+<td>返回的数据体</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.user</td>
+<td style="text-align: left;">json</td>
+<td>登陆者信息</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.user.user_id</td>
+<td style="text-align: left;">string</td>
+<td>登陆者id</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.user.dept</td>
+<td style="text-align: left;">string</td>
+<td>登陆者部门</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.token</td>
+<td style="text-align: left;">string</td>
+<td>token用于后续请求，放在header中</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.project</td>
+<td style="text-align: left;">json</td>
+<td>登陆者的当前项目</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.project.id</td>
+<td style="text-align: left;">sting</td>
+<td>当前项目的id</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.project.name</td>
+<td style="text-align: left;">string</td>
+<td>项目名称</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.types</td>
+<td style="text-align: left;">array</td>
+<td>采集类别</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.types[].id</td>
+<td style="text-align: left;">string</td>
+<td>类别id</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.types[].name</td>
+<td style="text-align: left;">string</td>
+<td>类别名称</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.types[].icon</td>
+<td style="text-align: left;">string</td>
+<td>类别图标</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.types[].attrs</td>
+<td style="text-align: left;">string</td>
+<td>类别的属性</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.types[].attrs[].id</td>
+<td style="text-align: left;">string</td>
+<td>属性的id</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.types[].attrs[].label</td>
+<td style="text-align: left;">string</td>
+<td>属性显示的名称</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.types[].attrs[].default</td>
+<td style="text-align: left;">string</td>
+<td>属性默认值</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.types[].attrs[].required</td>
+<td style="text-align: left;">string</td>
+<td>是否为必填项</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.types[].attrs[].type</td>
+<td style="text-align: left;">string</td>
+<td>属性类型 1-输入框；2-下拉框</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.types[].attrs[].options</td>
+<td style="text-align: left;">array</td>
+<td>选项（在类型为下拉框时使用）</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.types[].attrs[].options[].value</td>
+<td style="text-align: left;">string</td>
+<td>选项的值</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.types[].attrs[].options[].label</td>
+<td style="text-align: left;">string</td>
+<td>选项的显示名称</td>
+</tr>
+</tbody>
+</table>
+<p><strong>备注</strong> </p>
+<ul>
+<li>更多返回错误代码请看首页的错误代码描述</li>
+</ul></div><h1>3、获得未读消息数量接口</h1><div style="margin-left:20px;"><p><strong>简要描述：</strong> </p>
+<ul>
+<li>获得未读消息数量接口</li>
+</ul>
+<p><strong>请求URL：</strong> </p>
+<ul>
+<li><code>/app/v1/getUnreadMsgCount</code></li>
+</ul>
+<p><strong>请求方式：</strong></p>
+<ul>
+<li>POST </li>
+</ul>
+<p><strong>HEADER：</strong></p>
+<table>
+<thead><tr style='background-color: rgb(0, 136, 204); color: rgb(255, 255, 255);'>
+<th style="text-align: left;">参数名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">token</td>
+<td>登陆时获得的token</td>
+</tr>
+</tbody>
+</table>
+<p><strong>参数：</strong> </p>
+<table>
+<thead><tr style='background-color: rgb(0, 136, 204); color: rgb(255, 255, 255);'>
+<th style="text-align: left;">参数名</th>
+<th style="text-align: left;">必选</th>
+<th style="text-align: left;">类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">username</td>
+<td style="text-align: left;">是</td>
+<td style="text-align: left;">string</td>
+<td>用户名</td>
+</tr>
+<tr>
+<td style="text-align: left;">password</td>
+<td style="text-align: left;">是</td>
+<td style="text-align: left;">string</td>
+<td>密码</td>
+</tr>
+<tr>
+<td style="text-align: left;">name</td>
+<td style="text-align: left;">否</td>
+<td style="text-align: left;">string</td>
+<td>昵称</td>
+</tr>
+</tbody>
+</table>
+<p><strong>返回示例</strong></p>
+<table width='100%' class='codestyle'><pre><code>{
+    "code": "1",
+    "msg": "操作成功",
+    "data": {
+        "count": "0"
+    }
+}</code></pre></table>
+<p><strong>返回参数说明</strong> </p>
+<table>
+<thead><tr style='background-color: rgb(0, 136, 204); color: rgb(255, 255, 255);'>
+<th style="text-align: left;">参数名</th>
+<th style="text-align: left;">类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">data.count</td>
+<td style="text-align: left;">string</td>
+<td>未读消息数量</td>
+</tr>
+</tbody>
+</table>
+<p><strong>备注</strong> </p>
+<ul>
+<li>更多返回错误代码请看首页的错误代码描述</li>
+</ul></div><h1>4、获得消息内容列表</h1><div style="margin-left:20px;"><p><strong>简要描述：</strong> </p>
+<ul>
+<li>获得消息内容列表</li>
+</ul>
+<p><strong>请求URL：</strong> </p>
+<ul>
+<li><code>/app/v1/getMsgs</code></li>
+</ul>
+<p><strong>请求方式：</strong></p>
+<ul>
+<li>POST </li>
+</ul>
+<p><strong>HEADER：</strong></p>
+<table>
+<thead><tr style='background-color: rgb(0, 136, 204); color: rgb(255, 255, 255);'>
+<th style="text-align: left;">参数名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">token</td>
+<td>登陆时获得的token</td>
+</tr>
+</tbody>
+</table>
+<p><strong>参数：</strong> </p>
+<table>
+<thead><tr style='background-color: rgb(0, 136, 204); color: rgb(255, 255, 255);'>
+<th style="text-align: left;">参数名</th>
+<th style="text-align: left;">必选</th>
+<th style="text-align: left;">类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">page</td>
+<td style="text-align: left;">否</td>
+<td style="text-align: left;">string  int</td>
+<td>页码不填或小于0则默认为第一页</td>
+</tr>
+</tbody>
+</table>
+<p><strong>返回示例</strong></p>
+<table width='100%' class='codestyle'><pre><code>{
+    "code": "1",
+    "msg": "操作成功",
+    "data": {
+        "data": [
+            {
+                "id": "22",
+                "title": "321321",
+                "content": "32132131",
+                "type": "1",
+                "read_at": "2019-05-21 10:01:31",
+                "create_time": "2019-05-20 17:38:35",
+                "pusher": "admin"
+            },
+            {
+                "id": "23",
+                "title": "321321",
+                "content": "312321",
+                "type": "0",
+                "read_at": "0000-00-00 00:00:00",
+                "create_time": "2019-05-22 09:06:38",
+                "pusher": "admin"
+            }
+        ],
+        "total": "2",
+        "per_page": "20",
+        "current_page": "1",
+        "last_page": "1",
+        "has_more": "0"
+    }
+}</code></pre></table>
+<p><strong>返回参数说明</strong> </p>
+<table>
+<thead><tr style='background-color: rgb(0, 136, 204); color: rgb(255, 255, 255);'>
+<th style="text-align: left;">参数名</th>
+<th style="text-align: left;">类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">data.data</td>
+<td style="text-align: left;">array</td>
+<td>消息列表</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].id</td>
+<td style="text-align: left;">string</td>
+<td>消息id</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].title</td>
+<td style="text-align: left;">string</td>
+<td>消息标题</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].content</td>
+<td style="text-align: left;">string</td>
+<td>消息内容</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].read_at</td>
+<td style="text-align: left;">string</td>
+<td>消息查阅时间（只有在消息读过之后有效）</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].create_time</td>
+<td style="text-align: left;">string</td>
+<td>消息发送时间</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].pusher</td>
+<td style="text-align: left;">string</td>
+<td>消息发送人</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.total</td>
+<td style="text-align: left;">string</td>
+<td>总记录数</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.per_page</td>
+<td style="text-align: left;">string</td>
+<td>每页记录数</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.current_page</td>
+<td style="text-align: left;">string</td>
+<td>当前页码，如果该页码已无数据则显示最后一页</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.last_page</td>
+<td style="text-align: left;">string</td>
+<td>最后一页</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.has_more</td>
+<td style="text-align: left;">string</td>
+<td>是否还有更多记录</td>
+</tr>
+</tbody>
+</table>
+<p><strong>备注</strong> </p>
+<ul>
+<li>更多返回错误代码请看首页的错误代码描述</li>
+</ul></div><h1>5、设置消息已读接口</h1><div style="margin-left:20px;"><p><strong>简要描述：</strong> </p>
+<ul>
+<li>设置消息已读接口</li>
+</ul>
+<p><strong>请求URL：</strong> </p>
+<ul>
+<li><code>/app/v1/readMsgs</code></li>
+</ul>
+<p><strong>请求方式：</strong></p>
+<ul>
+<li>POST </li>
+</ul>
+<p><strong>HEADER：</strong></p>
+<table>
+<thead><tr style='background-color: rgb(0, 136, 204); color: rgb(255, 255, 255);'>
+<th style="text-align: left;">参数名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">token</td>
+<td>登陆时获得的token</td>
+</tr>
+</tbody>
+</table>
+<p><strong>参数：</strong> </p>
+<table>
+<thead><tr style='background-color: rgb(0, 136, 204); color: rgb(255, 255, 255);'>
+<th style="text-align: left;">参数名</th>
+<th style="text-align: left;">必选</th>
+<th style="text-align: left;">类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">id</td>
+<td style="text-align: left;">是</td>
+<td style="text-align: left;">string</td>
+<td>消息id</td>
+</tr>
+</tbody>
+</table>
+<p><strong>返回示例</strong></p>
+<table width='100%' class='codestyle'><pre><code>{
+    "code": "1",
+    "msg": "设置已读消息成功。",
+    "data": {}
+}</code></pre></table>
+<p><strong>备注</strong> </p>
+<ul>
+<li>更多返回错误代码请看首页的错误代码描述</li>
+</ul></div><h1>6、上报采集信息</h1><div style="margin-left:20px;"><p><strong>简要描述：</strong> </p>
+<ul>
+<li>上报采集信息</li>
+</ul>
+<p><strong>请求URL：</strong> </p>
+<ul>
+<li><code>/app/v1/saveCollectionPoint</code></li>
+</ul>
+<p><strong>请求方式：</strong></p>
+<ul>
+<li>POST </li>
+</ul>
+<p><strong>HEADER：</strong></p>
+<table>
+<thead><tr style='background-color: rgb(0, 136, 204); color: rgb(255, 255, 255);'>
+<th style="text-align: left;">参数名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">token</td>
+<td>登陆时获得的token</td>
+</tr>
+</tbody>
+</table>
+<p><strong>参数：</strong> </p>
+<table>
+<thead><tr style='background-color: rgb(0, 136, 204); color: rgb(255, 255, 255);'>
+<th style="text-align: left;">参数名</th>
+<th style="text-align: left;">必选</th>
+<th style="text-align: left;">类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">type_id</td>
+<td style="text-align: left;">是</td>
+<td style="text-align: left;">string</td>
+<td>采集点类型id</td>
+</tr>
+<tr>
+<td style="text-align: left;">name</td>
+<td style="text-align: left;">是</td>
+<td style="text-align: left;">string</td>
+<td>采集点名称</td>
+</tr>
+<tr>
+<td style="text-align: left;">longitude</td>
+<td style="text-align: left;">是</td>
+<td style="text-align: left;">string</td>
+<td>经度</td>
+</tr>
+<tr>
+<td style="text-align: left;">latitude</td>
+<td style="text-align: left;">是</td>
+<td style="text-align: left;">string</td>
+<td>纬度</td>
+</tr>
+<tr>
+<td style="text-align: left;">height</td>
+<td style="text-align: left;">是</td>
+<td style="text-align: left;">string</td>
+<td>海拔</td>
+</tr>
+<tr>
+<td style="text-align: left;">collected_at</td>
+<td style="text-align: left;">是</td>
+<td style="text-align: left;">string</td>
+<td>采集时间</td>
+</tr>
+<tr>
+<td style="text-align: left;">desc</td>
+<td style="text-align: left;">否</td>
+<td style="text-align: left;">string</td>
+<td>备注</td>
+</tr>
+<tr>
+<td style="text-align: left;">imgs</td>
+<td style="text-align: left;">否</td>
+<td style="text-align: left;">array</td>
+<td>由图片地址组成的数组</td>
+</tr>
+<tr>
+<td style="text-align: left;">attrs</td>
+<td style="text-align: left;">否</td>
+<td style="text-align: left;">array</td>
+<td>具体根据采集点类型的里是否有属性去定义</td>
+</tr>
+<tr>
+<td style="text-align: left;">attrs[].id</td>
+<td style="text-align: left;">是</td>
+<td style="text-align: left;">string</td>
+<td>属性id(注：在采集点类型有attrs时)</td>
+</tr>
+<tr>
+<td style="text-align: left;">attrs[].value</td>
+<td style="text-align: left;">是</td>
+<td style="text-align: left;">string</td>
+<td>属性值(注：在采集点类型有attrs时，如果required为0可以传空值)</td>
+</tr>
+<tr>
+<td style="text-align: left;">attrs[].label</td>
+<td style="text-align: left;">是</td>
+<td style="text-align: left;">string</td>
+<td>显示名称(注：在采集点类型有attrs时)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>返回示例</strong></p>
+<table width='100%' class='codestyle'><pre><code>{
+    "code": "1",
+    "msg": "上传成功",
+    "data": {
+        "type_id": "1",
+        "name": "采集地点61",
+        "longitude": "123.21",
+        "latitude": "1.11111",
+        "height": "1213",
+        "attrs": [
+            {
+                "id": "1",
+                "value": "1",
+                "label": "树名"
+            }
+        ],
+        "desc": "",
+        "imgs": [
+            "a.jpg",
+            "b.jpg"
+        ],
+        "user_id": "10",
+        "collected_at": "2019-05-21 12:04:20",
+        "created_at": "2019-05-22 09:32:21",
+        "updated_at": "2019-05-22 09:32:21",
+        "id": "11"
+    }
+}</code></pre></table>
+<p><strong>返回参数说明</strong> </p>
+<table>
+<thead><tr style='background-color: rgb(0, 136, 204); color: rgb(255, 255, 255);'>
+<th style="text-align: left;">参数名</th>
+<th style="text-align: left;">类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">data.id</td>
+<td style="text-align: left;">string</td>
+<td>采集点id</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.name</td>
+<td style="text-align: left;">string</td>
+<td>采集点名称</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.longitude</td>
+<td style="text-align: left;">string</td>
+<td>采集点经度</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.latitude</td>
+<td style="text-align: left;">string</td>
+<td>采集点纬度</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.height</td>
+<td style="text-align: left;">string</td>
+<td>海拔</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.desc</td>
+<td style="text-align: left;">string</td>
+<td>备注</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.user_id</td>
+<td style="text-align: left;">string</td>
+<td>上报人id</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.collected_at</td>
+<td style="text-align: left;">string</td>
+<td>采集时间</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.created_at</td>
+<td style="text-align: left;">string</td>
+<td>创建时间</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.attrs</td>
+<td style="text-align: left;">array</td>
+<td>采集点属性（跟上传时格式一样）</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.imgs</td>
+<td style="text-align: left;">string</td>
+<td>采集点图片（跟上传时格式一样）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>备注</strong> </p>
+<ul>
+<li>更多返回错误代码请看首页的错误代码描述</li>
+</ul></div><h1>7、获取采集信息列表</h1><div style="margin-left:20px;"><p><strong>简要描述：</strong> </p>
+<ul>
+<li>获取采集信息列表</li>
+</ul>
+<p><strong>请求URL：</strong> </p>
+<ul>
+<li><code>/app/v1/getMsgs</code></li>
+</ul>
+<p><strong>请求方式：</strong></p>
+<ul>
+<li>POST </li>
+</ul>
+<p><strong>HEADER：</strong></p>
+<table>
+<thead><tr style='background-color: rgb(0, 136, 204); color: rgb(255, 255, 255);'>
+<th style="text-align: left;">参数名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">token</td>
+<td>登陆时获得的token</td>
+</tr>
+</tbody>
+</table>
+<p><strong>参数：</strong> </p>
+<table>
+<thead><tr style='background-color: rgb(0, 136, 204); color: rgb(255, 255, 255);'>
+<th style="text-align: left;">参数名</th>
+<th style="text-align: left;">必选</th>
+<th style="text-align: left;">类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">page</td>
+<td style="text-align: left;">否</td>
+<td style="text-align: left;">string  int</td>
+<td>页码不填或小于0则默认为第一页</td>
+</tr>
+</tbody>
+</table>
+<p><strong>返回示例</strong></p>
+<table width='100%' class='codestyle'><pre><code>{
+    "code": "1",
+    "msg": "操作成功",
+    "data": {
+        "total": "7",
+        "per_page": "20",
+        "current_page": "1",
+        "last_page": "1",
+        "has_more": "0",
+        "data": [
+            {
+                "name": "采集地点1",
+                "id": "5",
+                "height": "1213.00",
+                "longitude": "123.2100000",
+                "latitude": "1.1111100",
+                "collected_at": "2019-05-21 12:04:20",
+                "type_id": "1",
+                "type": {
+                    "id": "1",
+                    "name": "树木",
+                    "icon": "/tree.png"
+                }
+            },
+            {
+                "name": "采集地点2",
+                "id": "6",
+                "height": "1213.00",
+                "longitude": "123.2100000",
+                "latitude": "1.1111100",
+                "collected_at": "2019-05-21 12:04:20",
+                "type_id": "1",
+                "type": {
+                    "id": "1",
+                    "name": "树木",
+                    "icon": "/tree.png"
+                }
+            },
+            {
+                "name": "采集地点3",
+                "id": "7",
+                "height": "1213.00",
+                "longitude": "123.2100000",
+                "latitude": "1.1111100",
+                "collected_at": "2019-05-21 12:04:20",
+                "type_id": "1",
+                "type": {
+                    "id": "1",
+                    "name": "树木",
+                    "icon": "/tree.png"
+                }
+            },
+            {
+                "name": "采集地点4",
+                "id": "8",
+                "height": "1213.00",
+                "longitude": "123.2100000",
+                "latitude": "1.1111100",
+                "collected_at": "2019-05-21 12:04:20",
+                "type_id": "1",
+                "type": {
+                    "id": "1",
+                    "name": "树木",
+                    "icon": "/tree.png"
+                }
+            },
+            {
+                "name": "采集地点5",
+                "id": "9",
+                "height": "1213.00",
+                "longitude": "123.2100000",
+                "latitude": "1.1111100",
+                "collected_at": "2019-05-21 12:04:20",
+                "type_id": "1",
+                "type": {
+                    "id": "1",
+                    "name": "树木",
+                    "icon": "/tree.png"
+                }
+            },
+            {
+                "name": "采集地点6",
+                "id": "10",
+                "height": "1213.00",
+                "longitude": "123.2100000",
+                "latitude": "1.1111100",
+                "collected_at": "2019-05-21 12:04:20",
+                "type_id": "1",
+                "type": {
+                    "id": "1",
+                    "name": "树木",
+                    "icon": "/tree.png"
+                }
+            },
+            {
+                "name": "采集地点61",
+                "id": "11",
+                "height": "1213.00",
+                "longitude": "123.2100000",
+                "latitude": "1.1111100",
+                "collected_at": "2019-05-21 12:04:20",
+                "type_id": "1",
+                "type": {
+                    "id": "1",
+                    "name": "树木",
+                    "icon": "/tree.png"
+                }
+            }
+        ]
+    }
+}</code></pre></table>
+<p><strong>返回参数说明</strong> </p>
+<table>
+<thead><tr style='background-color: rgb(0, 136, 204); color: rgb(255, 255, 255);'>
+<th style="text-align: left;">参数名</th>
+<th style="text-align: left;">类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">data.data</td>
+<td style="text-align: left;">array</td>
+<td>采集列表</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].id</td>
+<td style="text-align: left;">string</td>
+<td>采集点id</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].name</td>
+<td style="text-align: left;">string</td>
+<td>采集点名称</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].height</td>
+<td style="text-align: left;">string</td>
+<td>海拔（米）</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].longitude</td>
+<td style="text-align: left;">string</td>
+<td>经度</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].latitude</td>
+<td style="text-align: left;">string</td>
+<td>纬度</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].collected_at</td>
+<td style="text-align: left;">string</td>
+<td>采集时间</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].type_id</td>
+<td style="text-align: left;">string</td>
+<td>采集类别id</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].type</td>
+<td style="text-align: left;">json</td>
+<td>采集类别</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].type.id</td>
+<td style="text-align: left;">string</td>
+<td>采集类别id</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].type.name</td>
+<td style="text-align: left;">string</td>
+<td>采集类别名称</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].type.icon</td>
+<td style="text-align: left;">string</td>
+<td>采集类别图标</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.total</td>
+<td style="text-align: left;">string</td>
+<td>总记录数</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.per_page</td>
+<td style="text-align: left;">string</td>
+<td>每页记录数</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.current_page</td>
+<td style="text-align: left;">string</td>
+<td>当前页码，如果该页码已无数据则显示最后一页</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.last_page</td>
+<td style="text-align: left;">string</td>
+<td>最后一页</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.has_more</td>
+<td style="text-align: left;">string</td>
+<td>是否还有更多记录</td>
+</tr>
+</tbody>
+</table>
+<p><strong>备注</strong> </p>
+<ul>
+<li>更多返回错误代码请看首页的错误代码描述</li>
+</ul></div><h1>8、获得导航兴趣点信息</h1><div style="margin-left:20px;"><p><strong>简要描述：</strong> </p>
+<ul>
+<li>获得导航兴趣点信息</li>
+</ul>
+<p><strong>请求URL：</strong> </p>
+<ul>
+<li><code>/app/v1/getInterestList</code></li>
+</ul>
+<p><strong>请求方式：</strong></p>
+<ul>
+<li>POST </li>
+</ul>
+<p><strong>HEADER：</strong></p>
+<table>
+<thead><tr style='background-color: rgb(0, 136, 204); color: rgb(255, 255, 255);'>
+<th style="text-align: left;">参数名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">token</td>
+<td>登陆时获得的token</td>
+</tr>
+</tbody>
+</table>
+<p><strong>参数：</strong> </p>
+<table>
+<thead><tr style='background-color: rgb(0, 136, 204); color: rgb(255, 255, 255);'>
+<th style="text-align: left;">参数名</th>
+<th style="text-align: left;">必选</th>
+<th style="text-align: left;">类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">page</td>
+<td style="text-align: left;">否</td>
+<td style="text-align: left;">string  int</td>
+<td>页码不填或小于0则默认为第一页</td>
+</tr>
+</tbody>
+</table>
+<p><strong>返回示例</strong></p>
+<table width='100%' class='codestyle'><pre><code>{
+    "code": "1",
+    "msg": "操作成功",
+    "data": {
+        "total": "1",
+        "per_page": "20",
+        "current_page": "1",
+        "last_page": "1",
+        "has_more": "0",
+        "data": [
+            {
+                "id": "1",
+                "name": "公共厕所（科技园店）",
+                "desc": "科技园公共厕所地处位置优越空气宜人",
+                "created_at": "2019-05-21 16:58:28"
+            }
+        ]
+    }
+}</code></pre></table>
+<p><strong>返回参数说明</strong> </p>
+<table>
+<thead><tr style='background-color: rgb(0, 136, 204); color: rgb(255, 255, 255);'>
+<th style="text-align: left;">参数名</th>
+<th style="text-align: left;">类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">data.data</td>
+<td style="text-align: left;">array</td>
+<td>列表</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].id</td>
+<td style="text-align: left;">string</td>
+<td>记录id</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].title</td>
+<td style="text-align: left;">string</td>
+<td>兴趣点名称</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].longitude</td>
+<td style="text-align: left;">string</td>
+<td>经度</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].latitude</td>
+<td style="text-align: left;">string</td>
+<td>纬度</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].desc</td>
+<td style="text-align: left;">string</td>
+<td>备注（描述）</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].created_at</td>
+<td style="text-align: left;">string</td>
+<td>创建时间</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.total</td>
+<td style="text-align: left;">string</td>
+<td>总记录数</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.per_page</td>
+<td style="text-align: left;">string</td>
+<td>每页记录数</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.current_page</td>
+<td style="text-align: left;">string</td>
+<td>当前页码，如果该页码已无数据则显示最后一页</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.last_page</td>
+<td style="text-align: left;">string</td>
+<td>最后一页</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.has_more</td>
+<td style="text-align: left;">string</td>
+<td>是否还有更多记录</td>
+</tr>
+</tbody>
+</table>
+<p><strong>备注</strong> </p>
+<ul>
+<li>更多返回错误代码请看首页的错误代码描述</li>
+</ul></div><h1>9、获得检查列表</h1><div style="margin-left:20px;"><p><strong>简要描述：</strong> </p>
+<ul>
+<li>获得检查列表</li>
+</ul>
+<p><strong>请求URL：</strong> </p>
+<ul>
+<li><code>/app/v1/getCheckList</code></li>
+</ul>
+<p><strong>请求方式：</strong></p>
+<ul>
+<li>POST </li>
+</ul>
+<p><strong>HEADER：</strong></p>
+<table>
+<thead><tr style='background-color: rgb(0, 136, 204); color: rgb(255, 255, 255);'>
+<th style="text-align: left;">参数名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">token</td>
+<td>登陆时获得的token</td>
+</tr>
+</tbody>
+</table>
+<p><strong>参数：</strong> </p>
+<table>
+<thead><tr style='background-color: rgb(0, 136, 204); color: rgb(255, 255, 255);'>
+<th style="text-align: left;">参数名</th>
+<th style="text-align: left;">必选</th>
+<th style="text-align: left;">类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">page</td>
+<td style="text-align: left;">否</td>
+<td style="text-align: left;">string  int</td>
+<td>页码不填或小于0则默认为第一页</td>
+</tr>
+<tr>
+<td style="text-align: left;">collect_id</td>
+<td style="text-align: left;">否</td>
+<td style="text-align: left;">string</td>
+<td>采集点id无则查询当前项目下所有检查记录</td>
+</tr>
+</tbody>
+</table>
+<p><strong>返回示例</strong></p>
+<table width='100%' class='codestyle'><pre><code>{
+    "code": "1",
+    "msg": "操作成功",
+    "data": {
+        "total": "1",
+        "per_page": "20",
+        "current_page": "1",
+        "last_page": "1",
+        "has_more": "0",
+        "data": [
+            {
+                "id": "2",
+                "user_id": "10",
+                "collect_id": "5",
+                "content": "水位：12",
+                "longitude": "1.1000000",
+                "latitude": "1.2000000",
+                "height": "12.00",
+                "created_at": "2019-05-22 10:24:37",
+                "user": {
+                    "id": "10",
+                    "name": "赵海洋"
+                },
+                "collect": {
+                    "id": "5",
+                    "name": "采集地点1"
+                }
+            }
+        ]
+    }
+}</code></pre></table>
+<p><strong>返回参数说明</strong> </p>
+<table>
+<thead><tr style='background-color: rgb(0, 136, 204); color: rgb(255, 255, 255);'>
+<th style="text-align: left;">参数名</th>
+<th style="text-align: left;">类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">data.data</td>
+<td style="text-align: left;">array</td>
+<td>列表</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].id</td>
+<td style="text-align: left;">string</td>
+<td>记录id</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].user_id</td>
+<td style="text-align: left;">string</td>
+<td>检查人id</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].collect_id</td>
+<td style="text-align: left;">string</td>
+<td>采集点id</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].content</td>
+<td style="text-align: left;">string</td>
+<td>内容</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].longitude</td>
+<td style="text-align: left;">string</td>
+<td>经度</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].latitude</td>
+<td style="text-align: left;">string</td>
+<td>纬度</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].height</td>
+<td style="text-align: left;">string</td>
+<td>海拔（米）</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].created_at</td>
+<td style="text-align: left;">string</td>
+<td>创建时间</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].user</td>
+<td style="text-align: left;">json</td>
+<td>检查人信息</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].user.id</td>
+<td style="text-align: left;">string</td>
+<td>检查人id</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].user.name</td>
+<td style="text-align: left;">string</td>
+<td>检查人姓名</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].collect</td>
+<td style="text-align: left;">string</td>
+<td>采集点信息</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].collect.id</td>
+<td style="text-align: left;">string</td>
+<td>采集点id</td>
+</tr>
+<tr>
+<td style="text-align: left;">data[].collect.name</td>
+<td style="text-align: left;">string</td>
+<td>采集点名称</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.total</td>
+<td style="text-align: left;">string</td>
+<td>总记录数</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.per_page</td>
+<td style="text-align: left;">string</td>
+<td>每页记录数</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.current_page</td>
+<td style="text-align: left;">string</td>
+<td>当前页码，如果该页码已无数据则显示最后一页</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.last_page</td>
+<td style="text-align: left;">string</td>
+<td>最后一页</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.has_more</td>
+<td style="text-align: left;">string</td>
+<td>是否还有更多记录</td>
+</tr>
+</tbody>
+</table>
+<p><strong>备注</strong> </p>
+<ul>
+<li>更多返回错误代码请看首页的错误代码描述</li>
+</ul></div><h1>10、上报检查信息</h1><div style="margin-left:20px;"><p><strong>简要描述：</strong> </p>
+<ul>
+<li>上报检查信息</li>
+</ul>
+<p><strong>请求URL：</strong> </p>
+<ul>
+<li><code>/app/v1/saveCheck</code></li>
+</ul>
+<p><strong>请求方式：</strong></p>
+<ul>
+<li>POST </li>
+</ul>
+<p><strong>HEADER：</strong></p>
+<table>
+<thead><tr style='background-color: rgb(0, 136, 204); color: rgb(255, 255, 255);'>
+<th style="text-align: left;">参数名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">token</td>
+<td>登陆时获得的token</td>
+</tr>
+</tbody>
+</table>
+<p><strong>参数：</strong> </p>
+<table>
+<thead><tr style='background-color: rgb(0, 136, 204); color: rgb(255, 255, 255);'>
+<th style="text-align: left;">参数名</th>
+<th style="text-align: left;">必选</th>
+<th style="text-align: left;">类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">collect_id</td>
+<td style="text-align: left;">是</td>
+<td style="text-align: left;">string</td>
+<td>采集点id</td>
+</tr>
+<tr>
+<td style="text-align: left;">longitude</td>
+<td style="text-align: left;">是</td>
+<td style="text-align: left;">string</td>
+<td>经度</td>
+</tr>
+<tr>
+<td style="text-align: left;">latitude</td>
+<td style="text-align: left;">是</td>
+<td style="text-align: left;">string</td>
+<td>纬度</td>
+</tr>
+<tr>
+<td style="text-align: left;">height</td>
+<td style="text-align: left;">是</td>
+<td style="text-align: left;">string</td>
+<td>海拔（米）</td>
+</tr>
+<tr>
+<td style="text-align: left;">content</td>
+<td style="text-align: left;">是</td>
+<td style="text-align: left;">string</td>
+<td>检查内容</td>
+</tr>
+</tbody>
+</table>
+<p><strong>返回示例</strong></p>
+<table width='100%' class='codestyle'><pre><code>{
+    "code": "1",
+    "msg": "上报成功",
+    "data": {
+        "user_id": "10",
+        "project_id": "1",
+        "collect_id": "5",
+        "longitude": "1.1",
+        "latitude": "1.2",
+        "height": "12",
+        "content": "水位：12",
+        "created_at": "2019-05-22 10:24:37",
+        "updated_at": "2019-05-22 10:24:37",
+        "id": "2"
+    }
+}</code></pre></table>
+<p><strong>返回参数说明</strong> </p>
+<table>
+<thead><tr style='background-color: rgb(0, 136, 204); color: rgb(255, 255, 255);'>
+<th style="text-align: left;">参数名</th>
+<th style="text-align: left;">类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">data.id</td>
+<td style="text-align: left;">string</td>
+<td>id</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.user_id</td>
+<td style="text-align: left;">string</td>
+<td>上报人id</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.project_id</td>
+<td style="text-align: left;">string</td>
+<td>项目id</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.collect_id</td>
+<td style="text-align: left;">string</td>
+<td>采集点id</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.longitude</td>
+<td style="text-align: left;">string</td>
+<td>经度</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.latitude</td>
+<td style="text-align: left;">string</td>
+<td>纬度</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.height</td>
+<td style="text-align: left;">string</td>
+<td>海拔</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.content</td>
+<td style="text-align: left;">string</td>
+<td>检查内容</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.created_at</td>
+<td style="text-align: left;">string</td>
+<td>创建时间</td>
+</tr>
+<tr>
+<td style="text-align: left;">data.updated_at</td>
+<td style="text-align: left;">string</td>
+<td>更新时间</td>
+</tr>
+</tbody>
+</table>
+<p><strong>备注</strong> </p>
+<ul>
+<li>更多返回错误代码请看首页的错误代码描述</li>
+</ul></div></body></html>

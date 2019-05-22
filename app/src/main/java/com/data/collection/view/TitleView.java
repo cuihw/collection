@@ -24,6 +24,7 @@ public class TitleView extends LinearLayout {
     private View mView;
     private TextView titleTv;
     private ImageView left_icon;
+
     private ImageView right_icon;
 
     private ImageView divideLeft;
@@ -34,6 +35,13 @@ public class TitleView extends LinearLayout {
 
     LinearLayout title_layout;
     private String titleText;
+    public ImageView getLefticon() {
+        return left_icon;
+    }
+
+    public ImageView getRighticon() {
+        return right_icon;
+    }
 
     public TextView getTitleTv() {
         return titleTv;

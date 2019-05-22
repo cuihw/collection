@@ -36,7 +36,6 @@ public class BaseActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-
     public void tranToFragment(Fragment fragment) {
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -52,7 +51,6 @@ public class BaseActivity extends AppCompatActivity {
         } else {
             transaction.add(R.id.container, fragment);
         }
-
         transaction.commit();
     }
 }
