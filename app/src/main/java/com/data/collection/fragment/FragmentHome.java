@@ -18,6 +18,7 @@ import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
@@ -63,10 +64,10 @@ public class FragmentHome extends FragmentBase {
     ImageView addPoint;
 
     @BindView(R.id.trace_process)
-    TitleView traceProcess;
+    TextView traceProcess;
 
     @BindView(R.id.recode_trace)
-    TitleView recodeTrace;
+    TextView recodeTrace;
 
     private SupportMapFragment mapFragment;
     BaiduMap mBaiduMap;

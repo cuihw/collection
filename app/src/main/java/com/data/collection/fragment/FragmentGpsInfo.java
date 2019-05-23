@@ -129,9 +129,10 @@ public class FragmentGpsInfo extends FragmentBase {
                         //卫星的信噪比
                         float snr = gpsSatellite.getSnr();
                         sb.append("第").append(count).append("颗").append("卫星的信噪比：").append(snr).append("\n");
-                        //public float getAzimuth ()
-                        //返回卫星的方位角，方位角范围0至360度。
-                        showSatellite(gpsSatellite);
+
+                        if (snr > 0.001) {
+                            showSatellite(gpsSatellite);
+                        }
                     }
                     Log.e(TAG, sb.toString());
                     log.setText(sb.toString());
@@ -162,7 +163,7 @@ public class FragmentGpsInfo extends FragmentBase {
     private Point getPosition(float azimuth, float elevation) {
         // azimuth 返回卫星的方位角，方位角范围0至360度。(角度)
         // elevation 返回卫星的高度角，高度角范围0至90度 (远近)
-        LsLog.i(TAG, "getPosition " + azimuth + ", " + elevation);
+        LsLog.i(TAG, "getPosition " + azimuth + ", " + elevation );
         float width = mIvCompass.getWidth();
         float radius = width / 2;
         radius = elevation * radius / 90;
@@ -172,7 +173,7 @@ public class FragmentGpsInfo extends FragmentBase {
         y = width / 2 - y;
         Point point = new Point(x,y);
         LsLog.i(TAG, "point " + point.getX() + ", " + point.getY());
-        LsLog.i(TAG, "radius " +radius);
+        LsLog.i(TAG, "radius " +radius + ", " + width / 2);
 
         return point;
     }
