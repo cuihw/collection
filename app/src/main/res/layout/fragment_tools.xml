@@ -28,11 +28,11 @@
             android:background="@drawable/round_background"
             android:layout_height="wrap_content">
             <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="@dimen/icon_size_settings"
+                android:layout_height="@dimen/icon_size_settings"
                 android:background="@drawable/left_round"
-                android:src="@mipmap/icon_project"
-                android:padding="@dimen/item_padding_large"
+                android:src="@mipmap/icon_compass"
+                android:padding="@dimen/item_padding"
                 />
             <TextView
                 android:layout_width="wrap_content"
@@ -55,17 +55,16 @@
             </RelativeLayout>
         </LinearLayout>
         <LinearLayout
-            android:id="@+id/satellite"
             android:layout_margin="@dimen/item_padding_small"
             android:layout_width="match_parent"
             android:background="@drawable/round_background"
             android:layout_height="wrap_content">
             <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="@dimen/icon_size_settings"
+                android:layout_height="@dimen/icon_size_settings"
                 android:background="@drawable/left_round"
-                android:src="@mipmap/icon_trace"
-                android:padding="@dimen/item_padding_large"
+                android:src="@mipmap/icon_satellite"
+                android:padding="@dimen/item_padding"
                 />
             <TextView
                 android:layout_width="wrap_content"
@@ -94,11 +93,11 @@
             android:background="@drawable/round_background"
             android:layout_height="wrap_content">
             <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="@dimen/icon_size_settings"
+                android:layout_height="@dimen/icon_size_settings"
                 android:background="@drawable/left_round"
-                android:src="@mipmap/icon_tools"
-                android:padding="@dimen/item_padding_large"
+                android:src="@mipmap/icon_offline"
+                android:padding="@dimen/item_padding"
                 />
             <TextView
                 android:layout_width="wrap_content"

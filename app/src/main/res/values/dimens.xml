@@ -23,4 +23,5 @@
     <dimen name="point_flag_size">30dp</dimen>
     <dimen name="login_margin">60dp</dimen>
     <dimen name="icon_size">44dp</dimen>
+    <dimen name="icon_size_settings">60dp</dimen>
 </resources>

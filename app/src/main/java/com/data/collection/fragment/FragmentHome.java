@@ -69,6 +69,9 @@ public class FragmentHome extends FragmentBase {
     @BindView(R.id.recode_trace)
     TextView recodeTrace;
 
+    @BindView(R.id.map_type)
+    TextView mapTypeTv;
+
     private SupportMapFragment mapFragment;
     BaiduMap mBaiduMap;
 
@@ -97,8 +100,14 @@ public class FragmentHome extends FragmentBase {
 
         initSensor();
 
+        initView();
         initListener();
         return view;
+    }
+
+    private void initView() {
+        // 初始化，没有开始记录
+        traceProcess.setVisibility(View.INVISIBLE);
     }
 
     private void initListener() {
@@ -107,9 +116,39 @@ public class FragmentHome extends FragmentBase {
         });
         addPoint.setOnClickListener(v-> AddCollectionActivity.start(getContext(),null));
 
-        recodeTrace.setOnClickListener(v->{
-            BaiduTrace.start();
+        recodeTrace.setOnClickListener(v-> clickTraceButton());
+        mapTypeTv.setOnClickListener(v->{
+            if (mBaiduMap != null) {
+                int mapType = mBaiduMap.getMapType();
+                if (mapType == BaiduMap.MAP_TYPE_NORMAL) {
+                    mBaiduMap.setMapType(BaiduMap.MAP_TYPE_SATELLITE);
+                    mapTypeTv.setText("交通\n地图");
+                } else {
+                    mBaiduMap.setMapType(BaiduMap.MAP_TYPE_NORMAL);
+                    mapTypeTv.setText("卫星\n地图");
+                }
+            }
         });
+
+    }
+
+    private void clickTraceButton() {
+        BaiduTrace instance = BaiduTrace.getInstance();
+        if (instance.isInTrace()) {
+            // 停止记录轨迹
+            instance.stop();
+            recodeTrace.setText("记录\n轨迹");
+            traceProcess.clearAnimation();
+            traceProcess.setVisibility(View.INVISIBLE);
+        } else {
+            // 开始记录轨迹
+            instance.start();
+            recodeTrace.setText("停止\n记录");
+            setFlickerAnimation(traceProcess);
+            traceProcess.setVisibility(View.VISIBLE);
+        }
+
+
     }
 
     private void initSensor() {
@@ -235,4 +274,5 @@ public class FragmentHome extends FragmentBase {
         animation.setRepeatMode(Animation.REVERSE);
         view.setAnimation(animation);
     }
+
 }

@@ -37,6 +37,8 @@ public class FragmentTools extends FragmentBase {
     @BindView(R.id.satellite)
     LinearLayout satellite;
 
+    @BindView(R.id.offline_map)
+    LinearLayout offlineMap;
 
 
     public static void start(Context context){
@@ -68,7 +70,7 @@ public class FragmentTools extends FragmentBase {
         satellite.setOnClickListener(v->{
             FragmentGpsInfo.start(getContext());
         });
-
+        offlineMap.setOnClickListener(v->FragmentOffline.start(getContext()));
     }
 
     private void showCompass() {

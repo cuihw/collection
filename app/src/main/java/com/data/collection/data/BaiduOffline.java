@@ -1,14 +1,14 @@
 package com.data.collection.data;
 
-public class BaiduTrace {
+public class BaiduOffline {
 
     boolean isInTrace;
 
-    static BaiduTrace baiduTrace;
+    static BaiduOffline baiduTrace;
 
-    public synchronized static BaiduTrace getInstance(){
+    public synchronized static BaiduOffline getInstance(){
         if (baiduTrace == null) {
-            baiduTrace = new BaiduTrace();
+            baiduTrace = new BaiduOffline();
         }
         return baiduTrace;
     }
