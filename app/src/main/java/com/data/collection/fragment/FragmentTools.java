@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.data.collection.R;
 import com.data.collection.activity.CommonActivity;
 import com.data.collection.util.LsLog;
+import com.data.collection.view.TitleView;
 
 import butterknife.BindView;
 
@@ -27,9 +28,16 @@ import butterknife.BindView;
 public class FragmentTools extends FragmentBase {
     private static final String TAG = "FragmentSettings";
 
+    @BindView(R.id.title_view)
+    TitleView titleView;
 
     @BindView(R.id.compass)
     LinearLayout compass;
+
+    @BindView(R.id.satellite)
+    LinearLayout satellite;
+
+
 
     public static void start(Context context){
         Bundle bundle = new Bundle();
@@ -53,6 +61,14 @@ public class FragmentTools extends FragmentBase {
 
     private void initListener() {
         compass.setOnClickListener(v->showCompass());
+        titleView.getLefticon().setOnClickListener(v->{
+            getActivity().finish();
+        });
+
+        satellite.setOnClickListener(v->{
+            FragmentGpsInfo.start(getContext());
+        });
+
     }
 
     private void showCompass() {

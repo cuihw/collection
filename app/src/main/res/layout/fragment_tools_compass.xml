@@ -15,7 +15,7 @@
         />
     <LinearLayout
 
-        android:id="@+id/iv_compass_lay"
+        android:id="@+id/satellite_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="110dp"
@@ -31,13 +31,12 @@
             />
     </LinearLayout>
 
-
     <LinearLayout
         android:id="@+id/ll_location"
         android:layout_marginTop="60dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/iv_compass_lay"
+        android:layout_below="@+id/satellite_layout"
         android:orientation="vertical"
         android:padding="15dp"
         >

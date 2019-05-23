@@ -3,11 +3,9 @@ package com.data.collection.fragment;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.location.Criteria;
+import android.location.GpsSatellite;
+import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -17,11 +15,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.RotateAnimation;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -30,6 +28,9 @@ import com.data.collection.R;
 import com.data.collection.activity.CommonActivity;
 import com.data.collection.util.LsLog;
 import com.data.collection.view.TitleView;
+import com.esri.arcgisruntime.geometry.Point;
+
+import java.util.Iterator;
 
 import butterknife.BindView;
 
@@ -37,17 +38,20 @@ import butterknife.BindView;
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
  * to handle interaction events.
- * Use the {@link FragmentCompass#} factory method to
+ * Use the {@link FragmentGpsInfo#} factory method to
  * create an instance of this fragment.
  */
-public class FragmentCompass extends FragmentBase implements SensorEventListener {
-    private static final String TAG = "FragmentCompass";
+public class FragmentGpsInfo extends FragmentBase {
+    private static final String TAG = "FragmentGpsInfo";
 
     @BindView(R.id.title_view)
     TitleView titleView;
 
     @BindView(R.id.iv_compass)
     ImageView mIvCompass;
+
+    @BindView(R.id.satellite_layout)
+    FrameLayout satelliteLayout;
 
     @BindView(R.id.tv_coord)
     TextView mTvCoord;
@@ -56,33 +60,28 @@ public class FragmentCompass extends FragmentBase implements SensorEventListener
     @BindView(R.id.tv_altitude)
     TextView mTvAltitude;
 
-    private SensorManager mSensorManager;
-    private Sensor mAccelerometer;
-    private Sensor mMagneticField;
+    @BindView(R.id.log)
+    TextView log;
+
+
     private LocationManager mLocationManager;
     private String mLocationProvider;// 位置提供者名称，GPS设备还是网络
-    private float mCurrentDegree = 0f;
-    private float[] mAccelerometerValues = new float[3];
-    private float[] mMagneticFieldValues = new float[3];
-    private float[] mValues = new float[3];
-    private float[] mMatrix = new float[9];
-
 
     public static void start(Context context){
         Bundle bundle = new Bundle();
-        bundle.putInt(CommonActivity.FRAGMENT, CommonActivity.FRAGMENT_COMPASS);
+        bundle.putInt(CommonActivity.FRAGMENT, CommonActivity.FRAGMENT_GPS);
         CommonActivity.start(context, bundle);
     }
 
-    public static FragmentCompass getInstance(){
-        return new FragmentCompass();
+    public static FragmentGpsInfo getInstance(){
+        return new FragmentGpsInfo();
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         LsLog.i(TAG, "onCreateView");
-        view = inflater.inflate(R.layout.fragment_tools_compass, container, false);
+        view = inflater.inflate(R.layout.fragment_tools_gps, container, false);
         bindButterKnife();
         initService();
         initListener();
@@ -95,11 +94,87 @@ public class FragmentCompass extends FragmentBase implements SensorEventListener
         });
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onResume() {
         super.onResume();
-        registerSensorService();
         updateLocationService();
+
+        mLocationManager.addGpsStatusListener(gpsStatusListener);
+    }
+
+
+
+    private GpsStatus.Listener gpsStatusListener = new GpsStatus.Listener() {
+        @Override
+        public void onGpsStatusChanged(int event) {
+            satelliteLayout.removeAllViews();
+
+            switch (event) {
+                // 卫星状态改变
+                case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
+                    // 获取当前状态
+                    @SuppressLint("MissingPermission")
+                    GpsStatus gpsStatus = mLocationManager.getGpsStatus(null);
+                    // 获取卫星颗数的默认最大值
+                    int maxSatellites = gpsStatus.getMaxSatellites();
+                    // 获取所有的卫星
+                    Iterator<GpsSatellite> iters = gpsStatus.getSatellites().iterator();
+                    // 卫星颗数统计
+                    int count = 0;
+                    StringBuilder sb = new StringBuilder();
+                    while (iters.hasNext() && count <= maxSatellites) {
+                        count++;
+                        GpsSatellite gpsSatellite = iters.next();
+                        //卫星的信噪比
+                        float snr = gpsSatellite.getSnr();
+                        sb.append("第").append(count).append("颗").append("卫星的信噪比：").append(snr).append("\n");
+                        //public float getAzimuth ()
+                        //返回卫星的方位角，方位角范围0至360度。
+                        showSatellite(gpsSatellite);
+                    }
+                    Log.e(TAG, sb.toString());
+                    log.setText(sb.toString());
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
+    private void showSatellite(GpsSatellite gpsSatellite) {
+        float azimuth = gpsSatellite.getAzimuth();// 返回卫星的方位角，方位角范围0至360度。(角度)
+        float elevation = gpsSatellite.getElevation();// 返回卫星的高度角，高度角范围0至90度 (远近)
+        Point point = getPosition(azimuth, elevation);
+
+        ImageView imageView = new ImageView(getContext());
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(50, 50);
+
+        layoutParams.gravity = Gravity.LEFT|Gravity.TOP;
+        layoutParams.leftMargin = (int)point.getX();
+        layoutParams.topMargin = (int)point.getY();
+
+        imageView.setImageResource(R.mipmap.satellite);
+        imageView.setLayoutParams(layoutParams);
+        satelliteLayout.addView(imageView);
+    }
+
+    private Point getPosition(float azimuth, float elevation) {
+        // azimuth 返回卫星的方位角，方位角范围0至360度。(角度)
+        // elevation 返回卫星的高度角，高度角范围0至90度 (远近)
+        LsLog.i(TAG, "getPosition " + azimuth + ", " + elevation);
+        float width = mIvCompass.getWidth();
+        float radius = width / 2;
+        radius = elevation * radius / 90;
+        double x = radius * Math.cos(azimuth);
+        double y = radius * Math.sin(azimuth);
+        x = width / 2  + x;
+        y = width / 2 - y;
+        Point point = new Point(x,y);
+        LsLog.i(TAG, "point " + point.getX() + ", " + point.getY());
+        LsLog.i(TAG, "radius " +radius);
+
+        return point;
     }
 
     @SuppressLint("MissingPermission")
@@ -174,19 +249,10 @@ public class FragmentCompass extends FragmentBase implements SensorEventListener
 
     }
 
-    private void registerSensorService() {
-        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-        mSensorManager.registerListener(this, mMagneticField, SensorManager.SENSOR_DELAY_NORMAL);
-    }
-
     private void initService() {
-        initSensorService();
         initLocationService();
     }
 
-    private void findViews() {
-
-    }
 
     private void initLocationService() {
         mLocationManager = (LocationManager) getContext().getSystemService(Activity.LOCATION_SERVICE);
@@ -198,54 +264,10 @@ public class FragmentCompass extends FragmentBase implements SensorEventListener
         criteria.setPowerRequirement(Criteria.POWER_LOW);// 设置低电耗
         mLocationProvider = mLocationManager.getBestProvider(criteria, true);// 获取条件最好的Provider,若没有权限，mLocationProvider 为null
         Log.e(TAG, "mLocationProvider = " + mLocationProvider);
-    }
 
-    private void initSensorService() {
-        mSensorManager = (SensorManager) getContext().getSystemService(Activity.SENSOR_SERVICE);
-        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mMagneticField = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-    }
-
-
-    private void showCompass() {
 
     }
 
-
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            mAccelerometerValues = event.values;
-        }
-        if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-            mMagneticFieldValues = event.values;
-        }
-
-        //调用getRotaionMatrix获得变换矩阵mMatrix[]
-        SensorManager.getRotationMatrix(mMatrix, null, mAccelerometerValues, mMagneticFieldValues);
-        SensorManager.getOrientation(mMatrix, mValues);
-        //经过SensorManager.getOrientation(R, values);得到的values值为弧度
-        //values[0]  ：azimuth 方向角，但用（磁场+加速度）得到的数据范围是（-180～180）,也就是说，0表示正北，90表示正东，180/-180表示正南，-90表示正西。
-        // 而直接通过方向感应器数据范围是（0～359）360/0表示正北，90表示正东，180表示正南，270表示正西。
-        float degree = (float) Math.toDegrees(mValues[0]);
-        setImageAnimation(degree);
-        mCurrentDegree = -degree;
-        LsLog.i(TAG, "values[0] = " + mValues[0]);
-        LsLog.i(TAG, "degree = " + degree);
-    }
-
-    // 设置指南针图片的动画效果
-    private void setImageAnimation(float degree) {
-        RotateAnimation ra = new RotateAnimation(mCurrentDegree, -degree, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
-                0.5f);
-        ra.setDuration(200);
-        ra.setFillAfter(true);
-        mIvCompass.startAnimation(ra);
-    }
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-    }
 
     @Override
     public void onPause() {
@@ -254,12 +276,10 @@ public class FragmentCompass extends FragmentBase implements SensorEventListener
     }
 
     private void unregister() {
-        if (mSensorManager != null) {
-            mSensorManager.unregisterListener(this);
-        }
 
         if (mLocationManager != null) {
             mLocationManager.removeUpdates(mLocationListener);
+            mLocationManager.removeGpsStatusListener(gpsStatusListener);
         }
     }
 }

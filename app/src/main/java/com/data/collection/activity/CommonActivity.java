@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentTransaction;
 
 import com.data.collection.R;
 import com.data.collection.fragment.FragmentCompass;
+import com.data.collection.fragment.FragmentGpsInfo;
 import com.data.collection.fragment.FragmentTools;
 
 public class CommonActivity extends BaseActivity {
@@ -16,6 +17,7 @@ public class CommonActivity extends BaseActivity {
     private static final String TAG = "CommonActivity";
     public static final int FRAGMENT_TOOLS = 1;
     public static final int FRAGMENT_COMPASS = 2;
+    public static final int FRAGMENT_GPS = 3;
 
     public static void start(Context context, Bundle bundle){
         Intent intent = new Intent(context, CommonActivity.class);
@@ -39,6 +41,10 @@ public class CommonActivity extends BaseActivity {
             case FRAGMENT_COMPASS:
                 tranToFragment(FragmentCompass.getInstance());
                 break;
+            case FRAGMENT_GPS:
+                tranToFragment(FragmentGpsInfo.getInstance());
+                break;
+
         }
     }
 

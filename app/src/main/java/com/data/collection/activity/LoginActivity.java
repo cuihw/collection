@@ -55,6 +55,8 @@ public class LoginActivity extends BaseActivity {
         // 登录
         loginButton.setOnClickListener(v->{
             startLogin();
+            ToastUtil.showTextToast(this,"登录失败，接口没有准备好");
+            finish();
         });
     }
 

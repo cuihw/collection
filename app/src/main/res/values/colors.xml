@@ -29,6 +29,8 @@
     <color name="font6">#232323 </color>
     <color name="font7">#00F</color>
 
+    <color name="font8">#500b6dfd</color>
+    <!-- main font color -->
     <!-- 背景颜色，层次-->
     <color name="background1">#e6e6e6</color>
     <color name="background2">#d1d1d1</color>
@@ -36,6 +38,9 @@
     <color name="background4">#8d8d8d</color>
     <color name="background5">#6c777b</color>
     <color name="background6">#3d4347</color>
+
+    <color name="background7">#50FF8C00</color>
+
 
     <color name="redtrans">#12ea3021</color>
     <color name="PrimaryRed">#ea3021</color>
@@ -57,4 +62,6 @@
     <color name="z_dialog_bg_color">#FFFFFF</color>
 
     <color name="transparent20">#40000000</color>
+
+    <color name="transparent100">#00000000</color>
 </resources>

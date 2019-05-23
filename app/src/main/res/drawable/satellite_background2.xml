@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+    <!-- outer circle -->
+    <item>
+        <shape android:shape="oval" >
+            <solid android:color="@color/font8" />
+            <size
+                android:width="300dp"
+                android:height="300dp"/>
+            <stroke  android:dashWidth="5dp"
+                android:dashGap="3dp"
+                android:width="1pt"
+                android:color="@color/background7" />
+        </shape>
+    </item>
+
+    <!-- inner shadow of outer circle -->
+    <item
+        android:bottom="50dp"
+        android:left="50dp"
+        android:right="50dp"
+        android:top="50dp">
+        <shape android:shape="oval">
+            <stroke
+                android:dashWidth="5dp"
+                android:dashGap="3dp"
+                android:width="1pt"
+                android:color="@color/background7" />
+            <size android:width="200dp"
+            android:height="200dp"/>
+        </shape>
+    </item>
+
+    <!-- inner shadow of outer circle -->
+    <item
+        android:bottom="100dp"
+        android:left="100dp"
+        android:right="100dp"
+        android:top="100dp">
+        <shape android:shape="oval">
+            <stroke
+                android:dashWidth="5dp"
+                android:dashGap="3dp"
+                android:width="1pt"
+                android:color="@color/background7" />
+        </shape>
+    </item>
+    <item >
+        <shape android:shape="line">
+            <stroke
+                android:dashWidth="5dp"
+                android:dashGap="10dp"
+                android:width="1pt"
+                android:color="@color/background7" />
+        </shape>
+    </item>
+    <item >
+        <rotate
+            android:fromDegrees="90"
+            android:visible="true">
+            <shape
+                android:shape="line">
+                <stroke
+                    android:dashWidth="5dp"
+                    android:dashGap="10dp"
+                    android:width="1pt"
+                    android:color="@color/background7" />
+            </shape>
+        </rotate>
+    </item>
+    <item >
+        <rotate
+            android:fromDegrees="45"
+            android:visible="true">
+            <shape
+                android:shape="line">
+                <stroke
+                    android:dashWidth="5dp"
+                    android:dashGap="10dp"
+                    android:width="1pt"
+                    android:color="@color/background7" />
+            </shape>
+        </rotate>
+    </item>
+    <item >
+        <rotate
+            android:fromDegrees="135"
+            android:visible="true">
+            <shape
+                android:shape="line">
+                <stroke
+                    android:dashWidth="5dp"
+                    android:dashGap="10dp"
+                    android:width="1pt"
+                    android:color="@color/background7" />
+            </shape>
+        </rotate>
+    </item>
+</layer-list>

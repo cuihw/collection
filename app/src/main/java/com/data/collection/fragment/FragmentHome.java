@@ -13,6 +13,9 @@ import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -30,6 +33,7 @@ import com.baidu.mapapi.map.SupportMapFragment;
 import com.baidu.mapapi.model.LatLng;
 import com.data.collection.R;
 import com.data.collection.activity.AddCollectionActivity;
+import com.data.collection.data.BaiduTrace;
 import com.data.collection.util.LocationController;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.PositionUtil;
@@ -58,7 +62,11 @@ public class FragmentHome extends FragmentBase {
     @BindView(R.id.add_point)
     ImageView addPoint;
 
+    @BindView(R.id.trace_process)
+    TitleView traceProcess;
 
+    @BindView(R.id.recode_trace)
+    TitleView recodeTrace;
 
     private SupportMapFragment mapFragment;
     BaiduMap mBaiduMap;
@@ -98,6 +106,9 @@ public class FragmentHome extends FragmentBase {
         });
         addPoint.setOnClickListener(v-> AddCollectionActivity.start(getContext(),null));
 
+        recodeTrace.setOnClickListener(v->{
+            BaiduTrace.start();
+        });
     }
 
     private void initSensor() {
@@ -212,5 +223,15 @@ public class FragmentHome extends FragmentBase {
     public void onPause() {
         mSensorManager.unregisterListener(sensorEventListener);
         super.onPause();
+    }
+
+    //实现图片闪烁效果
+    private void setFlickerAnimation(View view) {
+        final Animation animation = new AlphaAnimation(1, 0); // Change alpha from fully visible to invisible
+        animation.setDuration(500); // duration - half a second
+        animation.setInterpolator(new LinearInterpolator()); // do not alter animation rate
+        animation.setRepeatCount(Animation.INFINITE); // Repeat animation infinitely
+        animation.setRepeatMode(Animation.REVERSE);
+        view.setAnimation(animation);
     }
 }

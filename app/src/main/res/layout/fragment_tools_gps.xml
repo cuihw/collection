@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:title="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black"
+    >
+    <com.data.collection.view.TitleView
+        android:id="@+id/title_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        title:TitleText="Gps卫星信息"
+        title:IconLeft="@mipmap/top_back"
+        />
+
+    <LinearLayout
+        android:id="@+id/compass_linearlayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp">
+        <ImageView
+            android:id="@+id/iv_compass"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/satellite_background2"
+            android:adjustViewBounds="true"
+            />
+    </LinearLayout>
+    <FrameLayout
+        android:id="@+id/satellite_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/compass_linearlayout"
+        android:layout_alignTop="@+id/compass_linearlayout"
+        >
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_location"
+        android:layout_marginTop="60dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/satellite_layout"
+        android:orientation="vertical"
+        android:padding="15dp"
+        >
+
+        <TextView
+            android:id="@+id/tv_altitude"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@android:color/white"/>
+
+        <TextView
+            android:id="@+id/tv_coord"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:textColor="@android:color/white"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/log"
+        android:layout_below="@+id/title_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/transparent_white"
+        android:text="log"
+        android:padding="@dimen/item_padding"
+        />
+</RelativeLayout>
