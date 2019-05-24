@@ -116,6 +116,8 @@ public class FragmentGpsInfo extends FragmentBase {
                     // 获取当前状态
                     @SuppressLint("MissingPermission")
                     GpsStatus gpsStatus = mLocationManager.getGpsStatus(null);
+                    int timeToFirstFix = gpsStatus.getTimeToFirstFix();
+
                     // 获取卫星颗数的默认最大值
                     int maxSatellites = gpsStatus.getMaxSatellites();
                     // 获取所有的卫星
@@ -129,7 +131,6 @@ public class FragmentGpsInfo extends FragmentBase {
                         //卫星的信噪比
                         float snr = gpsSatellite.getSnr();
                         sb.append("第").append(count).append("颗").append("卫星的信噪比：").append(snr).append("\n");
-
                         if (snr > 0.001) {
                             showSatellite(gpsSatellite);
                         }
@@ -155,7 +156,7 @@ public class FragmentGpsInfo extends FragmentBase {
         layoutParams.leftMargin = (int)point.getX();
         layoutParams.topMargin = (int)point.getY();
 
-        imageView.setImageResource(R.mipmap.satellite);
+        imageView.setImageResource(R.mipmap.icon_satellite);
         imageView.setLayoutParams(layoutParams);
         satelliteLayout.addView(imageView);
     }
@@ -231,6 +232,7 @@ public class FragmentGpsInfo extends FragmentBase {
             double longitude = location.getLongitude();
             double latitude = location.getLatitude();
             double altitude = location.getAltitude();
+            long time = location.getTime();
             if (latitude >= 0.0f) {
                 sb.append(getString(R.string.location_north, latitude));
             } else {

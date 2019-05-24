@@ -10,7 +10,7 @@
             <stroke  android:dashWidth="5dp"
                 android:dashGap="3dp"
                 android:width="1pt"
-                android:color="@color/background7" />
+                android:color="@color/black" />
         </shape>
     </item>
 
@@ -25,7 +25,7 @@
                 android:dashWidth="5dp"
                 android:dashGap="3dp"
                 android:width="1pt"
-                android:color="@color/background7" />
+                android:color="@color/black" />
             <size android:width="200dp"
             android:height="200dp"/>
         </shape>
@@ -42,7 +42,7 @@
                 android:dashWidth="5dp"
                 android:dashGap="3dp"
                 android:width="1pt"
-                android:color="@color/background7" />
+                android:color="@color/black" />
         </shape>
     </item>
     <item >
@@ -51,7 +51,7 @@
                 android:dashWidth="5dp"
                 android:dashGap="10dp"
                 android:width="1pt"
-                android:color="@color/background7" />
+                android:color="@color/black" />
         </shape>
     </item>
     <item >
@@ -64,7 +64,7 @@
                     android:dashWidth="5dp"
                     android:dashGap="10dp"
                     android:width="1pt"
-                    android:color="@color/background7" />
+                    android:color="@color/black" />
             </shape>
         </rotate>
     </item>
@@ -78,7 +78,7 @@
                     android:dashWidth="5dp"
                     android:dashGap="10dp"
                     android:width="1pt"
-                    android:color="@color/background7" />
+                    android:color="@color/black" />
             </shape>
         </rotate>
     </item>
@@ -92,7 +92,7 @@
                     android:dashWidth="5dp"
                     android:dashGap="10dp"
                     android:width="1pt"
-                    android:color="@color/background7" />
+                    android:color="@color/black" />
             </shape>
         </rotate>
     </item>

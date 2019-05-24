@@ -22,20 +22,27 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.baidu.mapapi.map.offline.MKOLSearchRecord;
 import com.baidu.mapapi.map.offline.MKOLUpdateElement;
 import com.baidu.mapapi.map.offline.MKOfflineMap;
 import com.baidu.mapapi.map.offline.MKOfflineMapListener;
+import com.classic.adapter.BaseAdapterHelper;
+import com.classic.adapter.CommonAdapter;
 import com.data.collection.R;
 import com.data.collection.activity.CommonActivity;
 import com.data.collection.util.LsLog;
+import com.data.collection.util.Utils;
 import com.data.collection.view.TitleView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 
@@ -52,10 +59,20 @@ public class FragmentOffline extends FragmentBase {
     @BindView(R.id.title_view)
     TitleView titleView;
 
+    @BindView(R.id.citylist)
+    ListView cityListView;
+
     private MKOfflineMap mOffline = null;
+    CommonAdapter<MKOLSearchRecord> cityAdapter;
+    ArrayList<MKOLSearchRecord> cityList;
 
+    List<MKOLUpdateElement> updateProgeress = new ArrayList<>();
 
-
+    /**
+     * 已下载的离线地图信息列表
+     */
+    private ArrayList<MKOLUpdateElement> localMapList = null;
+    CommonAdapter<MKOLUpdateElement> localCityAdapter;
     public static void start(Context context){
         Bundle bundle = new Bundle();
         bundle.putInt(CommonActivity.FRAGMENT, CommonActivity.FRAGMENT_OFFLINE);
@@ -86,9 +103,9 @@ public class FragmentOffline extends FragmentBase {
                     MKOLUpdateElement update = mOffline.getUpdateInfo(state);
                     // 处理下载进度更新提示
                     if (update != null) {
-                        String updatestate = String.format("%s : %d%%", update.cityName, update.ratio);
+                        String updatestate = String.format("%s : %d%% ,id = %d", update.cityName, update.ratio, update.cityID);
                         LsLog.i(TAG, "updatestate = " + updatestate);
-                        updateView();
+                        updateView(update);
                     }
                 }
                 break;
@@ -109,8 +126,14 @@ public class FragmentOffline extends FragmentBase {
         }
     };
 
-    private void updateView() {
+    private void updateView(MKOLUpdateElement update) {
 
+        for ( MKOLUpdateElement item :updateProgeress) {
+            MKOLUpdateElement updateInfo = mOffline.getUpdateInfo(item.cityID);
+            item.ratio = updateInfo.ratio;
+            LsLog.i(TAG, "ratio = " + item.ratio );
+        }
+        cityAdapter.notifyDataSetChanged();
     }
 
     private void initView() {
@@ -121,6 +144,57 @@ public class FragmentOffline extends FragmentBase {
         for (MKOLSearchRecord re: records){
             LsLog.i(TAG, "cityName = " + re.cityName + ", id:" + re.cityID);
         }
+        cityList = records;
+
+        cityAdapter = new CommonAdapter<MKOLSearchRecord>(getContext(),R.layout.item_city, cityList ) {
+            @Override
+            public void onUpdate(BaseAdapterHelper helper, MKOLSearchRecord item, int position) {
+                helper.setText(R.id.name, item.cityName);
+                String size = Utils.formatDataSize(item.dataSize);
+                helper.setText(R.id.size, "离线包大小：" + size);
+                helper.setText(R.id.cityid, "城市编号：" + item.cityID);
+                Button download = helper.getView(R.id.download);
+                download.setOnClickListener(v-> downloadMap(item));
+                ProgressBar progressbar = helper.getView(R.id.progressbar_download);
+                // progressbar.setProgress(30);
+                boolean showProgress = false;
+
+                for ( MKOLUpdateElement update :updateProgeress) {
+                    if (update.cityID == item.cityID) {
+                        progressbar.setProgress(update.ratio);
+                        showProgress = true;
+                    }
+                }
+                if (showProgress) {
+                    progressbar.setVisibility(View.VISIBLE);
+                } else {
+                    progressbar.setVisibility(View.INVISIBLE);
+                }
+            }
+        };
+        cityListView.setAdapter(cityAdapter);
+
+        // 已经下载的城市列表
+        localMapList = mOffline.getAllUpdateInfo();
+        CommonAdapter<MKOLUpdateElement> localCityAdapter;
+
+    }
+
+    private void downloadMap(MKOLSearchRecord item) {
+        MKOLUpdateElement updateInfo = mOffline.getUpdateInfo(item.cityID);
+
+        boolean contains = false;
+        for ( MKOLUpdateElement update :updateProgeress) {
+            if (update.cityID == updateInfo.cityID) {
+                update.ratio = updateInfo.ratio;
+                contains = true;
+            }
+        }
+        if (!contains) {
+            updateProgeress.add(updateInfo);
+        }
+
+        mOffline.start(item.cityID);
     }
 
     private void initListener() {
@@ -133,7 +207,6 @@ public class FragmentOffline extends FragmentBase {
     public void onResume() {
         super.onResume();
     }
-
 
     @Override
     public void onPause() {

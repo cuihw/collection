@@ -70,5 +70,6 @@
         android:textColor="@color/transparent_white"
         android:text="log"
         android:padding="@dimen/item_padding"
+        android:visibility="gone"
         />
 </RelativeLayout>

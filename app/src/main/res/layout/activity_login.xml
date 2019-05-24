@@ -11,7 +11,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@mipmap/rectangle"
-        android:layout_margin="@dimen/login_margin"
+        android:layout_marginTop="@dimen/login_margin"
+        android:layout_marginBottom="@dimen/login_margin"
+        android:layout_marginRight="@dimen/button_margin"
+        android:layout_marginLeft="@dimen/button_margin"
         android:orientation="vertical"
         >
         <ImageView

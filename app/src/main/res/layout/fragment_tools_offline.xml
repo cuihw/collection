@@ -37,8 +37,11 @@
             android:text="下载管理" />
     </LinearLayout>
     <ListView
-        android:id="@+id/allcitylist"
+        android:id="@+id/citylist"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_marginRight="@dimen/item_padding_small"
+        android:layout_marginLeft="@dimen/item_padding_small"
+        android:background="@drawable/round_top_background3"/>
 
 </LinearLayout>

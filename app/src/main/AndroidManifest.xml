@@ -65,11 +65,11 @@
 
         <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="b28f976141d974e46687f3037f3481eed0f128db"
-            />
+            android:value="b28f976141d974e46687f3037f3481eed0f128db"/>
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="UqhFZGFHaspG4Czunwu8RPe4CVcyh031" />
+
         <service android:name=".service.ForegroundService" />
 
         <service
