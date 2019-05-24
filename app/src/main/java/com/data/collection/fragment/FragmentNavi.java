@@ -50,20 +50,23 @@ import butterknife.BindView;
  */
 public class FragmentNavi extends FragmentBase {
     private static final String TAG = "FragmentNavi";
-    private static final String[] labels = {"同步数据点", "本地数据点", "兴趣点"};
-
-    @BindView(R.id.listview)
-    ListView listview;
-
-    CommonAdapter<DataPoint> adapter;
-
-    private boolean hasInitSuccess = false;  // 百度导航初始化是否完成。
-
-    List<DataPoint> testData = LocationData.getTestData();
-    private String mSDCardPath;
+    private static final String[] labels = {"同步数据", "本地数据", "兴趣点"};
 
     private static final int NORMAL = 0;
     private static final int EXTERNAL = 1;
+
+    private static final String[] authBaseArr = {
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,   // 写内存
+            Manifest.permission.ACCESS_FINE_LOCATION          // 精准定位
+    };
+
+    private static final int authBaseRequestCode = 1;
+    @BindView(R.id.listview)
+    ListView listview;
+    CommonAdapter<DataPoint> adapter;
+    List<DataPoint> testData = LocationData.getTestData();
+    private boolean hasInitSuccess = false;  // 百度导航初始化是否完成。
+    private String mSDCardPath;
 
     @Nullable
     @Override
@@ -77,7 +80,6 @@ public class FragmentNavi extends FragmentBase {
         initListener();
         return view;
     }
-
 
     private boolean initDirs() {
         mSDCardPath = FileUtils.getSdcardDir();
@@ -96,12 +98,6 @@ public class FragmentNavi extends FragmentBase {
         return true;
     }
 
-    private static final String[] authBaseArr = {
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,   // 写内存
-            Manifest.permission.ACCESS_FINE_LOCATION          // 精准定位
-    };
-
-
     private boolean hasBasePhoneAuth() {
         PackageManager pm = getActivity().getPackageManager();
         for (String auth : authBaseArr) {
@@ -113,12 +109,8 @@ public class FragmentNavi extends FragmentBase {
         return true;
     }
 
-    private static final int authBaseRequestCode = 1;
-
     private void initNavi() {
         // 申请权限
-
-
         if (android.os.Build.VERSION.SDK_INT >= 23) {
             if (!hasBasePhoneAuth()) {
                 requestPermissions(authBaseArr, authBaseRequestCode);

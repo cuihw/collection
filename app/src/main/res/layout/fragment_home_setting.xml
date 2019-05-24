@@ -9,7 +9,7 @@
         android:id="@+id/title_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        title:TitleText="信息采集"
+        title:TitleText="设置"
         >
     </com.data.collection.view.TitleView>
     <LinearLayout

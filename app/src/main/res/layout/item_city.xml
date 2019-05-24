@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:textSize="@dimen/font2"
         android:text="河南省"/>
+
     <TextView
         android:id="@+id/size"
         android:layout_below="@+id/name"
@@ -27,7 +28,11 @@
         android:layout_marginLeft="@dimen/item_padding_largest"
         android:layout_toRightOf="@+id/size"
         />
+
+
+
     <ProgressBar
+        android:visibility="gone"
         android:id="@+id/progressbar_download"
         android:layout_below="@+id/cityid"
         android:layout_width="match_parent"

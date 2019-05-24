@@ -1,17 +1,6 @@
 package com.data.collection.fragment;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.location.LocationProvider;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -20,15 +9,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.RotateAnimation;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
+import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.offline.MKOLSearchRecord;
 import com.baidu.mapapi.map.offline.MKOLUpdateElement;
 import com.baidu.mapapi.map.offline.MKOfflineMap;
@@ -37,12 +21,14 @@ import com.classic.adapter.BaseAdapterHelper;
 import com.classic.adapter.CommonAdapter;
 import com.data.collection.R;
 import com.data.collection.activity.CommonActivity;
+import com.data.collection.module.BaiduCity;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.Utils;
 import com.data.collection.view.TitleView;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.BindView;
 
@@ -63,10 +49,19 @@ public class FragmentOffline extends FragmentBase {
     ListView cityListView;
 
     private MKOfflineMap mOffline = null;
-    CommonAdapter<MKOLSearchRecord> cityAdapter;
-    ArrayList<MKOLSearchRecord> cityList;
+    CommonAdapter<BaiduCity> cityAdapter;
 
-    List<MKOLUpdateElement> updateProgeress = new ArrayList<>();
+    // 全国省份list
+    ArrayList<BaiduCity> cityList;
+
+    // 全国城市数据
+    Map<Integer, BaiduCity> allCityMaps = new HashMap<>();
+
+    // 当前下载更新省份
+    MKOLSearchRecord currentDown;
+
+    // 已经下载的省份；
+    Map<Integer, MKOLSearchRecord> offlineMap = new HashMap<>();
 
     /**
      * 已下载的离线地图信息列表
@@ -95,7 +90,6 @@ public class FragmentOffline extends FragmentBase {
     }
 
     MKOfflineMapListener mKOfflineMapListener = new MKOfflineMapListener(){
-
         @Override
         public void onGetOfflineMapState(int type, int state) {
             switch (type) {
@@ -125,14 +119,18 @@ public class FragmentOffline extends FragmentBase {
             }
         }
     };
-
     private void updateView(MKOLUpdateElement update) {
 
-        for ( MKOLUpdateElement item :updateProgeress) {
-            MKOLUpdateElement updateInfo = mOffline.getUpdateInfo(item.cityID);
-            item.ratio = updateInfo.ratio;
-            LsLog.i(TAG, "ratio = " + item.ratio );
+        // 更新update界面
+        localMapList = mOffline.getAllUpdateInfo();
+
+        BaiduCity baiduCityInfo = allCityMaps.get(update.cityID);
+        currentDown = baiduCityInfo;
+
+        if (baiduCityInfo.parentRecord != null) {
+            currentDown = baiduCityInfo.parentRecord;
         }
+
         cityAdapter.notifyDataSetChanged();
     }
 
@@ -141,35 +139,33 @@ public class FragmentOffline extends FragmentBase {
         mOffline.init(mKOfflineMapListener);
 
         ArrayList<MKOLSearchRecord> records = mOffline.getOfflineCityList();
-        for (MKOLSearchRecord re: records){
-            LsLog.i(TAG, "cityName = " + re.cityName + ", id:" + re.cityID);
-        }
-        cityList = records;
 
-        cityAdapter = new CommonAdapter<MKOLSearchRecord>(getContext(),R.layout.item_city, cityList ) {
+        setUpRelative(records, null);
+
+        cityAdapter = new CommonAdapter<BaiduCity>(getContext(), R.layout.item_city, cityList) {
             @Override
-            public void onUpdate(BaseAdapterHelper helper, MKOLSearchRecord item, int position) {
+            public void onUpdate(BaseAdapterHelper helper, BaiduCity item, int position) {
                 helper.setText(R.id.name, item.cityName);
                 String size = Utils.formatDataSize(item.dataSize);
                 helper.setText(R.id.size, "离线包大小：" + size);
                 helper.setText(R.id.cityid, "城市编号：" + item.cityID);
                 Button download = helper.getView(R.id.download);
                 download.setOnClickListener(v-> downloadMap(item));
-                ProgressBar progressbar = helper.getView(R.id.progressbar_download);
-                // progressbar.setProgress(30);
-                boolean showProgress = false;
 
-                for ( MKOLUpdateElement update :updateProgeress) {
-                    if (update.cityID == item.cityID) {
-                        progressbar.setProgress(update.ratio);
-                        showProgress = true;
-                    }
+                if (item.state == BaiduCity.DOWNLOADING) {
+                    download.setEnabled(false);
+                    download.setText("正在下载");
+                } else if (item.state == BaiduCity.NORMAAL) {
+                    download.setEnabled(true);
+                    download.setText("下载");
+                }else if (item.state == BaiduCity.DOWNLOADED) {
+                    download.setEnabled(false);
+                    download.setText("下载完毕");
+                } else if (item.state == BaiduCity.WAITING_DOWNLOADED) {
+                    download.setEnabled(false);
+                    download.setText("等待下载");
                 }
-                if (showProgress) {
-                    progressbar.setVisibility(View.VISIBLE);
-                } else {
-                    progressbar.setVisibility(View.INVISIBLE);
-                }
+
             }
         };
         cityListView.setAdapter(cityAdapter);
@@ -177,22 +173,37 @@ public class FragmentOffline extends FragmentBase {
         // 已经下载的城市列表
         localMapList = mOffline.getAllUpdateInfo();
         CommonAdapter<MKOLUpdateElement> localCityAdapter;
-
-    }
-
-    private void downloadMap(MKOLSearchRecord item) {
-        MKOLUpdateElement updateInfo = mOffline.getUpdateInfo(item.cityID);
-
-        boolean contains = false;
-        for ( MKOLUpdateElement update :updateProgeress) {
-            if (update.cityID == updateInfo.cityID) {
-                update.ratio = updateInfo.ratio;
-                contains = true;
+        for (MKOLUpdateElement element: localMapList) {
+            LsLog.i(TAG, "id = " + element.cityID + ", name = " + element.cityName);
+            BaiduCity baiduCityRelative = allCityMaps.get(element.cityID);
+            if (baiduCityRelative.parentRecord != null) {
+                offlineMap.put(baiduCityRelative.parentRecord.cityID, baiduCityRelative.parentRecord);
+            } else {
+                offlineMap.put(baiduCityRelative.cityID, baiduCityRelative);
             }
         }
-        if (!contains) {
-            updateProgeress.add(updateInfo);
+    }
+
+    private void setUpRelative(ArrayList<MKOLSearchRecord> records, MKOLSearchRecord parent) {
+
+        for (MKOLSearchRecord re: records){
+            LsLog.i(TAG, "cityName = " + re.cityName + ", id:" + re.cityID);
+            if (re.childCities != null) {
+                setUpRelative(re.childCities, re);
+            }
+            BaiduCity city = new BaiduCity(re);
+            city.parentRecord = parent;
+            allCityMaps.put(city.cityID, city);
+
+            if (parent == null) {
+                cityList.add(city);
+            }
         }
+    }
+
+    private void downloadMap(BaiduCity item) {
+        // 等待下载
+        item.state = BaiduCity.WAITING_DOWNLOADED;
 
         mOffline.start(item.cityID);
     }
