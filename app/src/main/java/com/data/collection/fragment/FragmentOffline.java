@@ -11,8 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
-import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.offline.MKOLSearchRecord;
 import com.baidu.mapapi.map.offline.MKOLUpdateElement;
 import com.baidu.mapapi.map.offline.MKOfflineMap;
@@ -48,26 +48,25 @@ public class FragmentOffline extends FragmentBase {
     @BindView(R.id.citylist)
     ListView cityListView;
 
+    @BindView(R.id.localButton)
+    Button localButton;
+    @BindView(R.id.clButton)
+    Button clButton;
+
     private MKOfflineMap mOffline = null;
-    CommonAdapter<BaiduCity> cityAdapter;
 
     // 全国省份list
-    ArrayList<BaiduCity> cityList;
+    ArrayList<BaiduCity> cityList = new ArrayList<>();
 
     // 全国城市数据
     Map<Integer, BaiduCity> allCityMaps = new HashMap<>();
 
-    // 当前下载更新省份
-    MKOLSearchRecord currentDown;
-
     // 已经下载的省份；
-    Map<Integer, MKOLSearchRecord> offlineMap = new HashMap<>();
+    ArrayList<BaiduCity> localCityList = new ArrayList<>();
 
-    /**
-     * 已下载的离线地图信息列表
-     */
-    private ArrayList<MKOLUpdateElement> localMapList = null;
-    CommonAdapter<MKOLUpdateElement> localCityAdapter;
+    CommonAdapter<BaiduCity> cityAdapter;
+    CommonAdapter<BaiduCity> localCityAdapter;
+
     public static void start(Context context){
         Bundle bundle = new Bundle();
         bundle.putInt(CommonActivity.FRAGMENT, CommonActivity.FRAGMENT_OFFLINE);
@@ -107,6 +106,8 @@ public class FragmentOffline extends FragmentBase {
                 case MKOfflineMap.TYPE_NEW_OFFLINE:
                     // 有新离线地图安装
                     Log.d("OfflineDemo", String.format("add offlinemap num:%d", state));
+                    MKOLUpdateElement update = mOffline.getUpdateInfo(state);
+                    updateNewView(update);
                     break;
 
                 case MKOfflineMap.TYPE_VER_UPDATE:
@@ -118,30 +119,68 @@ public class FragmentOffline extends FragmentBase {
                     break;
             }
         }
+
     };
-    private void updateView(MKOLUpdateElement update) {
 
-        // 更新update界面
-        localMapList = mOffline.getAllUpdateInfo();
+    // 城市地图有更新
+    private void updateNewView(MKOLUpdateElement update) {
+        Map<Integer, BaiduCity> offlineMap = new HashMap<>();
+        BaiduCity city = offlineMap.get(update.cityID);
+        city.update = update.update;
 
-        BaiduCity baiduCityInfo = allCityMaps.get(update.cityID);
-        currentDown = baiduCityInfo;
-
-        if (baiduCityInfo.parentRecord != null) {
-            currentDown = baiduCityInfo.parentRecord;
+        BaiduCity city1 = city; // city1 一层的省名字。
+        if (update.update) {
+            if (city.parentRecord != null){
+                city.parentRecord.update = update.update;
+                city1 = city.parentRecord;
+            }
+        }
+        for (BaiduCity cityitem: localCityList){
+            if (cityitem.cityID == city1.cityID) {
+                cityitem.update = true;
+            }
         }
 
-        cityAdapter.notifyDataSetChanged();
+        localCityAdapter.replaceAll(localCityList);
+    }
+
+
+    private void updateView(MKOLUpdateElement update) {
+
+        BaiduCity baiduCity = allCityMaps.get(update.cityID);
+        if (update.ratio == 100) {
+            baiduCity.state = BaiduCity.DOWNLOADED;
+        } else {
+            baiduCity.state = BaiduCity.DOWNLOADING;
+        }
+        BaiduCity parentCity = baiduCity;
+        if ( parentCity.parentRecord != null) {
+            parentCity = baiduCity.parentRecord;
+            if (baiduCity.state == BaiduCity.DOWNLOADED) {
+                parentCity.state = BaiduCity.DOWNLOADED;
+                for (MKOLSearchRecord city: parentCity.childCities) {
+                    BaiduCity city1 = allCityMaps.get(city.cityID);
+                    if (city1.state != BaiduCity.DOWNLOADED) {
+                        parentCity.state = BaiduCity.DOWNLOADING;
+                    }
+                }
+            } else {
+                parentCity.state = BaiduCity.DOWNLOADING;
+                allCityMaps.put(parentCity.cityID, parentCity);
+            }
+            cityAdapter.replaceAll(cityList);
+        }
+
+
+        if (parentCity.state == BaiduCity.DOWNLOADED) {
+            localCityList.add(parentCity);
+            localCityAdapter.replaceAll(localCityList);
+        }
+
     }
 
     private void initView() {
-        mOffline = new MKOfflineMap();
-        mOffline.init(mKOfflineMapListener);
-
-        ArrayList<MKOLSearchRecord> records = mOffline.getOfflineCityList();
-
-        setUpRelative(records, null);
-
+        initAllCityMap();
         cityAdapter = new CommonAdapter<BaiduCity>(getContext(), R.layout.item_city, cityList) {
             @Override
             public void onUpdate(BaseAdapterHelper helper, BaiduCity item, int position) {
@@ -150,68 +189,160 @@ public class FragmentOffline extends FragmentBase {
                 helper.setText(R.id.size, "离线包大小：" + size);
                 helper.setText(R.id.cityid, "城市编号：" + item.cityID);
                 Button download = helper.getView(R.id.download);
-                download.setOnClickListener(v-> downloadMap(item));
-
-                if (item.state == BaiduCity.DOWNLOADING) {
+                download.setOnClickListener(v-> startDownloadMap(item));
+                BaiduCity item1 = allCityMaps.get(item.cityID);
+                if (item1.state == BaiduCity.DOWNLOADING) {
                     download.setEnabled(false);
                     download.setText("正在下载");
-                } else if (item.state == BaiduCity.NORMAAL) {
+                } else if (item1.state == BaiduCity.NORMAL) {
                     download.setEnabled(true);
                     download.setText("下载");
-                }else if (item.state == BaiduCity.DOWNLOADED) {
+                }else if (item1.state == BaiduCity.DOWNLOADED) {
                     download.setEnabled(false);
                     download.setText("下载完毕");
-                } else if (item.state == BaiduCity.WAITING_DOWNLOADED) {
+                } else if (item1.state == BaiduCity.WAITING_DOWNLOADED) {
                     download.setEnabled(false);
                     download.setText("等待下载");
                 }
-
             }
         };
         cityListView.setAdapter(cityAdapter);
 
         // 已经下载的城市列表
-        localMapList = mOffline.getAllUpdateInfo();
-        CommonAdapter<MKOLUpdateElement> localCityAdapter;
-        for (MKOLUpdateElement element: localMapList) {
-            LsLog.i(TAG, "id = " + element.cityID + ", name = " + element.cityName);
-            BaiduCity baiduCityRelative = allCityMaps.get(element.cityID);
-            if (baiduCityRelative.parentRecord != null) {
-                offlineMap.put(baiduCityRelative.parentRecord.cityID, baiduCityRelative.parentRecord);
-            } else {
-                offlineMap.put(baiduCityRelative.cityID, baiduCityRelative);
+        initDownloadInfo();
+        cityAdapter.replaceAll(cityList);
+
+        getDownloadInfo();
+        localCityAdapter = new CommonAdapter<BaiduCity>(getContext(),R.layout.item_city_offline, localCityList){
+            @Override
+            public void onUpdate(BaseAdapterHelper helper, BaiduCity item, int position) {
+                helper.setText(R.id.name, item.cityName);
+                String sdata = Utils.formatDataSize(item.dataSize);
+                helper.setText(R.id.size, "离线包大小：" + sdata);
+                helper.setText(R.id.cityid, "ID ：" + item.cityID);
+                TextView updateView = helper.getView(R.id.update);
+
+                if (item.update) {
+                    updateView.setEnabled(true);
+                } else {
+                    updateView.setEnabled(false);
+                }
+                updateView.setOnClickListener(v->upDateMap(item));
+
+                TextView deleteView = helper.getView(R.id.delete);
+                deleteView.setOnClickListener(v->{
+                    deleteCity(item);
+                });
+
+            }
+        };
+    }
+
+    private void upDateMap(BaiduCity item) {
+        mOffline.update(item.cityID);
+        BaiduCity city = allCityMaps.get(item.cityID);
+        city.update = false;
+    }
+
+    private void initAllCityMap() {
+        mOffline = new MKOfflineMap();
+        mOffline.init(mKOfflineMapListener);
+        ArrayList<MKOLSearchRecord> records = mOffline.getOfflineCityList();
+        setUpRelative(records, null);
+    }
+
+    private void deleteCity(BaiduCity item) {
+        LsLog.i(TAG, "deleteCity " + item.toJson());
+        BaiduCity city = allCityMaps.get(item.cityID);
+
+        city.state = BaiduCity.NORMAL;
+
+        if (item.childCities != null) {  // 地级市下载状态为normal。
+            for (MKOLSearchRecord cityChild: item.childCities){
+                BaiduCity city1 = allCityMaps.get(cityChild.cityID);
+                if (city1 != null) {
+                    city1.state = BaiduCity.NORMAL;
+                }
+            }
+        }
+
+        mOffline.remove(city.cityID);
+
+        cityAdapter.replaceAll(cityList);
+
+        BaiduCity toBeRemove = city;
+
+        localCityList.remove(toBeRemove);
+        localCityAdapter.replaceAll(localCityList);
+    }
+
+    private void getDownloadInfo() {
+        localCityList.clear();
+
+        for (BaiduCity city: cityList ) {
+            if (city.parentRecord == null && city.state == BaiduCity.DOWNLOADED) {
+                localCityList.add(city);
+            }
+        }
+
+        if (localCityAdapter != null) {
+            localCityAdapter.replaceAll(localCityList);
+        }
+    }
+
+    private void initDownloadInfo() {
+        ArrayList<MKOLUpdateElement> allUpdateInfo = mOffline.getAllUpdateInfo();
+        for (MKOLUpdateElement element: allUpdateInfo) {
+            LsLog.i(TAG, "offline map : id = " + element.cityID + ", name = " + element.cityName);
+            BaiduCity baiduCity = allCityMaps.get(element.cityID);
+            baiduCity.state = BaiduCity.DOWNLOADED;
+
+            if (baiduCity.parentRecord == null ){  // 省份城市
+                LsLog.i(TAG, "add to provence list offline map : id = "
+                        + element.cityID + ", name = " + element.cityName);
+
+                localCityList.add(baiduCity);
             }
         }
     }
 
     private void setUpRelative(ArrayList<MKOLSearchRecord> records, MKOLSearchRecord parent) {
-
         for (MKOLSearchRecord re: records){
             LsLog.i(TAG, "cityName = " + re.cityName + ", id:" + re.cityID);
             if (re.childCities != null) {
                 setUpRelative(re.childCities, re);
             }
             BaiduCity city = new BaiduCity(re);
-            city.parentRecord = parent;
-            allCityMaps.put(city.cityID, city);
-
             if (parent == null) {
+                // 省份，直辖市  Provence.
                 cityList.add(city);
+            } else {
+                city.parentRecord = new BaiduCity(parent);
             }
+            allCityMaps.put(city.cityID, city);
         }
     }
 
-    private void downloadMap(BaiduCity item) {
+    private void startDownloadMap(BaiduCity item) {
         // 等待下载
         item.state = BaiduCity.WAITING_DOWNLOADED;
-
         mOffline.start(item.cityID);
+        cityAdapter.replaceAll(cityList);
     }
 
     private void initListener() {
         titleView.getLefticon().setOnClickListener(v->{
             getActivity().finish();
         });
+
+        clButton.setOnClickListener(v->{
+            cityListView.setAdapter(cityAdapter);
+        });
+
+        localButton.setOnClickListener(v->{
+            cityListView.setAdapter(localCityAdapter);
+        });
+
     }
 
     @Override
