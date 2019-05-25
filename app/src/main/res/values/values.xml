@@ -36,4 +36,5 @@
         <attr name="IconLeft" format="reference" />
         <attr name="IconRight" format="reference" />
     </declare-styleable>
+
 </resources>

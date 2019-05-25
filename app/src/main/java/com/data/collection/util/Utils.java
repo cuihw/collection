@@ -1,5 +1,7 @@
 package com.data.collection.util;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -19,6 +21,20 @@ public class Utils {
             }
         }
         return true;
+    }
+
+
+    /**
+     * 写入剪切板数据
+     *
+     * @param context
+     */
+    public static void copyToClip(Context context, String str) {
+        ClipboardManager cm = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+        //创建ClipData对象 ClipData
+        ClipData clipData = ClipData.newPlainText("simple text copy", str);
+        // 添加ClipData对象到剪切板中
+        cm.setPrimaryClip(clipData);
     }
 
     public static String transform2Decimal(String priceString) {

@@ -40,6 +40,8 @@ public class FragmentTools extends FragmentBase {
     @BindView(R.id.offline_map)
     LinearLayout offlineMap;
 
+    @BindView(R.id.position_transform)
+    LinearLayout positionTransform;
 
     public static void start(Context context){
         Bundle bundle = new Bundle();
@@ -63,14 +65,10 @@ public class FragmentTools extends FragmentBase {
 
     private void initListener() {
         compass.setOnClickListener(v->showCompass());
-        titleView.getLefticon().setOnClickListener(v->{
-            getActivity().finish();
-        });
-
-        satellite.setOnClickListener(v->{
-            FragmentGpsInfo.start(getContext());
-        });
+        titleView.getLefticon().setOnClickListener(v->getActivity().finish());
+        satellite.setOnClickListener(v->FragmentGpsInfo.start(getContext()));
         offlineMap.setOnClickListener(v->FragmentOffline.start(getContext()));
+        positionTransform.setOnClickListener(v->FragmentPositionTransform.start(getContext()));
     }
 
     private void showCompass() {

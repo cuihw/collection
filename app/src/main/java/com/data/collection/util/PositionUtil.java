@@ -47,9 +47,10 @@ public class PositionUtil {
      * */
     public static Gps gcj_To_Gps84(double lon, double lat) {
         Gps gps = transform(lon, lat);
-        double lontitude = lon * 2 - gps.getWgLon();
-        double latitude = lat * 2 - gps.getWgLat();
-        return new Gps(lontitude, latitude);
+//        double lontitude = lon * 2 - gps.getWgLon();
+//        double latitude = lat * 2 - gps.getWgLat();
+//        return new Gps(lontitude, latitude);
+        return gps;
     }
 
     /**
@@ -62,8 +63,8 @@ public class PositionUtil {
         double x = gg_lon, y = gg_lat;
         double z = Math.sqrt(x * x + y * y) + 0.00002 * Math.sin(y * pi);
         double theta = Math.atan2(y, x) + 0.000003 * Math.cos(x * pi);
-        double bd_lon = z * Math.cos(theta) + 0.0065;
-        double bd_lat = z * Math.sin(theta) + 0.006;
+        double bd_lat = z * Math.cos(theta) + 0.0065;
+        double bd_lon = z * Math.sin(theta) + 0.006;
         return new Gps(bd_lon, bd_lat);
     }
 
@@ -75,8 +76,8 @@ public class PositionUtil {
         double x = bd_lon - 0.0065, y = bd_lat - 0.006;
         double z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * pi);
         double theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * pi);
-        double gg_lon = z * Math.cos(theta);
-        double gg_lat = z * Math.sin(theta);
+        double gg_lat = z * Math.cos(theta);
+        double gg_lon = z * Math.sin(theta);
         return new Gps(gg_lon, gg_lat);
     }
 
@@ -135,8 +136,6 @@ public class PositionUtil {
                 * pi)) * 2.0 / 3.0;
         return ret;
     }
-
-
 
     public static LatLng GpsToBaiduLatLng(LatLng sourceLatLng) {
         CoordinateConverter converter  = new CoordinateConverter();

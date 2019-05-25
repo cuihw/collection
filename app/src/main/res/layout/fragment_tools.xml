@@ -121,5 +121,40 @@
                     />
             </RelativeLayout>
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/position_transform"
+            android:layout_margin="@dimen/item_padding_small"
+            android:layout_width="match_parent"
+            android:background="@drawable/round_background"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:layout_width="@dimen/icon_size_settings"
+                android:layout_height="@dimen/icon_size_settings"
+                android:background="@drawable/left_round"
+                android:src="@mipmap/icon_point_transform"
+                android:padding="@dimen/item_padding"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="@dimen/item_padding"
+                android:textSize="@dimen/font3"
+                android:text="坐标系转换"/>
+            <RelativeLayout
+                android:layout_gravity="center_vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:layout_alignParentRight="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/icon_arrow_right"
+                    android:padding="@dimen/item_padding"
+                    />
+            </RelativeLayout>
+        </LinearLayout>
+
     </LinearLayout>
 </RelativeLayout>

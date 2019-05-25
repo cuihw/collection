@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:title="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background1"
+    android:orientation="vertical"
+    >
+    <com.data.collection.view.TitleView
+        android:id="@+id/title_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        title:TitleText="坐标系转换"
+        title:IconLeft="@mipmap/top_back"
+        />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/item_padding"
+            >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="选择转换方式："
+                android:textSize="@dimen/font3"
+                />
+            <Spinner
+                android:id="@+id/spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/transform_option"
+                >
+            </Spinner>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="输入纬度："
+                />
+            <EditText
+                android:id="@+id/latitude_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="请输入纬度"
+                android:text="34.829793"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="输入经度："
+                />
+            <EditText
+                android:id="@+id/longitude_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="请输入经度"
+                android:text="113.647881"
+                />
+
+            <TextView
+                android:id="@+id/action_transform"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@mipmap/button1_pressed"
+                android:layout_margin="@dimen/item_padding"
+                android:gravity="center"
+                android:text="转换"
+                android:textSize="@dimen/font3"
+                android:textColor="@color/white"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="结果："
+                />
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/result_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="--经度--,  --纬度--"
+                    android:textSize="@dimen/font2"
+                    />
+                <TextView
+                    android:id="@+id/copy_result"
+                    android:layout_below="@+id/result_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@mipmap/button1_pressed"
+                    android:layout_margin="@dimen/item_padding"
+                    android:gravity="center"
+                    android:text="拷贝结果"
+                    android:textSize="@dimen/font3"
+                    android:textColor="@color/white"
+                    android:layout_alignParentRight="true"
+                    />
+            </RelativeLayout>
+
+
+            <TextView
+                android:layout_marginTop="@dimen/item_padding_largest"
+                android:padding="@dimen/item_padding"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="
+        WGS84：为一种大地坐标系，也是目前广泛使用的GPS全球卫星定位系统使用的坐标系。\n\n
+
+        GCJ02：又称火星坐标系，是由中国国家测绘局制定的地理坐标系统，是由WGS84加密后得到的坐标系。\n\n
+
+        BD09：为百度坐标系，在GCJ02坐标系基础上再次加密。其中bd09ll表示百度经纬度坐标，bd09mc表示百度墨卡托米制坐标。
+ 我们这里计算的时候，采用bd09ll，百度经纬度坐标来计算转换。"
+                android:textSize="@dimen/font5"
+                />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

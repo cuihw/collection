@@ -99,7 +99,6 @@ public class FragmentGpsInfo extends FragmentBase {
     public void onResume() {
         super.onResume();
         updateLocationService();
-
         mLocationManager.addGpsStatusListener(gpsStatusListener);
     }
 

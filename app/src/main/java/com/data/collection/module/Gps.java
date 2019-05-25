@@ -5,14 +5,15 @@ public class Gps {
     double wgLat;
 
     public Gps(double lat, double lon) {
-
+        wgLon = lon;
+        wgLat = lat;
     }
 
     public double getWgLon() {
-        return 0;
+        return wgLon;
     }
 
     public double getWgLat() {
-        return 0;
+        return wgLat;
     }
 }

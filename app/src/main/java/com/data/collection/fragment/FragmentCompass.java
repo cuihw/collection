@@ -171,7 +171,6 @@ public class FragmentCompass extends FragmentBase implements SensorEventListener
             mTvCoord.setText(getString(R.string.correct_coord, sb.toString()));
             mTvAltitude.setText(getString(R.string.correct_altitude, altitude));
         }
-
     }
 
     private void registerSensorService() {
@@ -182,10 +181,6 @@ public class FragmentCompass extends FragmentBase implements SensorEventListener
     private void initService() {
         initSensorService();
         initLocationService();
-    }
-
-    private void findViews() {
-
     }
 
     private void initLocationService() {
@@ -205,12 +200,6 @@ public class FragmentCompass extends FragmentBase implements SensorEventListener
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mMagneticField = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
     }
-
-
-    private void showCompass() {
-
-    }
-
 
     @Override
     public void onSensorChanged(SensorEvent event) {
