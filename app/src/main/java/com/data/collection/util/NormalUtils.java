@@ -7,9 +7,6 @@ import android.app.Activity;
 import android.content.Intent;
 
 public class NormalUtils {
-
-
-
     public static String getTTSAppID() {
         return "11213224";
     }

@@ -5,6 +5,7 @@ import android.app.Application;
 import com.baidu.mapapi.CoordType;
 import com.baidu.mapapi.SDKInitializer;
 import com.crashlytics.android.Crashlytics;
+import com.data.collection.data.BaiduTrace;
 import com.data.collection.util.LocationController;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.Utils;
@@ -33,6 +34,9 @@ public class App extends Application {
         // 自4.3.0起，百度地图SDK所有接口均支持百度坐标和国测局坐标，用此方法设置您使用的坐标类型.
         // 包括BD09LL和GCJ02两种坐标，默认是BD09LL坐标。CoordinateType.WGS84
         SDKInitializer.setCoordType(CoordType.BD09LL);
+
+        BaiduTrace.getInstance().init(this);
+
     }
 
     private void showSignInfo() {

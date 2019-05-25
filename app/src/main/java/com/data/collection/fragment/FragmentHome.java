@@ -140,12 +140,18 @@ public class FragmentHome extends FragmentBase {
             recodeTrace.setText("记录\n轨迹");
             traceProcess.clearAnimation();
             traceProcess.setVisibility(View.INVISIBLE);
+            if (BaiduTrace.getInstance().isInTrace()) {
+                BaiduTrace.getInstance().stop();
+            }
         } else {
             // 开始记录轨迹
             instance.start();
             recodeTrace.setText("停止\n记录");
             setFlickerAnimation(traceProcess);
             traceProcess.setVisibility(View.VISIBLE);
+            if (!BaiduTrace.getInstance().isInTrace()) {
+                BaiduTrace.getInstance().start();
+            }
         }
 
 
