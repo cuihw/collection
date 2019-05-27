@@ -5,17 +5,14 @@ import android.content.Context;
 import com.baidu.trace.LBSTraceClient;
 import com.baidu.trace.Trace;
 import com.baidu.trace.api.track.HistoryTrackRequest;
-import com.baidu.trace.api.track.HistoryTrackResponse;
 import com.baidu.trace.api.track.OnTrackListener;
 import com.baidu.trace.model.OnTraceListener;
 import com.baidu.trace.model.PushMessage;
 
 public class BaiduTrace {
 
-    boolean isInTrace;
-
     static BaiduTrace baiduTrace;
-
+    boolean isInTrace;
     // 轨迹服务ID
     long serviceId = 212879;
 
@@ -26,6 +23,8 @@ public class BaiduTrace {
 
     // 请求标识
     int tag = 1;
+    Trace mTrace;
+    LBSTraceClient mTraceClient;
 
     // 初始化轨迹服务监听器
     OnTraceListener mTraceListener = new OnTraceListener() {
@@ -67,8 +66,13 @@ public class BaiduTrace {
         }
 
     };
-    Trace mTrace;
-    LBSTraceClient mTraceClient;
+
+    public synchronized static BaiduTrace getInstance() {
+        if (baiduTrace == null) {
+            baiduTrace = new BaiduTrace();
+        }
+        return baiduTrace;
+    }
 
     public void init(Context context) {
         applicationContext = context.getApplicationContext();
@@ -78,18 +82,11 @@ public class BaiduTrace {
         mTraceClient = new LBSTraceClient(applicationContext);
 
         // 定位周期(单位:秒)
-        int gatherInterval = 20;
+        int gatherInterval = 60;
         // 打包回传周期(单位:秒)
-        int packInterval = 60;
+        int packInterval = 240;
         // 设置定位和打包周期
         mTraceClient.setInterval(gatherInterval, packInterval);
-    }
-
-    public synchronized static BaiduTrace getInstance() {
-        if (baiduTrace == null) {
-            baiduTrace = new BaiduTrace();
-        }
-        return baiduTrace;
     }
 
     public void start() {
@@ -104,7 +101,6 @@ public class BaiduTrace {
         mTraceClient.stopTrace(mTrace, mTraceListener);
     }
 
-
     public boolean isInTrace() {
         return isInTrace;
     }
@@ -114,7 +110,7 @@ public class BaiduTrace {
 
         //设置轨迹查询起止时间
         // 开始时间(单位：秒)
-        if (startTime == 0) startTime = System.currentTimeMillis() / 1000 - 12 * 60 * 60;
+        if (startTime == 0) startTime = System.currentTimeMillis() / 1000 - 12 * 60 * 60; // 24小时以内
 
         // 结束时间(单位：秒)
         if (endTime == 0) endTime = System.currentTimeMillis() / 1000;
@@ -122,6 +118,7 @@ public class BaiduTrace {
         historyTrackRequest.setStartTime(startTime);
         // 设置结束时间
         historyTrackRequest.setEndTime(endTime);
+        historyTrackRequest.setEntityName(entityName);
 
         // 查询历史轨迹
         mTraceClient.queryHistoryTrack(historyTrackRequest, trackListener);

@@ -65,4 +65,5 @@
     <color name="transparent20">#40000000</color>
 
     <color name="transparent100">#00000000</color>
+    <color name="tabfont">#4b4b4b</color>
 </resources>

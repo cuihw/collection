@@ -22,14 +22,20 @@ public class DateUtils {
         }
         return "";
     }
-    /**
-     * 日期转换为字符串
-     *
-     * @param date   日期
-     * @param format 日期格式
-     * @return 指定格式的日期字符串
-     */
-    public static String formatDateByFormat(Date date, String format) {
+
+    public static String formatTime(long times, String format) {
+        Date date = new Date(times);
+        return formatDate(date, format);
+    }
+
+        /**
+         * 日期转换为字符串
+         *
+         * @param date   日期
+         * @param format 日期格式
+         * @return 指定格式的日期字符串
+         */
+    public static String formatDate(Date date, String format) {
         String result = "";
         if (date != null) {
             try {
@@ -49,7 +55,7 @@ public class DateUtils {
      * @param format   日期格式
      * @return 指定格式的日期字符串
      */
-    public static String formatDateByFormat(Calendar calendar, String format) {
+    public static String formatDate(Calendar calendar, String format) {
         String result = "";
         if (calendar != null) {
             try {

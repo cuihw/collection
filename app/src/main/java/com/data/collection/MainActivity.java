@@ -5,6 +5,7 @@ import android.widget.Toast;
 
 import com.data.collection.activity.BaseActivity;
 import com.data.collection.activity.LoginActivity;
+import com.data.collection.data.BaiduTrace;
 import com.data.collection.data.CacheData;
 import com.data.collection.fragment.FragmentCheckRecord;
 import com.data.collection.fragment.FragmentHome;
@@ -105,6 +106,8 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         LocationController.getInstance().stopLocation();
+
+        BaiduTrace.getInstance().stop();
         super.onDestroy();
     }
 
@@ -116,7 +119,6 @@ public class MainActivity extends BaseActivity {
         } else {
             Toast.makeText(this, R.string.exit_toast, Toast.LENGTH_SHORT).show();
             firstExitTime = curTime;
-
         }
     }
 
