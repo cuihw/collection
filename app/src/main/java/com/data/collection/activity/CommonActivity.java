@@ -12,6 +12,7 @@ import com.data.collection.fragment.FragmentGpsInfo;
 import com.data.collection.fragment.FragmentOffline;
 import com.data.collection.fragment.FragmentPositionTransform;
 import com.data.collection.fragment.FragmentTools;
+import com.data.collection.fragment.FragmentTrace;
 
 public class CommonActivity extends BaseActivity {
 
@@ -21,6 +22,7 @@ public class CommonActivity extends BaseActivity {
     public static final int FRAGMENT_GPS = 3;
     public static final int FRAGMENT_OFFLINE = 4;
     public static final int FRAGMENT_POSITION = 5;
+    public static final int FRAGMENT_TRACE = 6;
     private static final String TAG = "CommonActivity";
 
     public static void start(Context context, Bundle bundle){
@@ -54,7 +56,9 @@ public class CommonActivity extends BaseActivity {
             case FRAGMENT_POSITION:
                 tranToFragment(FragmentPositionTransform.getInstance());
                 break;
-
+            case FRAGMENT_TRACE:
+                tranToFragment(FragmentTrace.getInstance());
+                break;
         }
     }
 

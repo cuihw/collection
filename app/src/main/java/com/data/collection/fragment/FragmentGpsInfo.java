@@ -267,7 +267,6 @@ public class FragmentGpsInfo extends FragmentBase {
         mLocationProvider = mLocationManager.getBestProvider(criteria, true);// 获取条件最好的Provider,若没有权限，mLocationProvider 为null
         Log.e(TAG, "mLocationProvider = " + mLocationProvider);
 
-
     }
 
 

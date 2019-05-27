@@ -118,6 +118,7 @@
             </RelativeLayout>
         </LinearLayout>
         <LinearLayout
+            android:id="@+id/trace_layout"
             android:layout_margin="@dimen/item_padding_small"
             android:layout_width="match_parent"
             android:background="@drawable/round_background"

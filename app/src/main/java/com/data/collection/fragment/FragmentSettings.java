@@ -40,6 +40,8 @@ public class FragmentSettings extends FragmentBase {
     @BindView(R.id.tools_page)
     LinearLayout toolsPage;
 
+    @BindView(R.id.trace_layout)
+    LinearLayout traceLayout;
 
 
 
@@ -60,11 +62,9 @@ public class FragmentSettings extends FragmentBase {
             clickLoginButton();
         });
 
-        toolsPage.setOnClickListener(v->showFragment());
-    }
+        toolsPage.setOnClickListener(v->FragmentTools.start(getContext()));
 
-    private void showFragment() {
-        FragmentTools.start(getContext());
+        traceLayout.setOnClickListener(v->FragmentTrace.start(getContext()));
     }
 
     private void clickLoginButton() {
