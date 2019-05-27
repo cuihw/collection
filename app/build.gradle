@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 
 apply plugin: 'io.fabric'
+apply plugin: 'org.greenrobot.greendao' // apply plugin
 
 android {
     compileSdkVersion 28
@@ -54,6 +55,10 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 }
+greendao {
+    schemaVersion 1
+    targetGenDir 'src/main/java'
+}
 
 dependencies {
     implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
@@ -81,7 +86,11 @@ dependencies {
     implementation 'com.kaopiz:kprogresshud:1.1.0'
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'com.classic.adapter:commonadapter:2.0'
+
+    // green dao
+    implementation 'org.greenrobot:greendao:3.2.2'
     // arcgisruntime
     implementation 'com.esri.arcgisruntime:arcgis-android:100.5.0'
     implementation files('libs/BaiduLBS_Android.jar')
+
 }
