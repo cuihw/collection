@@ -105,7 +105,8 @@ public class BaiduTrace {
         return isInTrace;
     }
 
-    public void getHistoryTrace(long startTime, long endTime, OnTrackListener trackListener) {
+    public void getHistoryTrace(long startTime,/*开始时间(单位：秒)*/
+                                long endTime, OnTrackListener trackListener) {
         HistoryTrackRequest historyTrackRequest = new HistoryTrackRequest(tag, serviceId, entityName);
 
         //设置轨迹查询起止时间

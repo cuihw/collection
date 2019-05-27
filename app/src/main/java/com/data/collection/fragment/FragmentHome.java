@@ -221,7 +221,7 @@ public class FragmentHome extends FragmentBase {
 
         builder.overlook(-20).zoom(15);
         BaiduMapOptions bo = new BaiduMapOptions().mapStatus(builder.build())
-                .compassEnabled(false).zoomControlsEnabled(false);
+                .zoomControlsEnabled(false);
         mapFragment = SupportMapFragment.newInstance(bo);
         FragmentManager manager = getChildFragmentManager();
         manager.beginTransaction().add(R.id.map_framelayout, mapFragment, "map_fragment").commit();
