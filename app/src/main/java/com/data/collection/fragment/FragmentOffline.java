@@ -292,6 +292,10 @@ public class FragmentOffline extends FragmentBase {
 
     private void initDownloadInfo() {
         ArrayList<MKOLUpdateElement> allUpdateInfo = mOffline.getAllUpdateInfo();
+        if (allUpdateInfo == null) {
+            LsLog.i(TAG, "offline map is NONE");
+            return;
+        }
         for (MKOLUpdateElement element: allUpdateInfo) {
             LsLog.i(TAG, "offline map : id = " + element.cityID + ", name = " + element.cityName);
             BaiduCity baiduCity = allCityMaps.get(element.cityID);

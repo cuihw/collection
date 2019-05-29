@@ -77,11 +77,11 @@ public class GatherPoint {
         }
     }
 
-    @Generated(hash = 664310964)
-    public GatherPoint(Long id, @NotNull String type, String description,
-            double latitude, double longitude, double altitude, String gatherTime,
-            String comments, String gatherInfo, String picPath1, String picPath2,
-            String picPath3) {
+    @Generated(hash = 830396368)
+    public GatherPoint(Long id, @NotNull String type, String description, double latitude,
+            double longitude, double altitude, String gatherTime, String report,
+            String uploadedTime, String comments, String gatherInfo, String picPath1,
+            String picPath2, String picPath3, boolean isUploaded) {
         this.id = id;
         this.type = type;
         this.description = description;
@@ -89,11 +89,14 @@ public class GatherPoint {
         this.longitude = longitude;
         this.altitude = altitude;
         this.gatherTime = gatherTime;
+        this.report = report;
+        this.uploadedTime = uploadedTime;
         this.comments = comments;
         this.gatherInfo = gatherInfo;
         this.picPath1 = picPath1;
         this.picPath2 = picPath2;
         this.picPath3 = picPath3;
+        this.isUploaded = isUploaded;
     }
 
     @Generated(hash = 783740109)
@@ -174,6 +177,30 @@ public class GatherPoint {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getReport() {
+        return this.report;
+    }
+
+    public void setReport(String report) {
+        this.report = report;
+    }
+
+    public String getUploadedTime() {
+        return this.uploadedTime;
+    }
+
+    public void setUploadedTime(String uploadedTime) {
+        this.uploadedTime = uploadedTime;
+    }
+
+    public boolean getIsUploaded() {
+        return this.isUploaded;
+    }
+
+    public void setIsUploaded(boolean isUploaded) {
+        this.isUploaded = isUploaded;
     }
 
 }

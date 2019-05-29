@@ -15,6 +15,7 @@ import com.lzy.okgo.cookie.store.MemoryCookieStore;
 import com.lzy.okgo.interceptor.HttpLoggingInterceptor;
 import com.lzy.okgo.model.HttpParams;
 import com.lzy.okgo.model.Response;
+import com.lzy.okgo.request.PostRequest;
 
 import org.json.JSONObject;
 
@@ -25,7 +26,11 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
+
+import static okhttp3.MediaType.*;
 
 public class HttpRequest {
     private static final String TAG = "HttpRequest";
@@ -82,21 +87,20 @@ public class HttpRequest {
         }
         HttpParams hparams = new HttpParams();
         for (String key : params.keySet()) {
-            hparams.put(key, params.get(key).toString());
+            String s = params.get(key).toString();
+            LsLog.i(TAG, "params = " + s);
+            hparams.put(key, s );
         }
 
-        OkGo.<String>post(url).tag(clz)
-                .headers("token", CacheData.TOKEN)
-                .headers("platform", "Android")
-                .params(hparams)
-                .execute(new HStringCallback(context) {
+        OkGo.<String>post(url).tag(clz).headers("platform", "Android")
+                .headers("token", CacheData.LOGIN_DATA==null? "" : CacheData.LOGIN_DATA.getToken())
+                .params(hparams).execute(new HStringCallback(context) {
                     String body = null;
-
                     @Override
                     public void onFinish() {
                         super.onFinish();
                         if (TextUtils.isEmpty(body)) {
-                            listener.onResponse(1, null);
+                            listener.onResponse(-1, null);
                         }
                     }
 
@@ -104,10 +108,8 @@ public class HttpRequest {
                     public void onSuccess(Response<String> response) {
                         body = response.body();
                         try {
-
-
                             Class<T> clz = listener.getClazz();
-                            if (clz != String.class) {
+                            if (clz != String.class || clz != null) {
                                 T data = new Gson().fromJson(body, clz);
                                 listener.onResponse(0, data);
                             } else {
@@ -115,7 +117,7 @@ public class HttpRequest {
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
-                            listener.onResponse(1, null);
+                            listener.onResponse(-1, null);
                         }
                     }
                 });

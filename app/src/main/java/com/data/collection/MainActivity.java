@@ -55,7 +55,7 @@ public class MainActivity extends BaseActivity {
         // start location
         LocationController.getInstance().startLocation(this);
         if (!CacheData.isLogin()) {
-            LoginActivity.start(this, null);
+            LoginActivity.start(this);
         }
     }
 

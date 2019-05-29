@@ -246,7 +246,7 @@ public class FragmentNavi extends FragmentBase {
         List<BNRoutePlanNode> list = new ArrayList<>();
         list.add(sNode);
         list.add(eNode);
-        BaiduNaviManagerFactory.getCommonSettingManager().setCarNum(getContext(), "粤B66666");
+        BaiduNaviManagerFactory.getCommonSettingManager().setCarNum(getContext(), "豫AT6662");
         BaiduNaviManagerFactory.getRoutePlanManager().routeplanToNavi(
                 list,
                 IBNRoutePlanManager.RoutePlanPreference.ROUTE_PLAN_PREFERENCE_DEFAULT,
@@ -264,11 +264,9 @@ public class FragmentNavi extends FragmentBase {
                                 ToastUtil.showTextToast(getContext(), "算路成功");
                                 break;
                             case IBNRoutePlanManager.MSG_NAVI_ROUTE_PLAN_FAILED:
-
                                 ToastUtil.showTextToast(getContext(), "算路失败");
                                 break;
                             case IBNRoutePlanManager.MSG_NAVI_ROUTE_PLAN_TO_NAVI:
-
                                 ToastUtil.showTextToast(getContext(), "算路成功准备进入导航");
                                 Intent intent = new Intent(getContext(),
                                         NaviActivity.class);

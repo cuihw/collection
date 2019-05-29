@@ -92,5 +92,5 @@ dependencies {
     // arcgisruntime
     implementation 'com.esri.arcgisruntime:arcgis-android:100.5.0'
     implementation files('libs/BaiduLBS_Android.jar')
-
+    implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
 }

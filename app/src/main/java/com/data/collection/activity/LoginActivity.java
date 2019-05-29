@@ -7,9 +7,17 @@ import android.text.TextUtils;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.data.collection.App;
+import com.data.collection.Constants;
 import com.data.collection.R;
+import com.data.collection.module.LoginBean;
+import com.data.collection.network.HttpRequest;
+import com.data.collection.util.LsLog;
 import com.data.collection.util.PackageUtils;
 import com.data.collection.util.ToastUtil;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.BindView;
 
@@ -29,11 +37,8 @@ public class LoginActivity extends BaseActivity {
     @BindView(R.id.version_info)
     TextView versionInfo;
 
-    public static void start(Context context, Bundle bundle){
+    public static void start(Context context){
         Intent intent = new Intent(context, LoginActivity.class);
-        if (bundle != null) {
-            intent.putExtras(bundle);
-        }
         context.startActivity(intent);
     }
 
@@ -55,8 +60,6 @@ public class LoginActivity extends BaseActivity {
         // 登录
         loginButton.setOnClickListener(v->{
             startLogin();
-            ToastUtil.showTextToast(this,"登录失败，接口没有准备好");
-            finish();
         });
     }
 
@@ -71,6 +74,34 @@ public class LoginActivity extends BaseActivity {
             ToastUtil.showTextToast(this, "请输入密码");
             return;
         }
+
+        Map<String, Object> param = new HashMap<>();
+        param.put("username", username);
+        param.put("password", password);
+
+        HttpRequest.postData(this, Constants.LOGIN, param, new HttpRequest.RespListener<LoginBean>() {
+            @Override
+            public void onResponse(int status, LoginBean loginBean) {
+                if (loginBean == null) {
+                    return;
+                }
+                LsLog.i(TAG, "loginBean = " + loginBean.toJson());
+                handleLogin(loginBean);
+            }
+        });
+
+    }
+
+    private void handleLogin(LoginBean loginBean) {
+        if (loginBean.getCode().equals(Constants.SUCCEED)) {
+            loginBean.cacheData(this);
+            ToastUtil.showTextToast(this, "登录成功!");
+            App.getInstence().getUserInfo(null);
+        } else {
+            loginBean.cacheData(this);
+            ToastUtil.showTextToast(this, "登录失败!");
+        }
+        finish();
     }
 
 

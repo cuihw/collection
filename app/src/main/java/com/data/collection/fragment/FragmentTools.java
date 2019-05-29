@@ -26,7 +26,7 @@ import butterknife.BindView;
  * create an instance of this fragment.
  */
 public class FragmentTools extends FragmentBase {
-    private static final String TAG = "FragmentSettings";
+    private static final String TAG = "FragmentTools";
 
     @BindView(R.id.title_view)
     TitleView titleView;

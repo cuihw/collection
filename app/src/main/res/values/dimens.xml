@@ -1,8 +1,8 @@
 <resources>
 
 
-    <dimen name="font0">37sp</dimen>
-    <dimen name="font1">28sp</dimen>
+    <dimen name="font0">28sp</dimen>
+    <dimen name="font1">22sp</dimen>
     <dimen name="font2">20sp</dimen>
     <dimen name="font3">18sp</dimen>
     <dimen name="font4">16sp</dimen>

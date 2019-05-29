@@ -1,20 +1,38 @@
 package com.data.collection.module;
 
-import com.data.collection.util.DateUtils;
 import com.google.gson.Gson;
 
 public class Bean {
+
+    String code;
+    String msg;
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
 
     public String toJson(){
         return new Gson().toJson(this);
     }
 
-    public <T> T formJson(String json , Class<T> cls){
+    public static  <T> T formJson(String json , Class<T> cls){
         T t = new Gson().fromJson(json, cls);
         return t;
     }
 
-    public <T> T formJson(String json , String clsName){
+    public static <T> T formJson(String json , String clsName){
         Class<T> cls = null;
         try {
             cls = (Class<T>) Class.forName(clsName);

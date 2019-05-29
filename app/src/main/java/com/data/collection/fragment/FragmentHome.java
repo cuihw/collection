@@ -159,7 +159,6 @@ public class FragmentHome extends FragmentBase {
 
     private void initSensor() {
         mSensorManager = (SensorManager) getContext().getSystemService(SENSOR_SERVICE);//获取传感器管理服务
-
     }
 
     private void initMyLocation() {
@@ -176,6 +175,7 @@ public class FragmentHome extends FragmentBase {
         option.setCoorType("bd09ll"); // 设置坐标类型
         option.setScanSpan(10000);
         mLocClient.setLocOption(option);
+        // mLocClient.start();
         mLocClient.start();
     }
 
@@ -232,7 +232,7 @@ public class FragmentHome extends FragmentBase {
 
             initMyLocation();
         });
-        //view.postDelayed(()->{}, 1000);
+
     }
 
     @Override
@@ -241,6 +241,8 @@ public class FragmentHome extends FragmentBase {
 
         mSensorManager.registerListener(sensorEventListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
                 SensorManager.SENSOR_DELAY_UI);
+
+
     }
 
     SensorEventListener sensorEventListener = new SensorEventListener(){
@@ -268,7 +270,14 @@ public class FragmentHome extends FragmentBase {
     @Override
     public void onPause() {
         mSensorManager.unregisterListener(sensorEventListener);
+
         super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        mLocClient.stop();
+        super.onDestroy();
     }
 
     //实现图片闪烁效果
