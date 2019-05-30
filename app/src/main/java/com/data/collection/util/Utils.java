@@ -6,7 +6,17 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.text.TextUtils;
+import android.view.View;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+
+import java.io.File;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -135,6 +145,57 @@ public class Utils {
             ret = String.format("%.1fM", size / (1024 * 1024.0));
         }
         return ret;
+    }
+
+
+    public static void cacheImage(String url) {
+        if (isCachedImage(url)) return;
+
+        ImageLoader.getInstance().loadImage(url, new ImageLoadingListener() {
+            @Override
+            public void onLoadingStarted(String imageUri, View view) {
+            }
+
+            @Override
+            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+            }
+            @Override
+            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                try {
+                    // put bitmap in the cache.
+                    ImageLoader.getInstance().getMemoryCache().put(url, loadedImage);
+                    ImageLoader.getInstance().getDiskCache().save(url, loadedImage);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            @Override
+            public void onLoadingCancelled(String imageUri, View view) {
+
+            }
+        });
+    }
+
+    public static boolean isCachedImage(String url) {
+        return ImageLoader.getInstance().getDiskCache().get(url).exists();
+    }
+
+    public static Bitmap getCachedImage(String url) {
+        Bitmap bitmap = ImageLoader.getInstance().getMemoryCache().get(url);
+        if (bitmap == null && ImageLoader.getInstance().getDiskCache().get(url).exists()) {
+            File file = ImageLoader.getInstance().getDiskCache().get(url);
+            bitmap= BitmapFactory.decodeFile(file.getName());
+            ImageLoader.getInstance().getMemoryCache().put(url,bitmap);
+        }
+        return  bitmap;
+    }
+
+    public static String trimLastChar(String text){
+        if (!TextUtils.isEmpty(text)) {
+            StringBuffer sb = new StringBuffer(text);
+            text = sb.deleteCharAt(sb.length() - 1).toString();
+        }
+        return text;
     }
 
 }

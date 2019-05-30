@@ -12,6 +12,14 @@ public class Constants {
 
     public static final String USER_INFO = BASE_URL_V1 + "getUserInfo";
 
+    public static final String GET_MSG = BASE_URL_V1 + "getMsgs";
+
+    public static final String GET_UNREAD_MSG = BASE_URL_V1 + "getUnreadMsgCount";
+
+    public static final String READ_MSG = BASE_URL_V1 + "readMsgs";
+
+
+
     public static final String SUCCEED = "1";
 
 }

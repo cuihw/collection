@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentTransaction;
 import com.data.collection.R;
 import com.data.collection.fragment.FragmentCompass;
 import com.data.collection.fragment.FragmentGpsInfo;
+import com.data.collection.fragment.FragmentMessage;
 import com.data.collection.fragment.FragmentOffline;
 import com.data.collection.fragment.FragmentPositionTransform;
 import com.data.collection.fragment.FragmentProject;
@@ -25,6 +26,8 @@ public class CommonActivity extends BaseActivity {
     public static final int FRAGMENT_POSITION = 5;
     public static final int FRAGMENT_TRACE = 6;
     public static final int FRAGMENT_PROJECT = 7;
+    public static final int FRAGMENT_MESSAGE = 8;
+
     private static final String TAG = "CommonActivity";
 
     public static void start(Context context, Bundle bundle){
@@ -64,6 +67,12 @@ public class CommonActivity extends BaseActivity {
             case FRAGMENT_PROJECT:
                 tranToFragment(FragmentProject.getInstance());
                 break;
+
+            case FRAGMENT_MESSAGE:
+                tranToFragment(FragmentMessage.getInstance());
+                break;
+
+
 
         }
     }

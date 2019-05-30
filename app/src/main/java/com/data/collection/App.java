@@ -7,6 +7,8 @@ import com.baidu.mapapi.CoordType;
 import com.baidu.mapapi.SDKInitializer;
 import com.data.collection.data.BaiduTrace;
 import com.data.collection.data.CacheData;
+import com.data.collection.data.greendao.DaoMaster;
+import com.data.collection.data.greendao.DaoSession;
 import com.data.collection.listener.IListenerUserInfo;
 import com.data.collection.module.LoginBean;
 import com.data.collection.module.UserInfoBean;
@@ -14,6 +16,10 @@ import com.data.collection.network.HttpRequest;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.PreferencesUtils;
 import com.data.collection.util.Utils;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+
+import org.greenrobot.greendao.database.Database;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,8 +31,16 @@ public class App extends Application {
 
     private static App instence;
 
+    DaoSession daoSession;
+
+
+
     public static App getInstence() {
         return instence;
+    }
+
+    public DaoSession getDaoSession() {
+        return daoSession;
     }
 
     @Override
@@ -35,10 +49,19 @@ public class App extends Application {
         // Fabric.with(this, new Crashlytics());
         instence = this;
 
-        initBaiduSdk();
+        ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(this));
 
+        initBaiduSdk();
         initLogin();
         getUserInfoCache();
+
+        initDaoSession();
+    }
+
+    private void initDaoSession() {
+        DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, "info-db");
+        Database db = helper.getWritableDb();
+        daoSession = new DaoMaster(db).newSession();
     }
 
     private void initLogin() {
@@ -48,18 +71,17 @@ public class App extends Application {
             CacheData.LOGIN_DATA = loginBean.getData();
             refreshToken();
         }
-
     }
 
     public UserInfoBean getUserInfoCache() {
         String userInfoStr = PreferencesUtils.getString(this, Constants.USER_INFO);
         if (!TextUtils.isEmpty(userInfoStr)) {
             UserInfoBean userInfoBean = UserInfoBean.formJson(userInfoStr, UserInfoBean.class);
-            CacheData.userInfoBean = userInfoBean;
-            // 请求新的
-            getUserInfo(null);
+            CacheData.setUserInfoBean(userInfoBean);
             return userInfoBean;
         }
+        // 请求新的
+        getUserInfo(null);
         return null;
     }
 
@@ -120,7 +142,7 @@ public class App extends Application {
     }
 
     private void saveUserInfo(UserInfoBean bean) {
-        CacheData.userInfoBean = bean;
         PreferencesUtils.putString(this, Constants.USER_INFO, bean.toJson());
+        CacheData.setUserInfoBean(bean);
     }
 }

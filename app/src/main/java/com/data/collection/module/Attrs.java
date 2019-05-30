@@ -2,7 +2,7 @@ package com.data.collection.module;
 
 import java.util.List;
 
-class Attrs {
+public class Attrs {
 
     private String id;
 

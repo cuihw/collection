@@ -49,6 +49,11 @@ public class FragmentSettings extends FragmentBase {
     @BindView(R.id.project_info)
     LinearLayout projectInfo;
 
+    @BindView(R.id.message_center)
+    LinearLayout messageCenter;
+
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -68,6 +73,7 @@ public class FragmentSettings extends FragmentBase {
         toolsPage.setOnClickListener(v->FragmentTools.start(getContext()));
         traceLayout.setOnClickListener(v->FragmentTrace.start(getContext()));
         projectInfo.setOnClickListener(v->FragmentProject.start(getContext()));
+        messageCenter.setOnClickListener(v->FragmentMessage.start(getContext()));
     }
 
     private void clickLoginButton() {
@@ -95,7 +101,7 @@ public class FragmentSettings extends FragmentBase {
             return;
         }
 
-        UserInfoBean userInfoBean = CacheData.userInfoBean;
+        UserInfoBean userInfoBean = CacheData.getUserInfoBean();
         if (userInfoBean == null) {
             userInfoBean = App.getInstence().getUserInfoCache();
         }
@@ -106,10 +112,7 @@ public class FragmentSettings extends FragmentBase {
             ToastUtil.showTextToast(getContext(),"用户信息出错，请打开网络重新登录，获取用户信息");
         }
 
-
-
     }
 
-    // 同步数据：1. 采集点 2. 兴趣点， 3 trace轨迹， 4. 项目内容，包含项目类型的图标。 5. 所在省份的离线地图
-
+    // 同步数据：1. 采集点   2. 兴趣点， 3 trace轨迹， 4. 项目内容，包含项目类型的图标。 5. 所在省份的离线地图
 }

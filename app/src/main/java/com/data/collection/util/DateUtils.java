@@ -1,5 +1,6 @@
 package com.data.collection.util;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -10,6 +11,16 @@ public class DateUtils {
     public static final String fmtYYYYMMDD = "yyyy-MM-dd";
     public static final String fmtYYYYMM = "yyyy-MM";
 
+    public static Long getSecond(String timeString) {
+        SimpleDateFormat sdf = new SimpleDateFormat(fmtYYYYMMDDhhmmss);
+        try {
+            Date date = sdf.parse(timeString);
+            return date.getTime() / 1000;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return 0l;
+    }
 
     public static String getNow(String format) {
         Date date = new Date();

@@ -11,21 +11,10 @@
         android:id="@+id/title_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        title:TitleText="工具"
+        title:TitleText="消息中心"
         title:IconLeft="@mipmap/top_back"
         >
     </com.data.collection.view.TitleView>
-
-    <TextView
-        android:id="@+id/projectname"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="项目名称"
-        android:textSize="@dimen/font1"
-        android:padding="@dimen/item_padding"
-        android:layout_margin="@dimen/item_padding"
-        android:background="@drawable/round_background"
-        />
     <ListView
         android:id="@+id/listview"
         android:layout_width="match_parent"

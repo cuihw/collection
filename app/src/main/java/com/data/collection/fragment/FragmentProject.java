@@ -1,10 +1,13 @@
 package com.data.collection.fragment;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Path;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,11 +22,16 @@ import com.classic.adapter.interfaces.ImageLoad;
 import com.data.collection.R;
 import com.data.collection.activity.CommonActivity;
 import com.data.collection.data.CacheData;
+import com.data.collection.module.Attrs;
+import com.data.collection.module.Options;
 import com.data.collection.module.Project;
 import com.data.collection.module.Types;
 import com.data.collection.module.UserInfoBean;
 import com.data.collection.util.LsLog;
+import com.data.collection.util.Utils;
 import com.data.collection.view.TitleView;
+
+import java.util.List;
 
 import butterknife.BindView;
 
@@ -75,7 +83,7 @@ public class FragmentProject extends FragmentBase {
     }
 
     private void initView() {
-        UserInfoBean userInfoBean = CacheData.userInfoBean;
+        UserInfoBean userInfoBean = CacheData.getUserInfoBean();
         if (userInfoBean == null) {
             projectName.setText("请联系管理员，设置项目内容");
             return;
@@ -87,9 +95,42 @@ public class FragmentProject extends FragmentBase {
             @Override
             public void onUpdate(BaseAdapterHelper helper, Types item, int position) {
                 helper.setText(R.id.type_name, "采集类型：" + item.getName());
-                String icon = item.getIcon();
 
+                ImageView iconview = helper.getView(R.id.icon);
 
+                Bitmap cachedImage = Utils.getCachedImage(item.getIcon());
+                if (cachedImage != null) {
+                    iconview.setImageBitmap(cachedImage);
+                }
+                List<Attrs> attrs = item.getAttrs();
+                String showOptingText = "";
+                String showFillText = "";
+                for (Attrs attr: attrs) {
+                    if (attr.getType().equals("2")) {  // 选项框；
+                        if (TextUtils.isEmpty(showOptingText)) {
+                            showOptingText = attr.getLabel() + ":【";
+                        } else {
+                            showOptingText = showOptingText + "\n" + attr.getLabel() + ":【";
+                        }
+
+                        List<Options> options = attr.getOptions();
+                        for (Options op: options) {
+                            showOptingText = showOptingText + op.getLabel() + ",";
+                        }
+                        if (showOptingText.contains(",")) {
+                            // 删除最后一个，
+                            showOptingText = Utils.trimLastChar(showOptingText);
+                        }
+                        showOptingText = showOptingText + "】";
+
+                    } else {  // 填空框
+                        showFillText = showFillText + attr.getLabel() + ",";
+                    }
+                }
+                showFillText = Utils.trimLastChar(showFillText);
+
+                helper.setText(R.id.option_view,  showOptingText);
+                helper.setText(R.id.fill_view,  showFillText);
             }
         };
         listview.setAdapter(adapter);

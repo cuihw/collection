@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="@dimen/item_padding"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:id="@+id/satellite"
+        android:layout_margin="@dimen/item_padding_small"
+        android:layout_width="match_parent"
+        android:background="@drawable/round_background"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+        <ImageView
+            android:id="@+id/message_read"
+            android:layout_width="@dimen/icon_size_settings"
+            android:layout_height="match_parent"
+            android:background="@drawable/left_round"
+            android:src="@mipmap/icon_msg_unread"
+            android:padding="@dimen/item_padding"
+            android:scaleType="center"
+            />
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/title_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="@dimen/item_padding"
+                android:textSize="@dimen/font2"
+                android:singleLine="true"
+                android:text="请再次确认采集点1的位置......"/>
+            <TextView
+                android:id="@+id/messgage_body"
+                android:layout_below="@+id/title_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="请再次确认采集点1的位置"
+                android:layout_marginLeft="@dimen/item_padding"
+                android:singleLine="true"
+                />
+            <TextView
+                android:id="@+id/messgage_date"
+                android:layout_below="@+id/messgage_body"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2019-05-59 12:32:25"
+                android:layout_alignParentRight="true"
+                android:layout_marginBottom="@dimen/item_padding"
+                android:layout_marginRight="@dimen/item_padding"
+                />
+        </RelativeLayout>
+
+
+    </LinearLayout>
+
+</LinearLayout>

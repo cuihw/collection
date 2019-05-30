@@ -1,6 +1,6 @@
 package com.data.collection.module;
 
-class Options {
+public class Options {
 
     // 选项的值
     private String value;

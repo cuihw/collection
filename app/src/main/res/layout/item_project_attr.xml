@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/item_padding"
+    android:paddingBottom="@dimen/item_padding"
     android:orientation="vertical">
 
     <LinearLayout
@@ -41,6 +42,7 @@
             android:layout_weight="2"
             android:textSize="@dimen/font1" />
         <TextView
+            android:id="@+id/option_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="材质：【混凝土，木头，铁杆，混凝土，木头，铁杆】"
@@ -67,6 +69,7 @@
             android:layout_weight="2"
             android:textSize="@dimen/font1" />
         <TextView
+            android:id="@+id/fill_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="高度，粗细"
