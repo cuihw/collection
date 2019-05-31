@@ -37,9 +37,9 @@
         android:lineSpacingExtra="3dp"
         android:maxLines="5"
         android:minHeight="25dp"
-        android:textColor="#555555"
-        android:textSize="14dp"
-        tools:text="发件人: admin;    日期：2019-11-26 14:35:56" />
+        android:textColor="@color/background4"
+        android:textSize="9dp"
+        tools:text="发件人: admin;    \n日期：2019-11-26 14:35:56" />
     <TextView
         android:id="@+id/common_dialog_message_tv"
         android:layout_width="match_parent"

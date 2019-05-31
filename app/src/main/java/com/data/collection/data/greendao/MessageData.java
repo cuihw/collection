@@ -21,9 +21,13 @@ public class MessageData {
 
     private String pusher;
 
-    @Generated(hash = 1085045789)
+    boolean isUploaded = false;
+
+
+
+    @Generated(hash = 692796271)
     public MessageData(String id, String title, String content, String type,
-            String read_at, String create_time, String pusher) {
+            String read_at, String create_time, String pusher, boolean isUploaded) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -31,10 +35,19 @@ public class MessageData {
         this.read_at = read_at;
         this.create_time = create_time;
         this.pusher = pusher;
+        this.isUploaded = isUploaded;
     }
 
     @Generated(hash = 723026249)
     public MessageData() {
+    }
+
+    public boolean isUploaded() {
+        return isUploaded;
+    }
+
+    public void setUploaded(boolean uploaded) {
+        isUploaded = uploaded;
     }
 
     public String getId() {
@@ -91,5 +104,13 @@ public class MessageData {
 
     public void setPusher(String pusher) {
         this.pusher = pusher;
+    }
+
+    public boolean getIsUploaded() {
+        return this.isUploaded;
+    }
+
+    public void setIsUploaded(boolean isUploaded) {
+        this.isUploaded = isUploaded;
     }
 }

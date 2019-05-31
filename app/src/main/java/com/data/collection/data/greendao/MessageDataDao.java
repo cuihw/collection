@@ -29,6 +29,7 @@ public class MessageDataDao extends AbstractDao<MessageData, String> {
         public final static Property Read_at = new Property(4, String.class, "read_at", false, "READ_AT");
         public final static Property Create_time = new Property(5, String.class, "create_time", false, "CREATE_TIME");
         public final static Property Pusher = new Property(6, String.class, "pusher", false, "PUSHER");
+        public final static Property IsUploaded = new Property(7, boolean.class, "isUploaded", false, "IS_UPLOADED");
     }
 
 
@@ -50,7 +51,8 @@ public class MessageDataDao extends AbstractDao<MessageData, String> {
                 "\"TYPE\" TEXT," + // 3: type
                 "\"READ_AT\" TEXT," + // 4: read_at
                 "\"CREATE_TIME\" TEXT," + // 5: create_time
-                "\"PUSHER\" TEXT);"); // 6: pusher
+                "\"PUSHER\" TEXT," + // 6: pusher
+                "\"IS_UPLOADED\" INTEGER NOT NULL );"); // 7: isUploaded
     }
 
     /** Drops the underlying database table. */
@@ -97,6 +99,7 @@ public class MessageDataDao extends AbstractDao<MessageData, String> {
         if (pusher != null) {
             stmt.bindString(7, pusher);
         }
+        stmt.bindLong(8, entity.getIsUploaded() ? 1L: 0L);
     }
 
     @Override
@@ -137,6 +140,7 @@ public class MessageDataDao extends AbstractDao<MessageData, String> {
         if (pusher != null) {
             stmt.bindString(7, pusher);
         }
+        stmt.bindLong(8, entity.getIsUploaded() ? 1L: 0L);
     }
 
     @Override
@@ -153,7 +157,8 @@ public class MessageDataDao extends AbstractDao<MessageData, String> {
             cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // type
             cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // read_at
             cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // create_time
-            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6) // pusher
+            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // pusher
+            cursor.getShort(offset + 7) != 0 // isUploaded
         );
         return entity;
     }
@@ -167,6 +172,7 @@ public class MessageDataDao extends AbstractDao<MessageData, String> {
         entity.setRead_at(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
         entity.setCreate_time(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
         entity.setPusher(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
+        entity.setIsUploaded(cursor.getShort(offset + 7) != 0);
      }
     
     @Override

@@ -21,6 +21,7 @@ import com.data.collection.data.greendao.DaoSession;
 import com.data.collection.data.greendao.MessageData;
 import com.data.collection.data.greendao.MessageDataDao;
 import com.data.collection.dialog.PopupDialogMessage;
+import com.data.collection.module.BaseBean;
 import com.data.collection.module.MessageBean;
 import com.data.collection.module.MessageDatas;
 import com.data.collection.network.HttpRequest;
@@ -118,11 +119,10 @@ public class FragmentMessage extends FragmentBase {
 
     private List<MessageData> getMessageDataBase() {
         DaoSession daoSession =  App.getInstence().getDaoSession();
-        MessageDataDao messageDataDao = daoSession.getMessageDataDao();
-        QueryBuilder<MessageData> qb = daoSession.queryBuilder(MessageData.class).limit(30)
-                .orderDesc(MessageDataDao.Properties.Create_time);
+        QueryBuilder<MessageData> qb = daoSession.queryBuilder(MessageData.class)
+                .orderDesc(MessageDataDao.Properties.Create_time) .limit(30);
 
-        List<MessageData> list = qb.list(); //查出当前对应的数据
+        List<MessageData> list = qb.list(); // 查出当前对应的数据
         return list;
     }
 
@@ -158,28 +158,50 @@ public class FragmentMessage extends FragmentBase {
                             setMessageRead(messageData);
                         }
                     });
-            String fromTime = "发件人:" + messageData.getPusher() + "            时间" + messageData.getCreate_time();
+            String fromTime = "发件人:" + messageData.getPusher() + "\n时间" + messageData.getCreate_time();
             dialog.show();
             dialog.setFromMsg(fromTime);
         }
     }
 
     private void setMessageRead(MessageData messageData) {
-        messageData.setType("1");
-        messageData.setRead_at(DateUtils.getNow(DateUtils.fmtYYYYMMDDhhmmss));
-        DaoSession daoSession =  App.getInstence().getDaoSession();
-        daoSession.update(messageData);
-
-        // 尝试更新后头已读消息
+        if (messageData.getType().equals(0)) { // 原来是未读的，现在设置成已读的
+            messageData.setType("1");
+            messageData.setRead_at(DateUtils.getNow(DateUtils.fmtYYYYMMDDhhmmss));
+            DaoSession daoSession =  App.getInstence().getDaoSession();
+            daoSession.insertOrReplace(messageData);
+            // 尝试更新后头已读消息
+            upLoadedMsg();
+        }
     }
 
+    private void upLoadedMsg() {
+        DaoSession daoSession =  App.getInstence().getDaoSession();
+        MessageDataDao messageDataDao = daoSession.getMessageDataDao();
+        QueryBuilder<MessageData> qb = daoSession.queryBuilder(MessageData.class)
+                .where(MessageDataDao.Properties.IsUploaded.eq(false))
+                .orderDesc(MessageDataDao.Properties.Create_time);
+
+        List<MessageData> list = qb.list(); // 查出当前对应的数据
+        if (list != null && list.size() > 0) {
+            for(MessageData data: list) {
+                Map<String, Object> params = new HashMap<>();
+                params.put("id", data.getId());
+                HttpRequest.postData(Constants.READ_MSG, params, new HttpRequest.RespListener<BaseBean>() {
+                    @Override
+                    public void onResponse(int status, BaseBean bean) {
+                        LsLog.i(TAG, "set the message has benn read result = " + bean.getMsg());
+                        App.getInstence().getDaoSession().insertOrReplace(data);
+                    }
+                });
+            }
+        }
 
 
+
+    }
 
     private void initListener() {
         titleView.getLefticon().setOnClickListener(v->getActivity().finish());
     }
-
-
-
 }
