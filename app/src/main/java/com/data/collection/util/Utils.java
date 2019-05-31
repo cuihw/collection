@@ -22,6 +22,8 @@ import java.security.NoSuchAlgorithmException;
 
 public class Utils {
 
+    private static final String TAG = "Utils";
+
     // 小数点后两位小数，大于两位时返回false。
     public static boolean checkPrice(String number) {
         if (number.contains(".")) {
@@ -149,7 +151,8 @@ public class Utils {
 
 
     public static void cacheImage(String url) {
-        if (isCachedImage(url)) return;
+        //if (isCachedImage(url)) return;
+        LsLog.w(TAG, "cacheImage =" + url);
 
         ImageLoader.getInstance().loadImage(url, new ImageLoadingListener() {
             @Override
@@ -161,13 +164,15 @@ public class Utils {
             }
             @Override
             public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                // put bitmap in the cache.
+                LsLog.w(TAG, " put bitmap in the cache. =" + url);
                 try {
-                    // put bitmap in the cache.
-                    ImageLoader.getInstance().getMemoryCache().put(url, loadedImage);
-                    ImageLoader.getInstance().getDiskCache().save(url, loadedImage);
+                    ImageLoader.getInstance().getDiskCache().save(url,loadedImage);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
+
             }
             @Override
             public void onLoadingCancelled(String imageUri, View view) {
@@ -181,12 +186,8 @@ public class Utils {
     }
 
     public static Bitmap getCachedImage(String url) {
-        Bitmap bitmap = ImageLoader.getInstance().getMemoryCache().get(url);
-        if (bitmap == null && ImageLoader.getInstance().getDiskCache().get(url).exists()) {
-            File file = ImageLoader.getInstance().getDiskCache().get(url);
-            bitmap= BitmapFactory.decodeFile(file.getName());
-            ImageLoader.getInstance().getMemoryCache().put(url,bitmap);
-        }
+        File file = ImageLoader.getInstance().getDiskCache().get(url);
+        Bitmap bitmap= BitmapFactory.decodeFile(file.getName());
         return  bitmap;
     }
 

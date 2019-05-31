@@ -18,8 +18,11 @@ public class Constants {
 
     public static final String READ_MSG = BASE_URL_V1 + "readMsgs";
 
+    public static final String UPLOAD_IMAGES = BASE_URL_V1 + "uploadMultiImg";
 
+    public static final String SAVE_COLLECTION_POINT = BASE_URL_V1 + "saveCollectionPoint";
 
     public static final String SUCCEED = "1";
+
 
 }

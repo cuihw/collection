@@ -5,13 +5,17 @@ import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.data.collection.R;
+import com.data.collection.module.Attrs;
+import com.data.collection.module.Options;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,7 +28,7 @@ public class AttributionView extends LinearLayout {
     private View mView;
     private LinearLayout container;
 
-    private List<View> attrViewList; // option and fill
+    private List<View> attrViewList = new ArrayList<>(); // option and fill
 
     LayoutInflater inflater;
 
@@ -58,8 +62,17 @@ public class AttributionView extends LinearLayout {
         container = mView.findViewById(R.id.container);
     }
 
-    public void setViewAttri(String attrs) {
-
+    public void setViewAttri(List<Attrs> attrs) {
+        if (attrs != null && attrs.size() > 0){
+            for (Attrs attr: attrs) {
+                if (attr.getType().equals("2")) {
+                    List<Options> options = attr.getOptions();
+                    createOptionAttr(attr.getLabel(), options);
+                } else {
+                    createFillAttr(attr.getLabel());
+                }
+            }
+        }
     }
 
     private synchronized void createFillAttr(String name){ // 填写
@@ -67,7 +80,6 @@ public class AttributionView extends LinearLayout {
         view.setTag("fill_attr");
         TextView ckeyview = view.findViewById(R.id.ckey);
         ckeyview.setText(name + ":");
-
         addChildView(view);
     }
 
@@ -76,26 +88,39 @@ public class AttributionView extends LinearLayout {
         container.addView(view);
     }
 
-    private synchronized void createOptionAttr(String name, List<String> option){
+    private void addChildView(View view, int index) {
+        attrViewList.add(index,view);
+        container.addView(view, index);
+    }
+
+    private synchronized void createOptionAttr(String name, List<Options> option){
 
         View view = inflater.inflate(R.layout.view_attribution_option, this, false);
         view.setTag("option_attr");
         TextView ckeyview = view.findViewById(R.id.ckey);
         ckeyview.setText(name + ":");
-        if (isFirst) {
-            isFirst = false;
-        } else {
-            setBackgroundColor(getResources().getColor(R.color.background3));
-        }
 
         Spinner spinner = view.findViewById(R.id.spinner);
+        List<String> labels = new ArrayList<>();
+        for (Options opt: option) {
+            labels.add(opt.getLabel());
+        }
 
-        ArrayAdapter<String>  adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, option);
+        ArrayAdapter<String>  adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, labels);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // 加载适配器
         spinner.setAdapter(adapter);
 
-        addChildView(view);
+        addChildView(view, 0);
+    }
+
+    public void clearView(){
+        attrViewList.clear();
+        container.removeAllViews();
+    }
+
+    public boolean hasChild(){
+        return attrViewList.size() > 1;
     }
 }
 

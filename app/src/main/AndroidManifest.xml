@@ -19,7 +19,7 @@
 
     <!--camera-->
     <uses-permission android:name = "android.permission.CAMERA" />
-    <uses-feature android:name = "android.hardware.camera" />
+    <uses-feature android:name = "android.hardware.camera" android:required="true" />
     <uses-feature android:name = "android.hardware.camera.autofocus" />
 
     <application
@@ -42,6 +42,7 @@
 
         <activity android:name=".MainActivity"
             android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustPan|stateHidden"
             android:screenOrientation="portrait">
         </activity>
 
@@ -51,6 +52,7 @@
         </activity>
 
         <activity android:name=".activity.AddCollectionActivity"
+            android:windowSoftInputMode="adjustPan|stateHidden"
             android:screenOrientation="portrait">
         </activity>
 

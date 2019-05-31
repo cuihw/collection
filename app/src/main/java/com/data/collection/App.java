@@ -75,14 +75,15 @@ public class App extends Application {
 
     public UserInfoBean getUserInfoCache() {
         String userInfoStr = PreferencesUtils.getString(this, Constants.USER_INFO);
+        UserInfoBean userInfoBean = null;
         if (!TextUtils.isEmpty(userInfoStr)) {
-            UserInfoBean userInfoBean = UserInfoBean.formJson(userInfoStr, UserInfoBean.class);
+            LsLog.i(TAG, "userInfoStr = " + userInfoStr);
+            userInfoBean = UserInfoBean.formJson(userInfoStr, UserInfoBean.class);
             CacheData.setUserInfoBean(userInfoBean);
-            return userInfoBean;
         }
         // 请求新的
         getUserInfo(null);
-        return null;
+        return userInfoBean;
     }
 
     private void refreshToken() {
@@ -127,7 +128,8 @@ public class App extends Application {
 
     public void getUserInfo(IListenerUserInfo listenerUserInfo) {
         if (CacheData.isLogin()){
-            HttpRequest.postData( Constants.USER_INFO,null,  new HttpRequest.RespListener<UserInfoBean>() {
+            //http://192.168.1.201/collect/index.php/app/v1/getUserInfo
+            HttpRequest.postData(Constants.USER_INFO,null,  new HttpRequest.RespListener<UserInfoBean>() {
                 @Override
                 public void onResponse(int status, UserInfoBean bean) {
                     saveUserInfo(bean);
@@ -140,6 +142,7 @@ public class App extends Application {
     }
 
     private void saveUserInfo(UserInfoBean bean) {
+        if (bean == null) return;
         PreferencesUtils.putString(this, Constants.USER_INFO, bean.toJson());
         CacheData.setUserInfoBean(bean);
     }

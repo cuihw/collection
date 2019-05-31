@@ -1,5 +1,6 @@
 package com.data.collection.data;
 
+import com.data.collection.App;
 import com.data.collection.module.LoginData;
 import com.data.collection.module.Project;
 import com.data.collection.module.Types;
@@ -13,9 +14,10 @@ public class CacheData {
     public static LoginData LOGIN_DATA= null;
     private static UserInfoBean userInfoBean;
 
-
-
     public static UserInfoBean getUserInfoBean() {
+        if (userInfoBean == null) {
+            App.getInstence().getUserInfoCache();
+        }
         return userInfoBean;
     }
 
@@ -42,5 +44,6 @@ public class CacheData {
             }
         }
     }
+
 
 }

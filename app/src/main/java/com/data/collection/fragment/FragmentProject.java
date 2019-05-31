@@ -30,6 +30,7 @@ import com.data.collection.module.UserInfoBean;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.Utils;
 import com.data.collection.view.TitleView;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.List;
 
@@ -98,10 +99,8 @@ public class FragmentProject extends FragmentBase {
 
                 ImageView iconview = helper.getView(R.id.icon);
 
-                Bitmap cachedImage = Utils.getCachedImage(item.getIcon());
-                if (cachedImage != null) {
-                    iconview.setImageBitmap(cachedImage);
-                }
+                ImageLoader.getInstance().displayImage(item.getIcon(), iconview);
+
                 List<Attrs> attrs = item.getAttrs();
                 String showOptingText = "";
                 String showFillText = "";

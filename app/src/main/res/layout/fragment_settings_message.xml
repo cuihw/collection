@@ -12,8 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         title:TitleText="消息中心"
-        title:IconLeft="@mipmap/top_back"
-        >
+        title:IconLeft="@mipmap/top_back" >
+
     </com.data.collection.view.TitleView>
     <ListView
         android:id="@+id/listview"

@@ -106,6 +106,7 @@ public class FragmentSettings extends FragmentBase {
 
             @Override
             public void onResponse(int status, BaseBean bean) {
+                if (status != 0) return ;
                 String data = bean.getData().toString();
                 LsLog.i(TAG, "read data = " + data);
                 try {

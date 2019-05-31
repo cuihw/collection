@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/round_top_background1"
+    android:orientation="vertical">
+    <TextView
+        android:id="@+id/action_camera"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_weight="1"
+        android:clickable="true"
+        android:gravity="center"
+        android:textColor="@color/font0"
+        android:textSize="18dp"
+        tools:text="拍照" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#F5F5F5" />
+    <TextView
+        android:id="@+id/action_gallary"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_weight="1"
+        android:clickable="true"
+        android:gravity="center"
+        android:textColor="@color/font0"
+        android:textSize="18dp"
+        tools:text="相册" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/item_padding"
+        android:background="#F5F5F5" />
+
+    <TextView
+        android:id="@+id/cancel_tv"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_weight="1"
+        android:clickable="true"
+        android:gravity="center"
+        android:textColor="@color/font0"
+        android:textSize="18dp"
+        tools:text="取消" />
+</LinearLayout>
