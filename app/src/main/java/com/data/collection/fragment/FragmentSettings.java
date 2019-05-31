@@ -11,13 +11,25 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.data.collection.App;
+import com.data.collection.Constants;
 import com.data.collection.R;
 import com.data.collection.activity.LoginActivity;
 import com.data.collection.data.CacheData;
+import com.data.collection.data.greendao.DaoSession;
+import com.data.collection.data.greendao.MessageData;
+import com.data.collection.data.greendao.MessageDataDao;
+import com.data.collection.module.BaseBean;
 import com.data.collection.module.UserInfoBean;
+import com.data.collection.network.HttpRequest;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.PackageUtils;
 import com.data.collection.util.ToastUtil;
+
+import org.greenrobot.greendao.query.QueryBuilder;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.List;
 
 import butterknife.BindView;
 
@@ -40,6 +52,9 @@ public class FragmentSettings extends FragmentBase {
     @BindView(R.id.username)
     TextView username;
 
+    @BindView(R.id.unread_count)
+    TextView unread_count;
+
     @BindView(R.id.tools_page)
     LinearLayout toolsPage;
 
@@ -51,8 +66,6 @@ public class FragmentSettings extends FragmentBase {
 
     @BindView(R.id.message_center)
     LinearLayout messageCenter;
-
-
 
     @Nullable
     @Override
@@ -88,6 +101,36 @@ public class FragmentSettings extends FragmentBase {
     private void initView() {
         String versionName = PackageUtils.getVersionName(getContext());
         versionInfo.setText("版本号： " + versionName);
+
+        HttpRequest.postData(Constants.GET_UNREAD_MSG,null, new HttpRequest.RespListener<BaseBean>() {
+
+            @Override
+            public void onResponse(int status, BaseBean bean) {
+                String data = bean.getData().toString();
+                LsLog.i(TAG, "read data = " + data);
+                try {
+                    JSONObject object = new JSONObject(data);
+                    String count = object.getString("count");
+
+                    unread_count.setText("未读消息：" + count);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    unread_count.setText("");
+                }
+
+            }
+        });
+
+    }
+    long unreadCount;
+    private void getUnreadCountDB() {
+        DaoSession daoSession =  App.getInstence().getDaoSession();
+        MessageDataDao messageDataDao = daoSession.getMessageDataDao();
+        QueryBuilder<MessageData> qb = daoSession.queryBuilder(MessageData.class)
+                .where(MessageDataDao.Properties.Type.eq("0"))
+                .orderDesc(MessageDataDao.Properties.Create_time);
+
+        unreadCount = qb.count();// 查出当前未读
     }
 
     @Override
