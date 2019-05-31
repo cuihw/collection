@@ -262,9 +262,9 @@ public class AddCollectionActivity extends BaseActivity {
             switch (requestCode) {
                 case REQUEST_CODE_PIC_PHOTO:
                     Uri data1 = data.getData();
-                    String filePathByUri = FileUtils.getFilePathByUri(this, data1);
-                    LsLog.i(TAG, "onPickPhotoResult: " + filePathByUri);
-                    bitmap = BitmapFactory.decodeFile(filePathByUri);
+                    takeCameraFilename = FileUtils.getFilePathByUri(this, data1);
+                    LsLog.i(TAG, "onPickPhotoResult: " + takeCameraFilename);
+                    bitmap = BitmapFactory.decodeFile(takeCameraFilename);
                     if (bitmap != null) {
                         setImage(bitmap);
                     }
