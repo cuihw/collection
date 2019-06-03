@@ -5,7 +5,9 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.data.collection.App;
+import com.data.collection.Constants;
 import com.data.collection.data.CacheData;
+import com.data.collection.module.ImageUploadBean;
 import com.data.collection.util.LsLog;
 import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
@@ -19,8 +21,10 @@ import com.lzy.okgo.request.PostRequest;
 
 import org.json.JSONObject;
 
+import java.io.File;
 import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -89,38 +93,39 @@ public class HttpRequest {
         for (String key : params.keySet()) {
             String s = params.get(key).toString();
             LsLog.i(TAG, "params = " + s);
-            hparams.put(key, s );
+            hparams.put(key, s);
         }
 
         OkGo.<String>post(url).tag(clz).headers("platform", "Android")
-                .headers("token", CacheData.LOGIN_DATA==null? "" : CacheData.LOGIN_DATA.getToken())
+                .headers("token", CacheData.LOGIN_DATA == null ? "" : CacheData.LOGIN_DATA.getToken())
                 .params(hparams).execute(new HStringCallback(context) {
-                    String body = null;
-                    @Override
-                    public void onFinish() {
-                        super.onFinish();
-                        if (TextUtils.isEmpty(body)) {
-                            listener.onResponse(-1, null);
-                        }
-                    }
+            String body = null;
 
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        body = response.body();
-                        try {
-                            Class<T> clz = listener.getClazz();
-                            if (clz != String.class || clz != null) {
-                                T data = new Gson().fromJson(body, clz);
-                                listener.onResponse(0, data);
-                            } else {
-                                listener.onResponse(0, body);
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            listener.onResponse(-1, null);
-                        }
+            @Override
+            public void onFinish() {
+                super.onFinish();
+                if (TextUtils.isEmpty(body)) {
+                    listener.onResponse(-1, null);
+                }
+            }
+
+            @Override
+            public void onSuccess(Response<String> response) {
+                body = response.body();
+                try {
+                    Class<T> clz = listener.getClazz();
+                    if (clz != String.class || clz != null) {
+                        T data = new Gson().fromJson(body, clz);
+                        listener.onResponse(0, data);
+                    } else {
+                        listener.onResponse(0, body);
                     }
-                });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    listener.onResponse(-1, null);
+                }
+            }
+        });
     }
 
     static public abstract class RespListener<T> implements ResponseListener<T> {
@@ -155,6 +160,30 @@ public class HttpRequest {
                     @Override
                     public void onSuccess(Response<String> response) {
                         listener.onResponse(0, response.body());
+                    }
+                });
+    }
+
+    public static void upLoadImgs(List<File> files, final ResponseListener<ImageUploadBean> listener) {
+        OkGo.<String>post(Constants.UPLOAD_IMAGES).tag("upLoadImgs")
+                .headers("token", CacheData.LOGIN_DATA == null ? "" : CacheData.LOGIN_DATA.getToken())
+                .addFileParams("image", files)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        String body = response.body();
+                        ImageUploadBean bean = null;
+                        try {
+                            bean = new Gson().fromJson(body, ImageUploadBean.class);
+
+                        }catch (Exception e) {
+                            e.printStackTrace();
+                        } finally {
+                            if (listener!= null) {
+                                int status = bean == null ? -1 : 0;
+                                listener.onResponse(status, bean);
+                            }
+                        }
                     }
                 });
     }

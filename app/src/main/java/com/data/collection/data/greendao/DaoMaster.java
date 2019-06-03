@@ -23,20 +23,20 @@ public class DaoMaster extends AbstractDaoMaster {
     public static void createAllTables(Database db, boolean ifNotExists) {
         CheckPointDao.createTable(db, ifNotExists);
         GatherPointDao.createTable(db, ifNotExists);
-        MessageRecordDao.createTable(db, ifNotExists);
-        SampleDao.createTable(db, ifNotExists);
         MessageDataDao.createTable(db, ifNotExists);
+        MessageRecordDao.createTable(db, ifNotExists);
         PictureMapDao.createTable(db, ifNotExists);
+        SampleDao.createTable(db, ifNotExists);
     }
 
     /** Drops underlying database table using DAOs. */
     public static void dropAllTables(Database db, boolean ifExists) {
         CheckPointDao.dropTable(db, ifExists);
         GatherPointDao.dropTable(db, ifExists);
-        MessageRecordDao.dropTable(db, ifExists);
-        SampleDao.dropTable(db, ifExists);
         MessageDataDao.dropTable(db, ifExists);
+        MessageRecordDao.dropTable(db, ifExists);
         PictureMapDao.dropTable(db, ifExists);
+        SampleDao.dropTable(db, ifExists);
     }
 
     /**
@@ -57,10 +57,10 @@ public class DaoMaster extends AbstractDaoMaster {
         super(db, SCHEMA_VERSION);
         registerDaoClass(CheckPointDao.class);
         registerDaoClass(GatherPointDao.class);
-        registerDaoClass(MessageRecordDao.class);
-        registerDaoClass(SampleDao.class);
         registerDaoClass(MessageDataDao.class);
+        registerDaoClass(MessageRecordDao.class);
         registerDaoClass(PictureMapDao.class);
+        registerDaoClass(SampleDao.class);
     }
 
     public DaoSession newSession() {

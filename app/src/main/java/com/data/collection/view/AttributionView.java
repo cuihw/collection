@@ -2,11 +2,13 @@ package com.data.collection.view;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -14,6 +16,10 @@ import android.widget.TextView;
 import com.data.collection.R;
 import com.data.collection.module.Attrs;
 import com.data.collection.module.Options;
+import com.data.collection.module.Types;
+import com.data.collection.util.ToastUtil;
+
+import org.w3c.dom.Attr;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -94,7 +100,7 @@ public class AttributionView extends LinearLayout {
             divider.setVisibility(View.VISIBLE);
         }
         TextView ckeyview = view.findViewById(R.id.ckey);
-        ckeyview.setText(name + ":");
+        ckeyview.setText(name + "  ");
         addChildView(view);
     }
 
@@ -113,7 +119,7 @@ public class AttributionView extends LinearLayout {
         View view = inflater.inflate(R.layout.view_attribution_option, this, false);
         view.setTag("option_attr");
         TextView ckeyview = view.findViewById(R.id.ckey);
-        ckeyview.setText(name + ":");
+        ckeyview.setText(name + "  ");
 
         Spinner spinner = view.findViewById(R.id.spinner);
         List<String> labels = new ArrayList<>();
@@ -125,7 +131,6 @@ public class AttributionView extends LinearLayout {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // 加载适配器
         spinner.setAdapter(adapter);
-
         addChildView(view, 0);
     }
 
@@ -136,6 +141,39 @@ public class AttributionView extends LinearLayout {
 
     public boolean hasChild(){
         return attrViewList.size() > 1;
+    }
+
+    public Types getAttrsValue(Types selectedItem) {
+
+        List<Attrs> attrs = selectedItem.getAttrs();
+
+        for (View view: attrViewList) {
+            for (Attrs att:attrs) {
+                String tag = (String)view.getTag();
+                if ("fill_attr".equals(tag)) {
+                    TextView ckeyview = view.findViewById(R.id.ckey);
+                    String label = ckeyview.getText().toString().trim();
+                    if (label.startsWith(att.getLabel())) {
+                        EditText valueView = view.findViewById(R.id.value);
+                        String value = valueView.getText().toString();
+                        if (TextUtils.isEmpty(value)) {
+                            ToastUtil.showTextToast(mContext,"请填写" + label+ "的属性值");
+                            return null;
+                        }
+                        att.setValue(valueView.getText().toString());
+                    }
+                } else {
+                    TextView ckeyview = view.findViewById(R.id.ckey);
+                    String label = ckeyview.getText().toString().trim();
+                    if (label.startsWith(att.getLabel())) {
+                        Spinner spinner = view.findViewById(R.id.spinner);
+                        int selectedItemPosition = spinner.getSelectedItemPosition() + 1;
+                        att.setValue("" + selectedItemPosition);
+                    }
+                }
+            }
+        }
+        return selectedItem;
     }
 }
 

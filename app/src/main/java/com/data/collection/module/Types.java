@@ -1,5 +1,7 @@
 package com.data.collection.module;
 
+import com.google.gson.Gson;
+
 import java.util.List;
 
 public class Types {
@@ -41,5 +43,10 @@ public class Types {
 
     public void setAttrs(List<Attrs> attrs) {
         this.attrs = attrs;
+    }
+
+
+    public String toJson() {
+        return new Gson().toJson(this);
     }
 }

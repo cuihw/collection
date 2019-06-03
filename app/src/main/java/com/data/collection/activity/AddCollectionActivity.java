@@ -6,12 +6,14 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
@@ -20,18 +22,28 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.data.collection.App;
 import com.data.collection.R;
 import com.data.collection.adapter.PointTypeAdapter;
 import com.data.collection.data.CacheData;
+import com.data.collection.data.greendao.CheckPoint;
+import com.data.collection.data.greendao.DaoSession;
+import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.dialog.ButtomDialogView;
 import com.data.collection.module.Attrs;
 import com.data.collection.module.Types;
 import com.data.collection.module.UserInfoBean;
 import com.data.collection.util.BitmapUtil;
+import com.data.collection.util.DateUtils;
 import com.data.collection.util.FileUtils;
+import com.data.collection.util.LocationController;
 import com.data.collection.util.LsLog;
+import com.data.collection.util.ToastUtil;
 import com.data.collection.view.AttributionView;
 import com.data.collection.view.TitleView;
+import com.google.gson.Gson;
+
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.util.List;
@@ -52,6 +64,9 @@ public class AddCollectionActivity extends BaseActivity {
 
     @BindView(R.id.title_view)
     TitleView titleView;
+
+    @BindView(R.id.longitude_tv)
+    TextView longitudeTv;
 
     @BindView(R.id.type_spinner)
     Spinner typeSpinner;
@@ -81,8 +96,19 @@ public class AddCollectionActivity extends BaseActivity {
 
     AttributionView attrsView; // propreties
 
-
     List<Types> projectTypes;
+
+    @BindView(R.id.laititude_tv)
+    TextView laititudeTv;
+    @BindView(R.id.time_tv)
+    TextView timeTv;
+    @BindView(R.id.altitude_tv)
+    TextView altitudeTv;
+
+    @BindView(R.id.name)
+    TextView nameTv;
+    @BindView(R.id.comments_tv)
+    TextView commentsTv;
 
     public static void start(Context context, Bundle bundle){
         Intent intent = new Intent(context, AddCollectionActivity.class);
@@ -106,9 +132,24 @@ public class AddCollectionActivity extends BaseActivity {
         deleteImage3.setVisibility(View.INVISIBLE);
         initSpinner();
 
+        fillLongitudeAndLaititude();
+
         attrsView = new AttributionView(this);
 
         createAttrsView(0);
+    }
+
+    Location location;
+    private void fillLongitudeAndLaititude() {
+        location = LocationController.getInstance().getLocation();
+
+        longitudeTv.setText("经度: " + location.getLongitude());
+        laititudeTv.setText("纬度: " + location.getLatitude());
+        altitudeTv.setText("高度: " + location.getAltitude());
+
+        long time = location.getTime();
+        timeTv.setText("采集时间: " + DateUtils.formatTime(time, DateUtils.fmtYYYYMMDDhhmmss));
+
     }
 
     private void createAttrsView(int i) {
@@ -136,7 +177,6 @@ public class AddCollectionActivity extends BaseActivity {
         titleView.getLefticon().setOnClickListener(v->finish());
         cameraLayout.setOnClickListener(v->initPermission(TAKE_PICTURE));//  动态请求权限);
         saveLayout.setOnClickListener(v->initPermission(SAVE_POINT));
-
         imageview1.setOnClickListener(v->{
             String tag = (String)imageview1.getTag();
             if (TextUtils.isEmpty(tag)) {
@@ -189,10 +229,57 @@ public class AddCollectionActivity extends BaseActivity {
 
     }
 
-
-
+    GatherPoint gatherPoint;
     private void savePoint() {
+        String pointName = nameTv.getText().toString().trim();
 
+        Types selectedItem = (Types)typeSpinner.getSelectedItem();
+
+        if (TextUtils.isEmpty(pointName)) {
+            ToastUtil.showTextToast(this, "请输入采集点名称");
+            return;
+        }
+        Types attrsValue = attrsView.getAttrsValue(selectedItem);
+        if (attrsValue == null) {
+            return;
+        }
+
+        LsLog.w(TAG, "attrs: " + new Gson().toJson(attrsValue.getAttrs()));
+        String des = commentsTv.getText().toString().trim(); // 备注
+
+        if (gatherPoint == null) {
+            gatherPoint = new GatherPoint();
+        }
+
+        gatherPoint.setName(pointName);
+        gatherPoint.setType_id(selectedItem.getId());
+        gatherPoint.setDesc(des);
+        if (location != null) {
+            gatherPoint.setLongitude(location.getLongitude());
+            gatherPoint.setLatitude(location.getLatitude());
+            gatherPoint.setHeight(location.getAltitude());
+            long time = location.getTime();
+            gatherPoint.setCollected_at(DateUtils.formatTime(time, DateUtils.fmtYYYYMMDDhhmmss));
+        } else {
+            ToastUtil.showTextToast(this, "定位失败，请打开GPS，等待定位");
+        }
+        gatherPoint.setAttrs(new Gson().toJson(attrsValue.getAttrs()));
+
+        String path = (String)imageview1.getTag();
+        if (!TextUtils.isEmpty(path)) {
+            gatherPoint.setPicPath1(path);
+        }
+        path = (String)imageview2.getTag();
+        if (!TextUtils.isEmpty(path)) {
+            gatherPoint.setPicPath2(path);
+        }
+        path = (String)imageview3.getTag();
+        if (!TextUtils.isEmpty(path)) {
+            gatherPoint.setPicPath3(path);
+        }
+        DaoSession daoSession =  App.getInstence().getDaoSession();
+        long id = daoSession.insertOrReplace(gatherPoint);
+        Log.i(TAG, "save id = " + id);
     }
 
     private void takePicture() {
@@ -277,8 +364,6 @@ public class AddCollectionActivity extends BaseActivity {
                         }
                     }
                     break;
-
-
             }
         }
     }

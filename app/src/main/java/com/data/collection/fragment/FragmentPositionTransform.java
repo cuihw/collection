@@ -25,6 +25,7 @@ import android.view.animation.RotateAnimation;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -67,6 +68,11 @@ public class FragmentPositionTransform extends FragmentBase {
     @BindView(R.id.copy_result)
     TextView copyResult;
 
+    @BindView(R.id.scroll_view)
+    ScrollView scroll_view;
+
+
+
     public static void start(Context context){
         Bundle bundle = new Bundle();
         bundle.putInt(CommonActivity.FRAGMENT, CommonActivity.FRAGMENT_POSITION);
@@ -84,6 +90,7 @@ public class FragmentPositionTransform extends FragmentBase {
         view = inflater.inflate(R.layout.fragment_tools_position, container, false);
         bindButterKnife();
         initListener();
+        scroll_view.setVisibility(View.INVISIBLE);
         return view;
     }
 

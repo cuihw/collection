@@ -17,7 +17,8 @@ import java.util.List;
 
 /**
  * 系统GPS回调
- *
+ * App 中初始化，然后调用startLocation 开始定位。 在应用中就能够使用；
+ * 结束程序前，先调用stopLocation
  * @author yangchao on 2018/9/28.
  */
 public class LocationController implements LocationListener {

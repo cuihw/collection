@@ -34,6 +34,7 @@ import com.baidu.mapapi.map.SupportMapFragment;
 import com.baidu.mapapi.model.LatLng;
 import com.data.collection.R;
 import com.data.collection.activity.AddCollectionActivity;
+import com.data.collection.activity.CollectionActivity;
 import com.data.collection.data.BaiduTrace;
 import com.data.collection.util.LocationController;
 import com.data.collection.util.LsLog;
@@ -113,9 +114,10 @@ public class FragmentHome extends FragmentBase {
     private void initListener() {
         titleView.getRighticon().setOnClickListener(v->{
             // 显示采集列表。
+            CollectionActivity.start(getContext());
         });
-        addPoint.setOnClickListener(v-> AddCollectionActivity.start(getContext(),null));
 
+        addPoint.setOnClickListener(v-> AddCollectionActivity.start(getContext(),null));
         recodeTrace.setOnClickListener(v-> clickTraceButton());
         mapTypeTv.setOnClickListener(v->{
             if (mBaiduMap != null) {
@@ -162,6 +164,7 @@ public class FragmentHome extends FragmentBase {
     }
 
     private void initMyLocation() {
+        // 跟随
         MyLocationConfiguration.LocationMode mCurrentMode = MyLocationConfiguration.LocationMode.FOLLOWING;
 
         // 定位点，默认的定位点图标为null
@@ -270,13 +273,13 @@ public class FragmentHome extends FragmentBase {
     @Override
     public void onPause() {
         mSensorManager.unregisterListener(sensorEventListener);
-
         super.onPause();
     }
 
     @Override
     public void onDestroy() {
         mLocClient.stop();
+        mBaiduMap.setMyLocationEnabled(false);
         super.onDestroy();
     }
 

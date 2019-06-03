@@ -76,12 +76,14 @@
                 android:padding="@dimen/item_padding_small">
 
                 <TextView
+                    android:id="@+id/longitude_tv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="@dimen/item_padding"
                     android:text="经度：E 114.56456" />
 
                 <TextView
+                    android:id="@+id/laititude_tv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="@dimen/item_padding"
@@ -93,6 +95,7 @@
                     android:background="@color/background2" />
 
                 <TextView
+                    android:id="@+id/altitude_tv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="@dimen/item_padding"
@@ -104,6 +107,7 @@
                     android:background="@color/background2" />
 
                 <TextView
+                    android:id="@+id/time_tv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="@dimen/item_padding"
@@ -126,6 +130,7 @@
                         android:text="备注:" />
 
                     <EditText
+                        android:id="@+id/comments_tv"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
@@ -219,12 +224,10 @@
                         android:layout_alignRight="@+id/image3"
                         android:src="@mipmap/icon_close" />
                 </RelativeLayout>
-
             </LinearLayout>
             <View
                 android:layout_width="match_parent"
                 android:layout_height="200dp"/>
-
         </LinearLayout>
 
     </ScrollView>
