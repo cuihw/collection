@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:background="@color/background4"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/background4">
 
     <LinearLayout
         android:id="@+id/header_layout"
@@ -11,92 +11,91 @@
         android:background="@mipmap/top_background"
         android:gravity="center"
         android:orientation="vertical">
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/button_margin"
             android:layout_marginRight="@dimen/button_margin"
-            android:background="@drawable/semi_circle_no_selector"
-            >
+            android:background="@drawable/semi_circle_no_selector">
+
             <EditText
                 android:id="@+id/search_edit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@null"
-                android:paddingRight="@dimen/search_size"
-                android:paddingLeft="@dimen/item_padding"
-                android:hint="请输入要搜索点的名字"
-                android:textColor="@color/font3"
-                android:textColorHint="@color/font2"
                 android:layout_centerVertical="true"
+                android:background="@null"
+                android:hint="请输入要搜索点的名字"
                 android:imeOptions="actionSearch"
                 android:maxLines="1"
-                />
+                android:paddingLeft="@dimen/item_padding"
+                android:paddingRight="@dimen/search_size"
+                android:textColor="@color/font3"
+                android:textColorHint="@color/font2" />
+
             <ImageView
                 android:layout_width="@dimen/search_size"
                 android:layout_height="@dimen/search_size"
-                android:layout_centerVertical="true"
-                android:src="@mipmap/icon_search"
                 android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
                 android:padding="@dimen/item_padding"
-                />
+                android:src="@mipmap/icon_search" />
         </RelativeLayout>
     </LinearLayout>
 
     <RadioGroup
         android:id="@+id/radio_group"
-        android:layout_below="@+id/header_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="@dimen/item_padding"
+        android:layout_below="@+id/header_layout"
         android:background="@color/background1"
-        >
+        android:orientation="horizontal"
+        android:padding="@dimen/item_padding">
+
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/item_padding"
+            android:layout_weight="1"
             android:background="@drawable/checkbox_selector"
             android:button="@null"
+            android:gravity="center"
             android:text="同步数据"
-            android:gravity="center"
-            android:layout_weight="1"
-            android:layout_marginRight="@dimen/item_padding"
-            android:textColor="@drawable/button1_text_selector"
-            />
+            android:textColor="@drawable/button1_text_selector" />
+
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/item_padding"
+            android:layout_marginRight="@dimen/item_padding"
+            android:layout_weight="1"
             android:background="@drawable/checkbox_selector"
             android:button="@null"
+            android:gravity="center"
             android:text="本地数据"
-            android:gravity="center"
-            android:layout_weight="1"
-            android:layout_marginRight="@dimen/item_padding"
-            android:layout_marginLeft="@dimen/item_padding"
-            android:textColor="@drawable/button1_text_selector"
-            />
+            android:textColor="@drawable/button1_text_selector" />
+
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/item_padding"
+            android:layout_weight="1"
             android:background="@drawable/checkbox_selector"
             android:button="@null"
-            android:text="兴趣点"
             android:gravity="center"
-            android:layout_weight="1"
-            android:layout_marginLeft="@dimen/item_padding"
-            android:textColor="@drawable/button1_text_selector"
-            />
+            android:text="兴趣点"
+            android:textColor="@drawable/button1_text_selector" />
     </RadioGroup>
 
     <ListView
-        android:background="@drawable/round_top_background2"
-        android:layout_marginTop="@dimen/item_padding"
-        android:layout_marginLeft="@dimen/item_padding_small"
-        android:layout_marginRight="@dimen/item_padding_small"
         android:id="@+id/listview"
-        android:layout_below="@+id/radio_group"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/radio_group"
+        android:layout_marginLeft="@dimen/item_padding_small"
+        android:layout_marginTop="@dimen/item_padding"
+        android:layout_marginRight="@dimen/item_padding_small"
+        android:background="@drawable/round_top_background2">
     </ListView>
 
 </RelativeLayout>

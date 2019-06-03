@@ -73,11 +73,26 @@ public class AttributionView extends LinearLayout {
                 }
             }
         }
+        if (attrViewList.size() > 0) {
+            View view = attrViewList.get(attrViewList.size() - 1);
+            String tag = (String)view.getTag();
+            if ("fill_attr".equals(tag)) {
+                view.findViewById(R.id.bottom).setVisibility(View.VISIBLE);
+            }
+        }
     }
 
     private synchronized void createFillAttr(String name){ // 填写
+
         View view = inflater.inflate(R.layout.view_attribution_fill, this, false);
         view.setTag("fill_attr");
+        View divider = view.findViewById(R.id.divider);
+        if (isFirst) {
+            divider.setVisibility(View.INVISIBLE);
+            isFirst = false;
+        } else {
+            divider.setVisibility(View.VISIBLE);
+        }
         TextView ckeyview = view.findViewById(R.id.ckey);
         ckeyview.setText(name + ":");
         addChildView(view);

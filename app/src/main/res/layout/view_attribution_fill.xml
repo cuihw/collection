@@ -1,21 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/ckey"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/item_padding"
-            android:text="属性1:" />
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
 
-        <EditText
-            android:id="@+id/value"
+        <View
+            android:id="@+id/divider"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/ckey"
-            android:background="@color/background1"
-            android:hint="请填写本属性信息" />
-    </RelativeLayout>
+            android:layout_height="1dp"
+            android:background="@color/background2"
+            android:layout_marginRight="@dimen/item_padding_small"
+            android:layout_marginLeft="@dimen/item_padding_small"
+            />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/ckey"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/item_padding"
+                android:gravity="right"
+                android:text="属性1:" />
+
+            <EditText
+                android:id="@+id/value"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/ckey"
+                android:background="@color/background1"
+                android:hint="请填写本属性信息" />
+        </RelativeLayout>
+
+        <View
+            android:visibility="gone"
+            android:id="@+id/bottom"
+            android:layout_below="@+id/value"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/item_padding"/>
+    </LinearLayout>
 

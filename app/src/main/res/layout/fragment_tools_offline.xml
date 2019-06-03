@@ -35,6 +35,13 @@
             android:padding="@dimen/item_padding_small"
             android:layout_weight="1"
             android:text="下载管理" />
+        <Button
+            android:id="@+id/packed_map"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="@dimen/item_padding_small"
+            android:text="地图路径" />
     </LinearLayout>
     <ListView
         android:id="@+id/citylist"
