@@ -2,6 +2,7 @@ package com.data.collection.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.media.JetPlayer;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -27,6 +28,7 @@ import com.data.collection.module.Types;
 import com.data.collection.module.UserInfoBean;
 import com.data.collection.network.HttpRequest;
 import com.data.collection.util.LsLog;
+import com.data.collection.util.ToastUtil;
 import com.data.collection.view.TitleView;
 import com.google.gson.Gson;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -95,6 +97,10 @@ public class CollectionActivity extends BaseActivity {
         localButton.setChecked(true);
 
         UserInfoBean userInfoBean = CacheData.getUserInfoBean();
+        if (userInfoBean == null) {
+            ToastUtil.showTextToast(this, Constants.NO_PROJECT_INFO);
+            return;
+        }
         collectTypes = userInfoBean.getData().getProject().getTypes();
 
         adapter = new CommonAdapter<GatherPoint>(this, R.layout.item_gather_point, dataLocalList) {
@@ -103,7 +109,7 @@ public class CollectionActivity extends BaseActivity {
                 helper.setText(R.id.name, item.getName());
                 String type_id = item.getType_id();
                 Types thisType = null;
-                for (Types type: collectTypes ) {
+                for (Types type : collectTypes) {
                     if (type.getId() == type_id) {
                         thisType = type;
                     }
@@ -154,25 +160,57 @@ public class CollectionActivity extends BaseActivity {
             }
         });
 
-        actionSyncAll.setOnClickListener(v->uploadAllLocalData());
+        actionSyncAll.setOnClickListener(v -> uploadAllLocalData());
 
     }
 
     private void uploadAllLocalData() {
-
-        for (GatherPoint point: dataLocalList) {
-            uploadLocalDataWithImage(point);
+        String label = actionSyncAll.getText().toString().trim();
+        if (label.equals("全部上传")) {
+            for (GatherPoint point : dataLocalList) {
+                uploadLocalDataWithImage(point);
+            }
+        } else {
+            // 下载
+            requestSyncData(1);
         }
     }
 
+    private void requestSyncData(int page) {
+
+        Map<String, Object> param = new HashMap<>();
+
+        if (dataList.size() > 0) {
+            GatherPoint gatherPoint = dataList.get(0);
+            if (gatherPoint != null && gatherPoint.getCollected_at() != null) {
+                String collected_at = gatherPoint.getCollected_at();
+                param.put("updated_at", collected_at);
+                param.put("page", page);
+            }
+            param.put("page", page);
+        }
+        HttpRequest.postData(this, Constants.GET_COLLECTION_POINT, param, new HttpRequest.RespListener<BaseBean>() {
+            @Override
+            public void onResponse(int status, BaseBean bean) {
+                if (bean != null) {
+                    LsLog.w(TAG, "get collection response: " + bean.toJson());
+                    handerSyncBean(bean);
+                }
+            }
+
+        });
+    }
+
+
+    private void handerSyncBean(BaseBean bean) {
+        // 1. 存储到本地数据库； 2. 继续下载更新更多数据。
+
+    }
     private void uploadLocalDataWithImage(GatherPoint point) {
-
-
         String picPath1 = point.getPicPath1();
         String picPath2 = point.getPicPath2();
         String picPath3 = point.getPicPath3();
-
-        List<File> files = getFiles(picPath1,picPath2,picPath3);
+        List<File> files = getFiles(picPath1, picPath2, picPath3);
 
         if (files.size() > 0) {
             // 1. 上传图片，2. 上传数据
@@ -192,7 +230,6 @@ public class CollectionActivity extends BaseActivity {
                     } else {
                         LsLog.w(TAG, "save point result: " + bean.toJson());
                     }
-
                 }
             });
         } else {
@@ -204,20 +241,22 @@ public class CollectionActivity extends BaseActivity {
 
     private void uploadLocalData(GatherPoint point) {
         Map<String, Object> param = new HashMap<>();
-        param.put("type_id",point.getType_id());
-        param.put("name",point.getName());
-        param.put("longitude",point.getLongitude());
-        param.put("latitude",point.getLatitude());
-        param.put("height",point.getHeight());
-        param.put("collected_at",point.getCollected_at());
-        param.put("desc",point.getDesc());
-        param.put("attrs",point.getAttrs());
-        param.put("imgs",point.getImgs());
+        param.put("type_id", point.getType_id());
+        param.put("name", point.getName());
+        param.put("longitude", point.getLongitude());
+        param.put("latitude", point.getLatitude());
+        param.put("height", point.getHeight());
+        param.put("collected_at", point.getCollected_at());
+        param.put("desc", point.getDesc());
+        param.put("attrs", point.getAttrs());
+        param.put("imgs", point.getImgs());
 
         HttpRequest.postData(Constants.SAVE_COLLECTION_POINT, param, new HttpRequest.RespListener<BaseBean>() {
             @Override
             public void onResponse(int status, BaseBean bean) {
                 LsLog.w(TAG, "save point result:" + bean.toJson());
+                point.setIsUploaded(true);
+                saveToDb(point); // 更新
             }
         });
 
@@ -259,13 +298,13 @@ public class CollectionActivity extends BaseActivity {
     private void showData(boolean isLocalData) {
         if (adapter == null) return;
         if (isLocalData) {
-            if (dataLocalList != null ) {
+            if (dataLocalList != null) {
                 adapter.replaceAll(dataLocalList);
             }
             actionSyncAll.setText("全部上传");
         } else {
             if (dataList != null) {
-                adapter.replaceAll( dataList);
+                adapter.replaceAll(dataList);
             }
             actionSyncAll.setText("下载同步数据");
         }

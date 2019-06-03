@@ -23,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.data.collection.App;
+import com.data.collection.Constants;
 import com.data.collection.R;
 import com.data.collection.adapter.PointTypeAdapter;
 import com.data.collection.data.CacheData;
@@ -134,9 +135,10 @@ public class AddCollectionActivity extends BaseActivity {
 
         fillLongitudeAndLaititude();
 
-        attrsView = new AttributionView(this);
-
-        createAttrsView(0);
+        if (hasProjectInfo()) {
+            attrsView = new AttributionView(this);
+            createAttrsView(0);
+        }
     }
 
     Location location;
@@ -149,7 +151,6 @@ public class AddCollectionActivity extends BaseActivity {
 
         long time = location.getTime();
         timeTv.setText("采集时间: " + DateUtils.formatTime(time, DateUtils.fmtYYYYMMDDhhmmss));
-
     }
 
     private void createAttrsView(int i) {
@@ -231,6 +232,8 @@ public class AddCollectionActivity extends BaseActivity {
 
     GatherPoint gatherPoint;
     private void savePoint() {
+        if (!hasProjectInfo()) return;
+
         String pointName = nameTv.getText().toString().trim();
 
         Types selectedItem = (Types)typeSpinner.getSelectedItem();
@@ -300,11 +303,14 @@ public class AddCollectionActivity extends BaseActivity {
     }
 
     private void callGallary() {
+        if (!hasProjectInfo()) return;
+
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setDataAndType(MediaStore.Images.Media.INTERNAL_CONTENT_URI, "image/*");
         startActivityForResult(intent, REQUEST_CODE_PIC_PHOTO);
     }
     private void callCamera() {
+        if (!hasProjectInfo()) return;
         takeCameraFilename = FileUtils.getFileDir() + "zw" + System.currentTimeMillis() + ".jpg";
         // 如果没有设置图片名称，则根据当前系统时间设置默认的图片名称
 
@@ -385,6 +391,15 @@ public class AddCollectionActivity extends BaseActivity {
             imageview3.setTag(takeCameraFilename);
             deleteImage3.setVisibility(View.VISIBLE);
         }
+    }
+
+    boolean hasProjectInfo (){
+        UserInfoBean userInfoBean = CacheData.getUserInfoBean();
+        if (userInfoBean == null) {
+            ToastUtil.showTextToast(this, Constants.NO_PROJECT_INFO);
+            return false;
+        }
+        return true;
     }
 
 }

@@ -1,7 +1,5 @@
 package com.data.collection.data.greendao;
 
-import com.google.gson.Gson;
-
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
@@ -13,7 +11,9 @@ public class GatherPoint {
 
     private static final String TAG = "GatherPoint";
     @Id
-    private Long id;
+    private Long offline_id; // 本地数据库 id
+    @Unique
+    private String id; // 同步数据库ID
 
     @NotNull
     private String name;
@@ -35,7 +35,7 @@ public class GatherPoint {
     @Unique
     private String collected_at; // 采集时间 格式 2019-06-05 12:30:65
 
-    private String report; //  上报人。 上报人和采集时间确定更新一条采集记录。
+    private String report = "self"; //  上报人。 上报人和采集时间确定更新一条采集记录。
 
     private String  desc; // 备注
 
@@ -47,11 +47,13 @@ public class GatherPoint {
 
     private boolean isUploaded; // 是否已经上传
 
-    @Generated(hash = 579632978)
-    public GatherPoint(Long id, @NotNull String name, @NotNull String type_id,
-            String attrs, double latitude, double longitude, double height,
-            String collected_at, String report, String desc, String picPath1,
-            String picPath2, String picPath3, String imgs, boolean isUploaded) {
+    @Generated(hash = 1458689392)
+    public GatherPoint(Long offline_id, String id, @NotNull String name,
+            @NotNull String type_id, String attrs, double latitude,
+            double longitude, double height, String collected_at, String report,
+            String desc, String picPath1, String picPath2, String picPath3,
+            String imgs, boolean isUploaded) {
+        this.offline_id = offline_id;
         this.id = id;
         this.name = name;
         this.type_id = type_id;
@@ -73,11 +75,19 @@ public class GatherPoint {
     public GatherPoint() {
     }
 
-    public Long getId() {
+    public Long getOffline_id() {
+        return this.offline_id;
+    }
+
+    public void setOffline_id(Long offline_id) {
+        this.offline_id = offline_id;
+    }
+
+    public String getId() {
         return this.id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -193,6 +203,7 @@ public class GatherPoint {
         this.isUploaded = isUploaded;
     }
 
+    
 
 
 

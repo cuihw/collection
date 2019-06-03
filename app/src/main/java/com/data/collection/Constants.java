@@ -22,6 +22,12 @@ public class Constants {
 
     public static final String SAVE_COLLECTION_POINT = BASE_URL_V1 + "saveCollectionPoint";
 
+    public static final String GET_COLLECTION_POINT = BASE_URL_V1 + "getCollectionList";
+
+    public static final String GET_NAVI_POINT = BASE_URL_V1 + "getInterestList";
+
+    public static final String NO_PROJECT_INFO  ="没有项目信息，请先连接网络，登录服务器";
+
     public static final String SUCCEED = "1";
 
 
