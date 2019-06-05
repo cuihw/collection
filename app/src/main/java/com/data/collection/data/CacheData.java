@@ -3,7 +3,7 @@ package com.data.collection.data;
 import com.data.collection.App;
 import com.data.collection.module.LoginData;
 import com.data.collection.module.Project;
-import com.data.collection.module.Types;
+import com.data.collection.module.CollectType;
 import com.data.collection.module.UserInfoBean;
 import com.data.collection.util.Utils;
 
@@ -21,6 +21,13 @@ public class CacheData {
         return userInfoBean;
     }
 
+    public static String getUserName(){
+        if (userInfoBean != null) {
+            return userInfoBean.getData().getUser().getName();
+        }
+        return null;
+    }
+
     public static void setUserInfoBean(UserInfoBean userBean){
         userInfoBean = userBean;
         cacheProjectIcon();
@@ -35,9 +42,9 @@ public class CacheData {
         if (userInfoBean != null) {
             Project project = userInfoBean.getData()==null ? null : userInfoBean.getData().getProject();
             if (project != null) {
-                List<Types> types = project.getTypes();
+                List<CollectType> types = project.getTypes();
                 if (types != null) {
-                    for (Types item: types) {
+                    for (CollectType item: types) {
                         Utils.cacheImage(item.getIcon());
                     }
                 }

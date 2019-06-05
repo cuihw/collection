@@ -40,11 +40,6 @@ public class ForegroundService extends Service {
         try {
             NotificationCompat.Builder builder =
                     new NotificationCompat.Builder(this, channelId);
-//            Intent intent = new Intent(this, LiteActivity.class);
-//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-//                    | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-//            PendingIntent pendingIntent =
-//                    PendingIntent.getActivity(this, 0, intent, 0);
             notification = builder.setSmallIcon(R.mipmap.launch_icon).setTicker("正在导航")
                     .setWhen(System.currentTimeMillis())
                     .setContentTitle("正在导航")

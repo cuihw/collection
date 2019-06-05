@@ -35,7 +35,7 @@ import com.baidu.mapapi.model.LatLng;
 import com.data.collection.R;
 import com.data.collection.activity.AddCollectionActivity;
 import com.data.collection.activity.CollectionActivity;
-import com.data.collection.data.BaiduTrace;
+import com.data.collection.data.UserTrace;
 import com.data.collection.util.LocationController;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.PositionUtil;
@@ -135,15 +135,15 @@ public class FragmentHome extends FragmentBase {
     }
 
     private void clickTraceButton() {
-        BaiduTrace instance = BaiduTrace.getInstance();
+        UserTrace instance = UserTrace.getInstance();
         if (instance.isInTrace()) {
             // 停止记录轨迹
             instance.stop();
             recodeTrace.setText("记录\n轨迹");
             traceProcess.clearAnimation();
             traceProcess.setVisibility(View.INVISIBLE);
-            if (BaiduTrace.getInstance().isInTrace()) {
-                BaiduTrace.getInstance().stop();
+            if (UserTrace.getInstance().isInTrace()) {
+                UserTrace.getInstance().stop();
             }
         } else {
             // 开始记录轨迹
@@ -151,8 +151,8 @@ public class FragmentHome extends FragmentBase {
             recodeTrace.setText("停止\n记录");
             setFlickerAnimation(traceProcess);
             traceProcess.setVisibility(View.VISIBLE);
-            if (!BaiduTrace.getInstance().isInTrace()) {
-                BaiduTrace.getInstance().start();
+            if (!UserTrace.getInstance().isInTrace()) {
+                UserTrace.getInstance().start();
             }
         }
 

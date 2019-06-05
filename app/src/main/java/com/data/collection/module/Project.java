@@ -7,7 +7,7 @@ public class Project {
 
     private String name;
 
-    private List<Types> types ;
+    private List<CollectType> types ;
 
     public void setId(String id){
         this.id = id;
@@ -21,10 +21,10 @@ public class Project {
     public String getName(){
         return this.name;
     }
-    public void setTypes(List<Types> types){
+    public void setTypes(List<CollectType> types){
         this.types = types;
     }
-    public List<Types> getTypes(){
+    public List<CollectType> getTypes(){
         return this.types;
     }
 }

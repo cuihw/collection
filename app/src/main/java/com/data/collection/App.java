@@ -5,7 +5,7 @@ import android.text.TextUtils;
 
 import com.baidu.mapapi.CoordType;
 import com.baidu.mapapi.SDKInitializer;
-import com.data.collection.data.BaiduTrace;
+import com.data.collection.data.UserTrace;
 import com.data.collection.data.CacheData;
 import com.data.collection.data.greendao.DaoMaster;
 import com.data.collection.data.greendao.DaoSession;
@@ -115,7 +115,7 @@ public class App extends Application {
         // 包括BD09LL和GCJ02两种坐标，默认是BD09LL坐标。CoordinateType.WGS84
         SDKInitializer.setCoordType(CoordType.BD09LL);
 
-        BaiduTrace.getInstance().init(this);
+        UserTrace.getInstance().init(this);
 
     }
 

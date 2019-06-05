@@ -19,6 +19,7 @@
                 android:id="@+id/ckey"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/item_padding"
                 android:padding="@dimen/item_padding"
                 android:gravity="right"
                 android:text="属性1:" />
@@ -30,6 +31,7 @@
                 android:layout_centerVertical="true"
                 android:layout_toRightOf="@+id/ckey"
                 android:background="@color/background1"
+                android:singleLine="true"
                 android:hint="请填写本属性信息" />
         </RelativeLayout>
 

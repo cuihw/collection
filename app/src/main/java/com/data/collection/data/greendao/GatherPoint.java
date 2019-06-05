@@ -10,8 +10,8 @@ import org.greenrobot.greendao.annotation.Unique;
 public class GatherPoint {
 
     private static final String TAG = "GatherPoint";
-    @Id
-    private Long offline_id; // 本地数据库 id
+    @Id(autoincrement = true)
+    private Long offline_id; // 本地数据库 id 1
     @Unique
     private String id; // 同步数据库ID
 
@@ -24,16 +24,18 @@ public class GatherPoint {
     private String attrs; //  描述文件 ： 定义类型选项，属性名称等
 
     @NotNull
-    private double latitude;
+    private String latitude;
 
     @NotNull
-    private double longitude;
+    private String longitude;
 
     @NotNull
-    private double height;
+    private String height;
 
-    @Unique
+    @NotNull
     private String collected_at; // 采集时间 格式 2019-06-05 12:30:65
+
+    private String updated_at;   // 网上更新时间 格式 2019-06-05 12:30:65
 
     private String report = "self"; //  上报人。 上报人和采集时间确定更新一条采集记录。
 
@@ -47,10 +49,11 @@ public class GatherPoint {
 
     private boolean isUploaded; // 是否已经上传
 
-    @Generated(hash = 1458689392)
+    @Generated(hash = 858181134)
     public GatherPoint(Long offline_id, String id, @NotNull String name,
-            @NotNull String type_id, String attrs, double latitude,
-            double longitude, double height, String collected_at, String report,
+            @NotNull String type_id, String attrs, @NotNull String latitude,
+            @NotNull String longitude, @NotNull String height,
+            @NotNull String collected_at, String updated_at, String report,
             String desc, String picPath1, String picPath2, String picPath3,
             String imgs, boolean isUploaded) {
         this.offline_id = offline_id;
@@ -62,6 +65,7 @@ public class GatherPoint {
         this.longitude = longitude;
         this.height = height;
         this.collected_at = collected_at;
+        this.updated_at = updated_at;
         this.report = report;
         this.desc = desc;
         this.picPath1 = picPath1;
@@ -115,27 +119,27 @@ public class GatherPoint {
         this.attrs = attrs;
     }
 
-    public double getLatitude() {
+    public String getLatitude() {
         return this.latitude;
     }
 
-    public void setLatitude(double latitude) {
+    public void setLatitude(String latitude) {
         this.latitude = latitude;
     }
 
-    public double getLongitude() {
+    public String getLongitude() {
         return this.longitude;
     }
 
-    public void setLongitude(double longitude) {
+    public void setLongitude(String longitude) {
         this.longitude = longitude;
     }
 
-    public double getHeight() {
+    public String getHeight() {
         return this.height;
     }
 
-    public void setHeight(double height) {
+    public void setHeight(String height) {
         this.height = height;
     }
 
@@ -145,6 +149,14 @@ public class GatherPoint {
 
     public void setCollected_at(String collected_at) {
         this.collected_at = collected_at;
+    }
+
+    public String getUpdated_at() {
+        return this.updated_at;
+    }
+
+    public void setUpdated_at(String updated_at) {
+        this.updated_at = updated_at;
     }
 
     public String getReport() {
@@ -202,8 +214,6 @@ public class GatherPoint {
     public void setIsUploaded(boolean isUploaded) {
         this.isUploaded = isUploaded;
     }
-
-    
 
 
 

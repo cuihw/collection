@@ -16,12 +16,18 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.classic.adapter.BaseAdapterHelper;
+import com.classic.adapter.CommonAdapter;
 import com.data.collection.App;
 import com.data.collection.Constants;
 import com.data.collection.R;
@@ -29,10 +35,17 @@ import com.data.collection.adapter.PointTypeAdapter;
 import com.data.collection.data.CacheData;
 import com.data.collection.data.greendao.DaoSession;
 import com.data.collection.data.greendao.GatherPoint;
+import com.data.collection.data.greendao.GatherPointDao;
 import com.data.collection.dialog.ButtomDialogView;
 import com.data.collection.module.Attrs;
 import com.data.collection.module.CollectType;
+import com.data.collection.module.ImageData;
+import com.data.collection.module.ImageUploadBean;
+import com.data.collection.module.PointData;
+import com.data.collection.module.PointListBean;
+import com.data.collection.module.PointListData;
 import com.data.collection.module.UserInfoBean;
+import com.data.collection.network.HttpRequest;
 import com.data.collection.util.BitmapUtil;
 import com.data.collection.util.DateUtils;
 import com.data.collection.util.FileUtils;
@@ -42,16 +55,31 @@ import com.data.collection.util.ToastUtil;
 import com.data.collection.view.AttributionView;
 import com.data.collection.view.TitleView;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.kaopiz.kprogresshud.KProgressHUD;
+import com.nostra13.universalimageloader.core.ImageLoader;
+
+import org.greenrobot.greendao.query.QueryBuilder;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.File;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 
-public class AddCollectionActivity extends BaseActivity {
+// 采集点详情
 
-    private static final String TAG = "AddCollectionActivity";
+public class ShowPointActivity extends BaseActivity {
+
+    private static final String TAG = "ShowPointActivity";
+
     private static final int REQUEST_PERMISSIONS = 1;
 
     private static final String TAKE_PICTURE = "action.take.picture";
@@ -105,12 +133,22 @@ public class AddCollectionActivity extends BaseActivity {
     TextView altitudeTv;
 
     @BindView(R.id.name)
-    TextView nameTv;
+    EditText nameET;
     @BindView(R.id.comments_tv)
     TextView commentsTv;
 
+    @BindView(R.id.bottom_layout)
+    LinearLayout bottomLayout;
+
+
+    GatherPoint gatherPoint;
+
+    int typeIndex = 0;
+
+    boolean isUploaded;
+
     public static void start(Context context, Bundle bundle){
-        Intent intent = new Intent(context, AddCollectionActivity.class);
+        Intent intent = new Intent(context, ShowPointActivity.class);
         if (bundle != null) {
             intent.putExtras(bundle);
         }
@@ -120,12 +158,33 @@ public class AddCollectionActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_collection);
+        setContentView(R.layout.activity_show_point);
+
+        getPointData();
         initView();
         initListener();
     }
 
+    private void getPointData() {
+        Bundle extras = getIntent().getExtras();
+        if (extras == null)  return;
+
+        String gatherP = extras.getString("GatherPoint");
+        if (TextUtils.isEmpty(gatherP)) return;
+
+        gatherPoint = new Gson().fromJson(gatherP, GatherPoint.class);
+        isUploaded = gatherPoint.getIsUploaded();
+    }
+
     private void initView() {
+        titleView.getTitleTv().setText("采集点信息");
+
+        nameET.setText(gatherPoint.getName());
+        if (isUploaded) nameET.setEnabled(false);
+
+        commentsTv.setText(gatherPoint.getDesc());
+        if (isUploaded) commentsTv.setEnabled(false);
+
         deleteImage1.setVisibility(View.INVISIBLE);
         deleteImage2.setVisibility(View.INVISIBLE);
         deleteImage3.setVisibility(View.INVISIBLE);
@@ -135,20 +194,81 @@ public class AddCollectionActivity extends BaseActivity {
 
         if (hasProjectInfo()) {
             attrsView = new AttributionView(this);
-            createAttrsView(0);
+            createAttrsView(typeIndex);
+        }
+
+
+        String imgs = gatherPoint.getImgs();
+        String picPath1 = gatherPoint.getPicPath1();
+        String picPath2 = gatherPoint.getPicPath2();
+        String picPath3 = gatherPoint.getPicPath3();
+        if (!TextUtils.isEmpty(picPath1)
+                || !TextUtils.isEmpty(picPath2)
+                || !TextUtils.isEmpty(picPath3) ) { //  先找本地图片
+            if (!TextUtils.isEmpty(picPath1)) {
+                ImageLoader.getInstance().displayImage("file://" + picPath1, imageview1);
+                imageview1.setTag(picPath1);
+            }
+            if (!TextUtils.isEmpty(picPath2)) {
+                ImageLoader.getInstance().displayImage("file://" + picPath2, imageview2);
+                imageview1.setTag(picPath2);
+            }
+            if (!TextUtils.isEmpty(picPath3)) {
+                ImageLoader.getInstance().displayImage("file://" + picPath3, imageview3);
+                imageview1.setTag(picPath3);
+            }
+        } else  if (!TextUtils.isEmpty(imgs)) {
+            Type type =new TypeToken<List<ImageData.FileMap>>(){}.getType();
+            List<ImageData.FileMap> imagelist = new Gson().fromJson(imgs, type);
+            if (imagelist != null || imagelist.size() > 0) {
+                for (int i =0; i< imagelist.size(); i++){
+                    ImageData.FileMap file = imagelist.get(i);
+                    if (i == 0) {
+                        ImageLoader.getInstance().displayImage(file.getUrl(), imageview1);
+                        imageview1.setTag(file.getUrl());
+                    }
+                    if (i == 1) {
+                        ImageLoader.getInstance().displayImage(file.getUrl(), imageview2);
+                        imageview2.setTag(file.getUrl());
+                    }
+                    if (i == 2) {
+                        ImageLoader.getInstance().displayImage(file.getUrl(), imageview3);
+                        imageview3.setTag(file.getUrl());
+                    }
+                }
+            }
+        }
+
+        if (!isUploaded) { // 没有上传，允许编辑
+            String tag = (String)imageview1.getTag();
+            if (!TextUtils.isEmpty(tag)) {
+                deleteImage1.setVisibility(View.VISIBLE);
+            }
+
+            tag = (String)imageview2.getTag();
+            if (!TextUtils.isEmpty(tag)) {
+                deleteImage2.setVisibility(View.VISIBLE);
+            }
+
+            tag = (String)imageview3.getTag();
+            if (!TextUtils.isEmpty(tag)) {
+                deleteImage3.setVisibility(View.VISIBLE);
+            }
+
+        } else {
+
+        }
+
+        if (isUploaded) {
+            bottomLayout.setVisibility(View.GONE);
         }
     }
 
-    Location location;
     private void fillLongitudeAndLaititude() {
-        location = LocationController.getInstance().getLocation();
-
-        longitudeTv.setText("经度: " + location.getLongitude());
-        laititudeTv.setText("纬度: " + location.getLatitude());
-        altitudeTv.setText("高度: " + location.getAltitude());
-
-        long time = location.getTime();
-        timeTv.setText("采集时间: " + DateUtils.formatTime(time, DateUtils.fmtYYYYMMDDhhmmss));
+        longitudeTv.setText("经度: " + gatherPoint.getLongitude());
+        laititudeTv.setText("纬度: " + gatherPoint.getLatitude());
+        altitudeTv.setText("高度: " + gatherPoint.getHeight());
+        timeTv.setText("采集时间: " + gatherPoint.getCollected_at());
     }
 
     private void createAttrsView(int i) {
@@ -160,6 +280,7 @@ public class AddCollectionActivity extends BaseActivity {
             attrsView.setViewAttri(attrs);
             attributionLayout.addView(attrsView);
         }
+        attrsView.setGatherPoint(gatherPoint);
     }
     private void initSpinner() {
         try {
@@ -167,6 +288,20 @@ public class AddCollectionActivity extends BaseActivity {
             projectTypes = userInfoBean.getData().getProject().getTypes();
             PointTypeAdapter pointAdapter = new PointTypeAdapter(this, projectTypes);
             typeSpinner.setAdapter(pointAdapter);
+
+            String type_id = gatherPoint.getType_id();
+
+            for (int i = 0; i<  projectTypes.size(); i ++){
+                CollectType collectType = projectTypes.get(i);
+                if (collectType.getId().equals(type_id)) {
+                    typeIndex = i;
+                }
+            }
+
+            typeSpinner.setSelection(typeIndex);
+
+            if (isUploaded) typeSpinner.setEnabled(false);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -177,18 +312,21 @@ public class AddCollectionActivity extends BaseActivity {
         cameraLayout.setOnClickListener(v->initPermission(TAKE_PICTURE));//  动态请求权限);
         saveLayout.setOnClickListener(v->initPermission(SAVE_POINT));
         imageview1.setOnClickListener(v->{
+            if (isUploaded) return;
             String tag = (String)imageview1.getTag();
             if (TextUtils.isEmpty(tag)) {
                 initPermission(TAKE_PICTURE);
             }
         });
         imageview2.setOnClickListener(v->{
+            if (isUploaded) return;
             String tag = (String)imageview2.getTag();
             if (TextUtils.isEmpty(tag)) {
                 initPermission(TAKE_PICTURE);
             }
         });
         imageview3.setOnClickListener(v->{
+            if (isUploaded) return;
             String tag = (String)imageview3.getTag();
             if (TextUtils.isEmpty(tag)) {
                 initPermission(TAKE_PICTURE);
@@ -196,6 +334,7 @@ public class AddCollectionActivity extends BaseActivity {
         });
 
         deleteImage1.setOnClickListener(v->{
+            if (isUploaded) return;
             String tag = (String)imageview1.getTag();
             if (!TextUtils.isEmpty(tag)) {
                 imageview1.setImageResource(R.mipmap.icon_add_pic);
@@ -204,11 +343,13 @@ public class AddCollectionActivity extends BaseActivity {
             }
         });
         deleteImage2.setOnClickListener(v->{
+            if (isUploaded) return;
             imageview2.setImageResource(R.mipmap.icon_add_pic);
             imageview2.setTag("");
             deleteImage2.setVisibility(View.INVISIBLE);
         });
         deleteImage3.setOnClickListener(v->{
+            if (isUploaded) return;
             imageview3.setImageResource(R.mipmap.icon_add_pic);
             imageview3.setTag("");
             deleteImage3.setVisibility(View.INVISIBLE);
@@ -228,11 +369,10 @@ public class AddCollectionActivity extends BaseActivity {
 
     }
 
-    GatherPoint gatherPoint;
     private void savePoint() {
         if (!hasProjectInfo()) return;
 
-        String pointName = nameTv.getText().toString().trim();
+        String pointName = nameET.getText().toString().trim();
 
         CollectType selectedItem = (CollectType)typeSpinner.getSelectedItem();
 
@@ -256,15 +396,7 @@ public class AddCollectionActivity extends BaseActivity {
         gatherPoint.setType_id(selectedItem.getId());
         gatherPoint.setDesc(des);
         gatherPoint.setReport(CacheData.getUserName());
-        if (location != null) {
-            gatherPoint.setLongitude("" + location.getLongitude());
-            gatherPoint.setLatitude("" + location.getLatitude());
-            gatherPoint.setHeight("" + location.getAltitude());
-            long time = System.currentTimeMillis();
-            gatherPoint.setCollected_at(DateUtils.formatTime(time, DateUtils.fmtYYYYMMDDhhmmss));
-        } else {
-            ToastUtil.showTextToast(this, "定位失败，请打开GPS，等待定位");
-        }
+
         gatherPoint.setAttrs(new Gson().toJson(attrsValue.getAttrs()));
 
         String path = (String)imageview1.getTag();

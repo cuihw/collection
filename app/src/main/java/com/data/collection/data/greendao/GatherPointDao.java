@@ -27,17 +27,18 @@ public class GatherPointDao extends AbstractDao<GatherPoint, Long> {
         public final static Property Name = new Property(2, String.class, "name", false, "NAME");
         public final static Property Type_id = new Property(3, String.class, "type_id", false, "TYPE_ID");
         public final static Property Attrs = new Property(4, String.class, "attrs", false, "ATTRS");
-        public final static Property Latitude = new Property(5, double.class, "latitude", false, "LATITUDE");
-        public final static Property Longitude = new Property(6, double.class, "longitude", false, "LONGITUDE");
-        public final static Property Height = new Property(7, double.class, "height", false, "HEIGHT");
+        public final static Property Latitude = new Property(5, String.class, "latitude", false, "LATITUDE");
+        public final static Property Longitude = new Property(6, String.class, "longitude", false, "LONGITUDE");
+        public final static Property Height = new Property(7, String.class, "height", false, "HEIGHT");
         public final static Property Collected_at = new Property(8, String.class, "collected_at", false, "COLLECTED_AT");
-        public final static Property Report = new Property(9, String.class, "report", false, "REPORT");
-        public final static Property Desc = new Property(10, String.class, "desc", false, "DESC");
-        public final static Property PicPath1 = new Property(11, String.class, "picPath1", false, "PIC_PATH1");
-        public final static Property PicPath2 = new Property(12, String.class, "picPath2", false, "PIC_PATH2");
-        public final static Property PicPath3 = new Property(13, String.class, "picPath3", false, "PIC_PATH3");
-        public final static Property Imgs = new Property(14, String.class, "imgs", false, "IMGS");
-        public final static Property IsUploaded = new Property(15, boolean.class, "isUploaded", false, "IS_UPLOADED");
+        public final static Property Updated_at = new Property(9, String.class, "updated_at", false, "UPDATED_AT");
+        public final static Property Report = new Property(10, String.class, "report", false, "REPORT");
+        public final static Property Desc = new Property(11, String.class, "desc", false, "DESC");
+        public final static Property PicPath1 = new Property(12, String.class, "picPath1", false, "PIC_PATH1");
+        public final static Property PicPath2 = new Property(13, String.class, "picPath2", false, "PIC_PATH2");
+        public final static Property PicPath3 = new Property(14, String.class, "picPath3", false, "PIC_PATH3");
+        public final static Property Imgs = new Property(15, String.class, "imgs", false, "IMGS");
+        public final static Property IsUploaded = new Property(16, boolean.class, "isUploaded", false, "IS_UPLOADED");
     }
 
 
@@ -53,22 +54,23 @@ public class GatherPointDao extends AbstractDao<GatherPoint, Long> {
     public static void createTable(Database db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"GATHER_POINT\" (" + //
-                "\"_id\" INTEGER PRIMARY KEY ," + // 0: offline_id
+                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: offline_id
                 "\"ID\" TEXT UNIQUE ," + // 1: id
                 "\"NAME\" TEXT NOT NULL ," + // 2: name
                 "\"TYPE_ID\" TEXT NOT NULL ," + // 3: type_id
                 "\"ATTRS\" TEXT," + // 4: attrs
-                "\"LATITUDE\" REAL NOT NULL ," + // 5: latitude
-                "\"LONGITUDE\" REAL NOT NULL ," + // 6: longitude
-                "\"HEIGHT\" REAL NOT NULL ," + // 7: height
-                "\"COLLECTED_AT\" TEXT UNIQUE ," + // 8: collected_at
-                "\"REPORT\" TEXT," + // 9: report
-                "\"DESC\" TEXT," + // 10: desc
-                "\"PIC_PATH1\" TEXT," + // 11: picPath1
-                "\"PIC_PATH2\" TEXT," + // 12: picPath2
-                "\"PIC_PATH3\" TEXT," + // 13: picPath3
-                "\"IMGS\" TEXT," + // 14: imgs
-                "\"IS_UPLOADED\" INTEGER NOT NULL );"); // 15: isUploaded
+                "\"LATITUDE\" TEXT NOT NULL ," + // 5: latitude
+                "\"LONGITUDE\" TEXT NOT NULL ," + // 6: longitude
+                "\"HEIGHT\" TEXT NOT NULL ," + // 7: height
+                "\"COLLECTED_AT\" TEXT NOT NULL ," + // 8: collected_at
+                "\"UPDATED_AT\" TEXT," + // 9: updated_at
+                "\"REPORT\" TEXT," + // 10: report
+                "\"DESC\" TEXT," + // 11: desc
+                "\"PIC_PATH1\" TEXT," + // 12: picPath1
+                "\"PIC_PATH2\" TEXT," + // 13: picPath2
+                "\"PIC_PATH3\" TEXT," + // 14: picPath3
+                "\"IMGS\" TEXT," + // 15: imgs
+                "\"IS_UPLOADED\" INTEGER NOT NULL );"); // 16: isUploaded
     }
 
     /** Drops the underlying database table. */
@@ -97,45 +99,46 @@ public class GatherPointDao extends AbstractDao<GatherPoint, Long> {
         if (attrs != null) {
             stmt.bindString(5, attrs);
         }
-        stmt.bindDouble(6, entity.getLatitude());
-        stmt.bindDouble(7, entity.getLongitude());
-        stmt.bindDouble(8, entity.getHeight());
+        stmt.bindString(6, entity.getLatitude());
+        stmt.bindString(7, entity.getLongitude());
+        stmt.bindString(8, entity.getHeight());
+        stmt.bindString(9, entity.getCollected_at());
  
-        String collected_at = entity.getCollected_at();
-        if (collected_at != null) {
-            stmt.bindString(9, collected_at);
+        String updated_at = entity.getUpdated_at();
+        if (updated_at != null) {
+            stmt.bindString(10, updated_at);
         }
  
         String report = entity.getReport();
         if (report != null) {
-            stmt.bindString(10, report);
+            stmt.bindString(11, report);
         }
  
         String desc = entity.getDesc();
         if (desc != null) {
-            stmt.bindString(11, desc);
+            stmt.bindString(12, desc);
         }
  
         String picPath1 = entity.getPicPath1();
         if (picPath1 != null) {
-            stmt.bindString(12, picPath1);
+            stmt.bindString(13, picPath1);
         }
  
         String picPath2 = entity.getPicPath2();
         if (picPath2 != null) {
-            stmt.bindString(13, picPath2);
+            stmt.bindString(14, picPath2);
         }
  
         String picPath3 = entity.getPicPath3();
         if (picPath3 != null) {
-            stmt.bindString(14, picPath3);
+            stmt.bindString(15, picPath3);
         }
  
         String imgs = entity.getImgs();
         if (imgs != null) {
-            stmt.bindString(15, imgs);
+            stmt.bindString(16, imgs);
         }
-        stmt.bindLong(16, entity.getIsUploaded() ? 1L: 0L);
+        stmt.bindLong(17, entity.getIsUploaded() ? 1L: 0L);
     }
 
     @Override
@@ -158,45 +161,46 @@ public class GatherPointDao extends AbstractDao<GatherPoint, Long> {
         if (attrs != null) {
             stmt.bindString(5, attrs);
         }
-        stmt.bindDouble(6, entity.getLatitude());
-        stmt.bindDouble(7, entity.getLongitude());
-        stmt.bindDouble(8, entity.getHeight());
+        stmt.bindString(6, entity.getLatitude());
+        stmt.bindString(7, entity.getLongitude());
+        stmt.bindString(8, entity.getHeight());
+        stmt.bindString(9, entity.getCollected_at());
  
-        String collected_at = entity.getCollected_at();
-        if (collected_at != null) {
-            stmt.bindString(9, collected_at);
+        String updated_at = entity.getUpdated_at();
+        if (updated_at != null) {
+            stmt.bindString(10, updated_at);
         }
  
         String report = entity.getReport();
         if (report != null) {
-            stmt.bindString(10, report);
+            stmt.bindString(11, report);
         }
  
         String desc = entity.getDesc();
         if (desc != null) {
-            stmt.bindString(11, desc);
+            stmt.bindString(12, desc);
         }
  
         String picPath1 = entity.getPicPath1();
         if (picPath1 != null) {
-            stmt.bindString(12, picPath1);
+            stmt.bindString(13, picPath1);
         }
  
         String picPath2 = entity.getPicPath2();
         if (picPath2 != null) {
-            stmt.bindString(13, picPath2);
+            stmt.bindString(14, picPath2);
         }
  
         String picPath3 = entity.getPicPath3();
         if (picPath3 != null) {
-            stmt.bindString(14, picPath3);
+            stmt.bindString(15, picPath3);
         }
  
         String imgs = entity.getImgs();
         if (imgs != null) {
-            stmt.bindString(15, imgs);
+            stmt.bindString(16, imgs);
         }
-        stmt.bindLong(16, entity.getIsUploaded() ? 1L: 0L);
+        stmt.bindLong(17, entity.getIsUploaded() ? 1L: 0L);
     }
 
     @Override
@@ -212,17 +216,18 @@ public class GatherPointDao extends AbstractDao<GatherPoint, Long> {
             cursor.getString(offset + 2), // name
             cursor.getString(offset + 3), // type_id
             cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // attrs
-            cursor.getDouble(offset + 5), // latitude
-            cursor.getDouble(offset + 6), // longitude
-            cursor.getDouble(offset + 7), // height
-            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8), // collected_at
-            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9), // report
-            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10), // desc
-            cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11), // picPath1
-            cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12), // picPath2
-            cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13), // picPath3
-            cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14), // imgs
-            cursor.getShort(offset + 15) != 0 // isUploaded
+            cursor.getString(offset + 5), // latitude
+            cursor.getString(offset + 6), // longitude
+            cursor.getString(offset + 7), // height
+            cursor.getString(offset + 8), // collected_at
+            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9), // updated_at
+            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10), // report
+            cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11), // desc
+            cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12), // picPath1
+            cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13), // picPath2
+            cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14), // picPath3
+            cursor.isNull(offset + 15) ? null : cursor.getString(offset + 15), // imgs
+            cursor.getShort(offset + 16) != 0 // isUploaded
         );
         return entity;
     }
@@ -234,17 +239,18 @@ public class GatherPointDao extends AbstractDao<GatherPoint, Long> {
         entity.setName(cursor.getString(offset + 2));
         entity.setType_id(cursor.getString(offset + 3));
         entity.setAttrs(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
-        entity.setLatitude(cursor.getDouble(offset + 5));
-        entity.setLongitude(cursor.getDouble(offset + 6));
-        entity.setHeight(cursor.getDouble(offset + 7));
-        entity.setCollected_at(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
-        entity.setReport(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
-        entity.setDesc(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
-        entity.setPicPath1(cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11));
-        entity.setPicPath2(cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12));
-        entity.setPicPath3(cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13));
-        entity.setImgs(cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14));
-        entity.setIsUploaded(cursor.getShort(offset + 15) != 0);
+        entity.setLatitude(cursor.getString(offset + 5));
+        entity.setLongitude(cursor.getString(offset + 6));
+        entity.setHeight(cursor.getString(offset + 7));
+        entity.setCollected_at(cursor.getString(offset + 8));
+        entity.setUpdated_at(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
+        entity.setReport(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
+        entity.setDesc(cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11));
+        entity.setPicPath1(cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12));
+        entity.setPicPath2(cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13));
+        entity.setPicPath3(cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14));
+        entity.setImgs(cursor.isNull(offset + 15) ? null : cursor.getString(offset + 15));
+        entity.setIsUploaded(cursor.getShort(offset + 16) != 0);
      }
     
     @Override

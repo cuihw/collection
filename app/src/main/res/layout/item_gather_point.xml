@@ -38,10 +38,10 @@
         android:layout_below="@+id/name_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="114.45645123   34.45645123"
+        android:text="经度：114.45645123"
         android:layout_marginLeft="@dimen/item_padding"
+        android:textSize="@dimen/font9"
         />
-
     <TextView
         android:id="@+id/time"
         android:layout_below="@+id/location"

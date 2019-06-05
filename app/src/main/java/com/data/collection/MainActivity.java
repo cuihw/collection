@@ -5,12 +5,13 @@ import android.widget.Toast;
 
 import com.data.collection.activity.BaseActivity;
 import com.data.collection.activity.LoginActivity;
-import com.data.collection.data.BaiduTrace;
+import com.data.collection.data.UserTrace;
 import com.data.collection.data.CacheData;
 import com.data.collection.fragment.FragmentCheckRecord;
 import com.data.collection.fragment.FragmentHome;
 import com.data.collection.fragment.FragmentNavi;
 import com.data.collection.fragment.FragmentSettings;
+import com.data.collection.service.UpLocationTask;
 import com.data.collection.util.LocationController;
 import com.data.collection.util.LsLog;
 import com.jpeng.jptabbar.JPTabBar;
@@ -57,6 +58,8 @@ public class MainActivity extends BaseActivity {
         if (!CacheData.isLogin()) {
             LoginActivity.start(this);
         }
+
+        UpLocationTask.getInstance().startUpload();
     }
 
     private void initLisenter() {
@@ -107,7 +110,7 @@ public class MainActivity extends BaseActivity {
     protected void onDestroy() {
         LocationController.getInstance().stopLocation();
 
-        BaiduTrace.getInstance().stop();
+        UserTrace.getInstance().stop();
         super.onDestroy();
     }
 
@@ -121,5 +124,7 @@ public class MainActivity extends BaseActivity {
             firstExitTime = curTime;
         }
     }
+
+
 
 }

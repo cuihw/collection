@@ -27,6 +27,7 @@ public class DaoMaster extends AbstractDaoMaster {
         MessageRecordDao.createTable(db, ifNotExists);
         PictureMapDao.createTable(db, ifNotExists);
         SampleDao.createTable(db, ifNotExists);
+        TraceLocationDao.createTable(db, ifNotExists);
     }
 
     /** Drops underlying database table using DAOs. */
@@ -37,6 +38,7 @@ public class DaoMaster extends AbstractDaoMaster {
         MessageRecordDao.dropTable(db, ifExists);
         PictureMapDao.dropTable(db, ifExists);
         SampleDao.dropTable(db, ifExists);
+        TraceLocationDao.dropTable(db, ifExists);
     }
 
     /**
@@ -61,6 +63,7 @@ public class DaoMaster extends AbstractDaoMaster {
         registerDaoClass(MessageRecordDao.class);
         registerDaoClass(PictureMapDao.class);
         registerDaoClass(SampleDao.class);
+        registerDaoClass(TraceLocationDao.class);
     }
 
     public DaoSession newSession() {

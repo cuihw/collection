@@ -11,7 +11,7 @@ import org.greenrobot.greendao.annotation.Generated;
 @Entity
 public class Sample {
 
-    private static final String TAG = "CheckPoint";
+    private static final String TAG = "Sample";
     @Id
     private Long id;
 

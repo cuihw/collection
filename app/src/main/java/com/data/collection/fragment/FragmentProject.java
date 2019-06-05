@@ -1,8 +1,6 @@
 package com.data.collection.fragment;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Path;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,20 +10,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.classic.adapter.BaseAdapterHelper;
 import com.classic.adapter.CommonAdapter;
-import com.classic.adapter.interfaces.ImageLoad;
 import com.data.collection.R;
 import com.data.collection.activity.CommonActivity;
 import com.data.collection.data.CacheData;
 import com.data.collection.module.Attrs;
 import com.data.collection.module.Options;
 import com.data.collection.module.Project;
-import com.data.collection.module.Types;
+import com.data.collection.module.CollectType;
 import com.data.collection.module.UserInfoBean;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.Utils;
@@ -55,7 +51,7 @@ public class FragmentProject extends FragmentBase {
     @BindView(R.id.projectname)
     TextView projectName;
 
-    CommonAdapter<Types> adapter ;
+    CommonAdapter<CollectType> adapter ;
 
     public static void start(Context context){
         Bundle bundle = new Bundle();
@@ -92,9 +88,9 @@ public class FragmentProject extends FragmentBase {
         Project project = userInfoBean.getData().getProject();
         projectName.setText("项目名字：" + project.getName());
 
-        adapter = new CommonAdapter<Types>(getContext(),R.layout.item_project_attr, project.getTypes()) {
+        adapter = new CommonAdapter<CollectType>(getContext(),R.layout.item_project_attr, project.getTypes()) {
             @Override
-            public void onUpdate(BaseAdapterHelper helper, Types item, int position) {
+            public void onUpdate(BaseAdapterHelper helper, CollectType item, int position) {
                 helper.setText(R.id.type_name, "采集类型：" + item.getName());
 
                 ImageView iconview = helper.getView(R.id.icon);

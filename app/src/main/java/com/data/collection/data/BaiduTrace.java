@@ -1,6 +1,7 @@
 package com.data.collection.data;
 
 import android.content.Context;
+import android.content.Intent;
 
 import com.baidu.trace.LBSTraceClient;
 import com.baidu.trace.Trace;
@@ -8,9 +9,12 @@ import com.baidu.trace.api.track.HistoryTrackRequest;
 import com.baidu.trace.api.track.OnTrackListener;
 import com.baidu.trace.model.OnTraceListener;
 import com.baidu.trace.model.PushMessage;
+import com.data.collection.service.TraceService;
+import com.data.collection.util.LsLog;
 
 public class BaiduTrace {
 
+    private static final String TAG = "UserTrace";
     static BaiduTrace baiduTrace;
     boolean isInTrace;
     // 轨迹服务ID
@@ -91,14 +95,26 @@ public class BaiduTrace {
 
     public void start() {
         isInTrace = true;
-        mTraceClient.startTrace(mTrace, mTraceListener);
+//        mTraceClient.startTrace(mTrace, mTraceListener);
+
+        //启动Service
+        Intent intentOne = new Intent(applicationContext, TraceService.class);
+        applicationContext.startService(intentOne);
+        LsLog.w(TAG, "start trace location");
+
     }
 
     public void stop() {
         isInTrace = false;
         // 停止采集
-        mTraceClient.stopGather(mTraceListener);
-        mTraceClient.stopTrace(mTrace, mTraceListener);
+//        mTraceClient.stopGather(mTraceListener);
+//        mTraceClient.stopTrace(mTrace, mTraceListener);
+
+
+        //启动Service
+        Intent intentOne = new Intent(applicationContext, TraceService.class);
+        applicationContext.stopService(intentOne);
+        LsLog.w(TAG, "stop trace location");
     }
 
     public boolean isInTrace() {

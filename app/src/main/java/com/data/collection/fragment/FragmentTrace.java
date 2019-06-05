@@ -22,7 +22,6 @@ import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
 import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
-import com.baidu.mapapi.map.Overlay;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.Polyline;
 import com.baidu.mapapi.map.PolylineOptions;
@@ -34,7 +33,9 @@ import com.baidu.trace.api.track.TrackPoint;
 import com.baidu.trace.model.Point;
 import com.data.collection.R;
 import com.data.collection.activity.CommonActivity;
-import com.data.collection.data.BaiduTrace;
+import com.data.collection.data.UserTrace;
+import com.data.collection.data.greendao.TraceLocation;
+import com.data.collection.listener.ITraceListener;
 import com.data.collection.util.DateUtils;
 import com.data.collection.util.LocationController;
 import com.data.collection.util.LsLog;
@@ -146,6 +147,8 @@ public class FragmentTrace extends FragmentBase {
         }
     };
 
+
+
     private void showTrace(HistoryTrackResponse response) {
         Point startPoint = response.getStartPoint();
         com.baidu.trace.model.LatLng location = startPoint.getLocation();
@@ -179,8 +182,14 @@ public class FragmentTrace extends FragmentBase {
 
     private void initView() {
         // 默认当天时间
-        BaiduTrace.getInstance().getHistoryTrace(0,0, mTrackListener);
+        //UserTrace.getInstance().getHistoryTrace(0,0, mTrackListener);
         datetimeLayout.setOnClickListener(v->showDatePicker());
+        UserTrace.getInstance().getHistoryTrace(0, new ITraceListener(){
+            @Override
+            public void onTraceList(List<TraceLocation> list) {
+
+            }
+        });
     }
 
     private void showDatePicker() {
@@ -220,7 +229,7 @@ public class FragmentTrace extends FragmentBase {
         calendar.set(Calendar.SECOND, 59);
         long endTime = calendar.getTimeInMillis() / 1000;
 
-        BaiduTrace.getInstance().getHistoryTrace(starttime,endTime, mTrackListener);
+        // UserTrace.getInstance().getHistoryTrace(starttime, endTime, mTrackListener);
     }
 
     private void initListener() {

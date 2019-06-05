@@ -1,12 +1,10 @@
 package com.data.collection.view;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -14,13 +12,19 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.data.collection.R;
+import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.module.Attrs;
+import com.data.collection.module.ImageData;
 import com.data.collection.module.Options;
-import com.data.collection.module.Types;
+import com.data.collection.module.CollectType;
+import com.data.collection.util.LsLog;
 import com.data.collection.util.ToastUtil;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.w3c.dom.Attr;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +34,7 @@ import java.util.List;
 
 public class AttributionView extends LinearLayout {
 
+    private static final String TAG = "AttributionView";
     private Context mContext;
     private View mView;
     private LinearLayout container;
@@ -100,7 +105,7 @@ public class AttributionView extends LinearLayout {
             divider.setVisibility(View.VISIBLE);
         }
         TextView ckeyview = view.findViewById(R.id.ckey);
-        ckeyview.setText(name + "  ");
+        ckeyview.setText(name);
         addChildView(view);
     }
 
@@ -119,7 +124,7 @@ public class AttributionView extends LinearLayout {
         View view = inflater.inflate(R.layout.view_attribution_option, this, false);
         view.setTag("option_attr");
         TextView ckeyview = view.findViewById(R.id.ckey);
-        ckeyview.setText(name + "  ");
+        ckeyview.setText(name);
 
         Spinner spinner = view.findViewById(R.id.spinner);
         List<String> labels = new ArrayList<>();
@@ -143,7 +148,7 @@ public class AttributionView extends LinearLayout {
         return attrViewList.size() > 1;
     }
 
-    public Types getAttrsValue(Types selectedItem) {
+    public CollectType getAttrsValue(CollectType selectedItem) {
 
         List<Attrs> attrs = selectedItem.getAttrs();
 
@@ -167,13 +172,62 @@ public class AttributionView extends LinearLayout {
                     String label = ckeyview.getText().toString().trim();
                     if (label.startsWith(att.getLabel())) {
                         Spinner spinner = view.findViewById(R.id.spinner);
-                        int selectedItemPosition = spinner.getSelectedItemPosition() + 1;
+                        int selectedItemPosition = spinner.getSelectedItemPosition() + 1; // 得到当前选项，选项值增加1
                         att.setValue("" + selectedItemPosition);
                     }
                 }
             }
         }
         return selectedItem;
+    }
+
+    public void setGatherPoint(GatherPoint gatherPoint) {
+        LsLog.w(TAG, "setGatherPoint");
+        String attrs = gatherPoint.getAttrs();
+        LsLog.w(TAG, "attrs" + attrs);
+        Gson gson = new Gson();
+
+        Type type =new TypeToken<List<Attrs>>(){}.getType();
+
+        List<Attrs> attrList = gson.fromJson(attrs, type);
+        LsLog.w(TAG, "setGatherPoint" + attrList);
+        boolean isUploaded = gatherPoint.getIsUploaded();
+
+        for (Attrs attr: attrList) {
+            String value = attr.getValue();
+            String label = attr.getLabel();
+            String type1 = attr.getType();  // type == 1 填空
+            List<Options> options = attr.getOptions();
+
+            for (View view:attrViewList) {
+                String tag = (String)view.getTag();
+                TextView ckeyview = view.findViewById(R.id.ckey);
+                String labelValue = ckeyview.getText().toString().trim();
+                if (type1.equals("1")) {
+                    if (tag.equals("fill_attr") && labelValue.equals(label)) {
+
+                        EditText valueView = view.findViewById(R.id.value);
+                        valueView.setText(value);
+                        if (isUploaded) {
+                            valueView.setEnabled(false);
+                        }
+                    }
+                } else if (tag.equals("option_attr") && labelValue.equals(label)){
+                    Spinner spinner = view.findViewById(R.id.spinner);
+                    int spinnerIndex = 0;
+                    for (int i = 0; i < options.size(); i++) {
+                        if (options.get(i).getValue().equals(value)) {
+                            spinnerIndex = i;
+                            break;
+                        }
+                    }
+                    spinner.setSelection(spinnerIndex);
+                    if (isUploaded) {
+                        spinner.setEnabled(false);
+                    }
+                }
+            }
+        }
     }
 }
 

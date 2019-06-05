@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 
 import java.util.List;
 
-public class Types {
+public class CollectType {
     private String id;
 
     private String name;

@@ -18,14 +18,19 @@ import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class BitmapUtil {
 
+
+    private static final String TAG = "BitmapUtil";
 
     //将bitmap调整到指定大小
     public static Bitmap sizeBitmap(Bitmap origin, int newWidth, int newHeight) {
@@ -45,12 +50,24 @@ public class BitmapUtil {
         return newBM;
     }
 
+    public static File trimBitmap(File file) {
+        String filename = file.getAbsolutePath();
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = 3;
+        Bitmap bitmap = BitmapFactory.decodeFile(filename, options);
+        Log.i(TAG, "压缩后图片的大小" + (bitmap.getByteCount() / 1024 / 1024)
+                + "M宽度为" + bitmap.getWidth() + "高度为" + bitmap.getHeight());
+        saveImageToGallery(null, bitmap, filename);
+        return new File(filename);
+    }
+
     public static Bitmap trimBitmapFile(String filename){
         File file = new File(filename);
         if (file.exists()) {
             Bitmap bitmap = BitmapFactory.decodeFile(filename);
             bitmap = scaleBitmap(bitmap, 0.5f);
-            saveImageToGallery(null, bitmap,filename);
+            saveImageToGallery(null, bitmap, filename);
+
             return bitmap;
         }
         return null;

@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.data.collection.R;
-import com.data.collection.module.Types;
+import com.data.collection.module.CollectType;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.List;
@@ -17,9 +17,9 @@ import java.util.List;
 public class PointTypeAdapter extends BaseAdapter {
     private Context ctx;
     private LayoutInflater li;
-    private List<Types> dataList;
+    private List<CollectType> dataList;
 
-    public PointTypeAdapter (Context context, List<Types> list){
+    public PointTypeAdapter (Context context, List<CollectType> list){
         ctx = context;
         li = LayoutInflater.from(ctx);
         dataList = list;
