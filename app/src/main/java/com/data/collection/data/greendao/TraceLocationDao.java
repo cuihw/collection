@@ -43,8 +43,8 @@ public class TraceLocationDao extends AbstractDao<TraceLocation, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"TRACE_LOCATION\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
-                "\"LONGITUDE\" TEXT," + // 1: longitude
-                "\"LATITUDE\" TEXT," + // 2: latitude
+                "\"LONGITUDE\" TEXT NOT NULL ," + // 1: longitude
+                "\"LATITUDE\" TEXT NOT NULL ," + // 2: latitude
                 "\"TIME\" TEXT UNIQUE ," + // 3: time
                 "\"IS_UPLOAD\" INTEGER NOT NULL );"); // 4: isUpload
     }
@@ -63,16 +63,8 @@ public class TraceLocationDao extends AbstractDao<TraceLocation, Long> {
         if (id != null) {
             stmt.bindLong(1, id);
         }
- 
-        String longitude = entity.getLongitude();
-        if (longitude != null) {
-            stmt.bindString(2, longitude);
-        }
- 
-        String latitude = entity.getLatitude();
-        if (latitude != null) {
-            stmt.bindString(3, latitude);
-        }
+        stmt.bindString(2, entity.getLongitude());
+        stmt.bindString(3, entity.getLatitude());
  
         String time = entity.getTime();
         if (time != null) {
@@ -89,16 +81,8 @@ public class TraceLocationDao extends AbstractDao<TraceLocation, Long> {
         if (id != null) {
             stmt.bindLong(1, id);
         }
- 
-        String longitude = entity.getLongitude();
-        if (longitude != null) {
-            stmt.bindString(2, longitude);
-        }
- 
-        String latitude = entity.getLatitude();
-        if (latitude != null) {
-            stmt.bindString(3, latitude);
-        }
+        stmt.bindString(2, entity.getLongitude());
+        stmt.bindString(3, entity.getLatitude());
  
         String time = entity.getTime();
         if (time != null) {
@@ -116,8 +100,8 @@ public class TraceLocationDao extends AbstractDao<TraceLocation, Long> {
     public TraceLocation readEntity(Cursor cursor, int offset) {
         TraceLocation entity = new TraceLocation( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
-            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // longitude
-            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // latitude
+            cursor.getString(offset + 1), // longitude
+            cursor.getString(offset + 2), // latitude
             cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // time
             cursor.getShort(offset + 4) != 0 // isUpload
         );
@@ -127,8 +111,8 @@ public class TraceLocationDao extends AbstractDao<TraceLocation, Long> {
     @Override
     public void readEntity(Cursor cursor, TraceLocation entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
-        entity.setLongitude(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
-        entity.setLatitude(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
+        entity.setLongitude(cursor.getString(offset + 1));
+        entity.setLatitude(cursor.getString(offset + 2));
         entity.setTime(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
         entity.setIsUpload(cursor.getShort(offset + 4) != 0);
      }

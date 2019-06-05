@@ -87,14 +87,14 @@ public class UserTrace {
         calendar.set(Calendar.MINUTE ,59);
         calendar.set(Calendar.SECOND ,59);
 
-        long endTime = calendar.getTimeInMillis()/1000;
+        long endTime = calendar.getTimeInMillis()/1000 ;
 
         try {
             DaoSession daoSession = App.getInstence().getDaoSession();
 
             QueryBuilder<TraceLocation> qb = daoSession.queryBuilder(TraceLocation.class)
-                    .where(TraceLocationDao.Properties.Time.gt(startTime),
-                            TraceLocationDao.Properties.Time.le(endTime))
+                    .where(TraceLocationDao.Properties.Time.gt(startTime+ ""),
+                            TraceLocationDao.Properties.Time.le(endTime+ ""))
                     .orderAsc(TraceLocationDao.Properties.Time);
 
             List<TraceLocation> list = qb.list();
@@ -105,7 +105,7 @@ public class UserTrace {
         }
     }
 
-    private void getDataFromServer(Context context, long startTime, ITraceListener traceListener) {
+    public void getDataFromServer(Context context, long startTime, ITraceListener traceListener) {
 
         Map<String , Object> params = new HashMap<>();
         params.put("start_time", startTime);

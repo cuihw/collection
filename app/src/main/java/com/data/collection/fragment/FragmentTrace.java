@@ -42,6 +42,7 @@ import com.data.collection.util.LsLog;
 import com.data.collection.util.PositionUtil;
 import com.data.collection.util.ToastUtil;
 import com.data.collection.view.TitleView;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -118,8 +119,13 @@ public class FragmentTrace extends FragmentBase {
 
         view.post(()->{
             mBaiduMap = mapFragment.getMapView().getMap();
-            LsLog.i(TAG, "mBaiduMap = " + mBaiduMap);
+            LsLog.w(TAG, "mBaiduMap = " + mBaiduMap);
+            getAndShowTrace();
         });
+    }
+
+    private void getAndShowTrace() {
+        UserTrace.getInstance().getHistoryTrace(0, traceListener);
     }
 
     // 初始化轨迹监听器
@@ -146,8 +152,6 @@ public class FragmentTrace extends FragmentBase {
             showTrace(response);
         }
     };
-
-
 
     private void showTrace(HistoryTrackResponse response) {
         Point startPoint = response.getStartPoint();
@@ -180,16 +184,72 @@ public class FragmentTrace extends FragmentBase {
         mTexturePolyline = (Polyline) mBaiduMap.addOverlay(ooPolyline11);
     }
 
+    ITraceListener traceListener = new ITraceListener(){
+
+        @Override
+        public void onTraceList(List<TraceLocation> list) {
+            showLocalTrace(0, list);
+        }
+    };
+
     private void initView() {
         // 默认当天时间
-        //UserTrace.getInstance().getHistoryTrace(0,0, mTrackListener);
         datetimeLayout.setOnClickListener(v->showDatePicker());
-        UserTrace.getInstance().getHistoryTrace(0, new ITraceListener(){
-            @Override
-            public void onTraceList(List<TraceLocation> list) {
 
-            }
-        });
+        dateView.setText(DateUtils.formatDate(Calendar.getInstance(),DateUtils.fmtYYYYMMDD));
+    }
+
+    private void showLocalTrace(long time ,List<TraceLocation> list) {
+        if (list == null || list.size() == 0) {
+            UserTrace.getInstance().getDataFromServer(getContext(),time,new ITraceListener(){
+                @Override
+                public void onTraceList(List<TraceLocation> list) {
+                    showTrace(list);
+                }
+            } );
+            return ;
+        }
+        showTrace(list);
+    }
+
+    private void showTrace(List<TraceLocation> list) {
+        if (list == null || list.size() == 0) {
+            ToastUtil.showTextToast(getContext(), "当前没有轨迹数据");
+            return;
+        }
+        TraceLocation startLocation = list.get(0);
+        double la = Double.parseDouble(startLocation.getLatitude());
+
+        double lo = Double.parseDouble(startLocation.getLongitude());
+        // 把地图定位到开始点为中心
+        LatLng ll = new LatLng(la, lo);
+        ll = PositionUtil.GpsToBaiduLatLng(ll);
+        MapStatus.Builder builder = new MapStatus.Builder();
+        builder.target(ll).zoom(18.0f);
+        mBaiduMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
+
+        List<LatLng> points= new ArrayList<>();
+
+        for (TraceLocation point : list) {
+            LsLog.w(TAG, "trace point:" + new Gson().toJson(point));
+
+            double latitude = Double.parseDouble(point.getLatitude());
+            double longitude = Double.parseDouble(point.getLongitude());
+            // 坐标转换到百度09 BD09LL
+            LatLng latLng = PositionUtil.GpsToBaiduLatLng(new LatLng(latitude, longitude));
+            points.add(latLng);
+        }
+
+        if (points.size() < 3) { //points count can not less than 2
+            points.add(points.get(0));
+            ToastUtil.showTextToast(getContext(), "Trace pionts count less than 2.");
+        }
+
+        OverlayOptions ooPolyline11 = new PolylineOptions()
+                .width(20)
+                .points(points)
+                .customTexture(mBlueTexture);
+        mTexturePolyline = (Polyline) mBaiduMap.addOverlay(ooPolyline11);
     }
 
     private void showDatePicker() {
@@ -215,27 +275,19 @@ public class FragmentTrace extends FragmentBase {
         calendar.set(Calendar.DATE, dayOfMonth);
         String sDate = DateUtils.formatDate(calendar, DateUtils.fmtYYYYMMDD);
         dateView.setText(sDate);
-        getTraceData(calendar); // 请求百度轨迹数据
-    }
 
-    private void getTraceData(Calendar calendar) {
         calendar.set(Calendar.HOUR, 0);
         calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        long starttime = calendar.getTimeInMillis() / 1000;
-
-        calendar.set(Calendar.HOUR, 23);
-        calendar.set(Calendar.MINUTE, 59);
-        calendar.set(Calendar.SECOND, 59);
-        long endTime = calendar.getTimeInMillis() / 1000;
-
-        // UserTrace.getInstance().getHistoryTrace(starttime, endTime, mTrackListener);
+        calendar.set(Calendar.SECOND, 1);
+        long time = calendar.getTimeInMillis()/1000;
+        UserTrace.getInstance().getHistoryTrace(time, traceListener);
     }
+
+
 
     private void initListener() {
         titleView.getLefticon().setOnClickListener(v->{
             getActivity().finish();
-
         });
     }
 

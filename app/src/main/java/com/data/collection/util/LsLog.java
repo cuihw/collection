@@ -23,7 +23,7 @@ public class LsLog {
 
     public static void i(String tag, String msg) {
         if (isDebug) {
-            Log.i(tag, logfilter + msg);
+            Log.w(tag, logfilter + msg);
         }
     }
 
