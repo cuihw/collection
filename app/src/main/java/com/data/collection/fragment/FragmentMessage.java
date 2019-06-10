@@ -164,7 +164,7 @@ public class FragmentMessage extends FragmentBase {
     }
 
     private void setMessageRead(MessageData messageData) {
-        if (messageData.getType().equals(0)) { // 原来是未读的，现在设置成已读的
+        if (messageData.getType().equals("0")) { // 原来是未读的，现在设置成已读的
             messageData.setType("1");
             messageData.setRead_at(DateUtils.getNow(DateUtils.fmtYYYYMMDDhhmmss));
             DaoSession daoSession =  App.getInstence().getDaoSession();

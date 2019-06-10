@@ -140,6 +140,7 @@ public class PointData {
     public GatherPoint getGatherPoint(){
         GatherPoint gp = new GatherPoint();
         gp.setId(id);
+
         gp.setType_id(type_id);
 
         gp.setUpdated_at(updated_at);

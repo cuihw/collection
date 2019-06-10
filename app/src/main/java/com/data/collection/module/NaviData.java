@@ -2,6 +2,8 @@ package com.data.collection.module;
 
 import android.text.TextUtils;
 
+import com.google.gson.Gson;
+
 import java.util.List;
 
 public class NaviData {
@@ -107,5 +109,13 @@ public class NaviData {
 
     public void setChildren(List<NaviData> children) {
         this.children = children;
+    }
+
+    public String toJson(){
+        return new Gson().toJson(this);
+    }
+
+    public static NaviData fromJson(String json){
+        return TextUtils.isEmpty(json) ? null: new Gson().fromJson(json, NaviData.class);
     }
 }
