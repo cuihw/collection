@@ -3,34 +3,17 @@ package com.data.collection.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.classic.adapter.BaseAdapterHelper;
 import com.classic.adapter.CommonAdapter;
-import com.data.collection.App;
 import com.data.collection.Constants;
 import com.data.collection.R;
 import com.data.collection.adapter.MultipleLayoutAdapter;
 import com.data.collection.data.CacheData;
-import com.data.collection.data.greendao.DaoSession;
-import com.data.collection.data.greendao.GatherPoint;
-import com.data.collection.data.greendao.GatherPointDao;
-import com.data.collection.module.BaseBean;
-import com.data.collection.module.CollectType;
-import com.data.collection.module.ImageData;
-import com.data.collection.module.ImageUploadBean;
 import com.data.collection.module.NaviData;
 import com.data.collection.module.NaviListBean;
-import com.data.collection.module.PointData;
-import com.data.collection.module.PointListBean;
-import com.data.collection.module.PointListData;
 import com.data.collection.module.UserInfoBean;
 import com.data.collection.network.HttpRequest;
 import com.data.collection.util.LsLog;
@@ -38,26 +21,19 @@ import com.data.collection.util.ToastUtil;
 import com.data.collection.view.TitleView;
 import com.google.gson.Gson;
 import com.kaopiz.kprogresshud.KProgressHUD;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
-import org.greenrobot.greendao.query.QueryBuilder;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import butterknife.BindView;
 
-// 导航点列表
+// 导航计算页面，这是一个中转页面
+// 导航跳到这个页面的时候，给出经纬度坐标地点，（初始化导航，初始化文件夹，初始化语音文件）然后计算路径
+// 路径计算完毕后，进入导航页面，开始导航。
 
-public class NaviListActivity extends BaseActivity {
+public class NaviToActivity extends BaseActivity {
 
-    private static final String TAG = "NaviListActivity";
+    private static final String TAG = "NaviToActivity";
 
     KProgressHUD hud;
 
@@ -78,14 +54,14 @@ public class NaviListActivity extends BaseActivity {
     CommonAdapter<NaviData> childAdapter;
 
     public static void start(Context context) {
-        Intent intent = new Intent(context, NaviListActivity.class);
+        Intent intent = new Intent(context, NaviToActivity.class);
         context.startActivity(intent);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_navi_point_list);
+        setContentView(R.layout.activity_to_navi_point);
 
         getData();
         initListener();
@@ -104,7 +80,7 @@ public class NaviListActivity extends BaseActivity {
                 if (status == 0) {
                     handleData(bean);
                 } else {
-                    ToastUtil.showTextToast(NaviListActivity.this, "请求数据失败，请检查网络");
+                    ToastUtil.showTextToast(NaviToActivity.this, "请求数据失败，请检查网络");
                 }
             }
         });
@@ -157,12 +133,6 @@ public class NaviListActivity extends BaseActivity {
                     oldViewHold = view;
                 }
 
-//                if (item.isSelected()) {
-//                    view.setPressed(true);
-//                }
-//                else {
-//                    view.setPressed(false);
-//                }
             }
             NaviData oldItem;
             TextView oldViewHold;
