@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/parent_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/item_padding"
+        android:layout_marginLeft="@dimen/item_padding"
+        android:layout_marginBottom="@dimen/item_padding"
+        android:layout_marginRight="-2dp"
+        android:background="@drawable/navi_button_selector_2"
+        android:gravity="center"
+        android:paddingBottom="@dimen/item_padding_large"
+        android:paddingTop="@dimen/item_padding_large"
+        android:text="京沪线"
+        android:textColor="@color/font4"
+        android:textSize="@dimen/font3">
+    </TextView>
+
+</LinearLayout>

@@ -147,7 +147,7 @@ public class AddCollectionActivity extends BaseActivity {
         laititudeTv.setText("纬度: " + location.getLatitude());
         altitudeTv.setText("高度: " + location.getAltitude());
 
-        long time = location.getTime();
+        long time = System.currentTimeMillis();
         timeTv.setText("采集时间: " + DateUtils.formatTime(time, DateUtils.fmtYYYYMMDDhhmmss));
     }
 

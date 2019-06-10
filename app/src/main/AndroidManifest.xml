@@ -66,7 +66,6 @@
             android:screenOrientation="portrait">
         </activity>
 
-
         <activity android:name=".activity.CommonActivity"
             android:screenOrientation="portrait">
         </activity>
@@ -75,6 +74,11 @@
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             android:screenOrientation="portrait">
         </activity>
+
+        <activity android:name=".activity.NaviListActivity"
+            android:screenOrientation="portrait">
+        </activity>
+
 
         <meta-data
             android:name="io.fabric.ApiKey"

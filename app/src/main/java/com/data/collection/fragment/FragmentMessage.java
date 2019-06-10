@@ -55,7 +55,6 @@ public class FragmentMessage extends FragmentBase {
 
     CommonAdapter<MessageData> adapter;
 
-
     List<MessageData> list;
 
     public static void start(Context context){
@@ -191,14 +190,12 @@ public class FragmentMessage extends FragmentBase {
                     @Override
                     public void onResponse(int status, BaseBean bean) {
                         LsLog.i(TAG, "set the message has benn read result = " + bean.getMsg());
+                        data.setIsUploaded(true);
                         App.getInstence().getDaoSession().insertOrReplace(data);
                     }
                 });
             }
         }
-
-
-
     }
 
     private void initListener() {

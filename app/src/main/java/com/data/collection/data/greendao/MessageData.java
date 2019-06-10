@@ -23,8 +23,6 @@ public class MessageData {
 
     boolean isUploaded = false;
 
-
-
     @Generated(hash = 692796271)
     public MessageData(String id, String title, String content, String type,
             String read_at, String create_time, String pusher, boolean isUploaded) {

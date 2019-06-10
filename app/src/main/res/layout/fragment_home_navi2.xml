@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:title="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background5"
+    android:orientation="vertical">
+
+    <com.data.collection.view.TitleView
+        android:id="@+id/title_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        title:TitleText="导航" />
+
+    <RelativeLayout
+        android:clickable="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/item_padding"
+        android:layout_marginTop="@dimen/item_padding_largest"
+        android:layout_marginRight="@dimen/item_padding"
+        android:background="@drawable/button_selector_1">
+
+        <ImageView
+            android:id="@+id/icon_label"
+            android:layout_width="@dimen/navi_icon"
+            android:layout_height="@dimen/navi_icon_height"
+            android:background="@mipmap/round_left_bg"
+            android:padding="@dimen/item_padding_largest"
+            android:src="@mipmap/icon_local_data" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/item_padding"
+            android:layout_toRightOf="@+id/icon_label"
+            android:text="本地数据"
+            android:textSize="@dimen/font1" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:clickable="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/item_padding"
+        android:layout_marginTop="@dimen/item_padding_largest"
+        android:layout_marginRight="@dimen/item_padding"
+        android:background="@drawable/button_selector_1">
+
+        <ImageView
+            android:id="@+id/icon_label2"
+            android:layout_width="@dimen/navi_icon"
+            android:layout_height="@dimen/navi_icon_height"
+            android:background="@mipmap/round_left_bg"
+            android:padding="@dimen/item_padding_largest"
+            android:src="@mipmap/icon_sync_data" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/item_padding"
+            android:layout_toRightOf="@+id/icon_label2"
+            android:text="同步数据"
+            android:textSize="@dimen/font1" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/navi_list_layout"
+        android:clickable="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/item_padding"
+        android:layout_marginTop="@dimen/item_padding_largest"
+        android:layout_marginRight="@dimen/item_padding"
+        android:background="@drawable/button_selector_1">
+
+        <ImageView
+            android:id="@+id/icon_label3"
+            android:layout_width="@dimen/navi_icon"
+            android:layout_height="@dimen/navi_icon_height"
+            android:background="@mipmap/round_left_bg"
+            android:padding="@dimen/item_padding_largest"
+            android:src="@mipmap/icon_navi" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/item_padding"
+            android:layout_toRightOf="@+id/icon_label3"
+            android:text="导航点"
+            android:textSize="@dimen/font1" />
+    </RelativeLayout>
+</LinearLayout>

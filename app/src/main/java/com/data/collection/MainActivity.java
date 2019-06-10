@@ -10,6 +10,7 @@ import com.data.collection.data.CacheData;
 import com.data.collection.fragment.FragmentCheckRecord;
 import com.data.collection.fragment.FragmentHome;
 import com.data.collection.fragment.FragmentNavi;
+import com.data.collection.fragment.FragmentNavi2;
 import com.data.collection.fragment.FragmentSettings;
 import com.data.collection.service.UpLocationTask;
 import com.data.collection.util.LocationController;
@@ -39,10 +40,9 @@ public class MainActivity extends BaseActivity {
     String settings;
 
     FragmentHome fragmentHome = new FragmentHome();
-    FragmentNavi fragmentNavi = new FragmentNavi();
+    FragmentNavi2 fragmentNavi = new FragmentNavi2();
     FragmentCheckRecord fragmentCheckRecord = new FragmentCheckRecord();
     FragmentSettings fragmentSettings = new FragmentSettings();
-
 
     private long firstExitTime = 0L;// 用来保存第一次按返回键的时间
     private static final int EXIT_TIME = 2000;// 两次按返回键的间隔判断

@@ -67,6 +67,8 @@ public class UpLocationTask extends TimerTask {
         try {
             List<TraceLocation> list = qb.list(); // 查出当前对应的数据
 
+            if (list == null || list.size() == 0) return;
+
             Map<String ,Object> params = new HashMap<>();
             String s = new Gson().toJson(list);
             params.put("locations", s);
@@ -75,10 +77,11 @@ public class UpLocationTask extends TimerTask {
                 @Override
                 public void onResponse(int status, BaseBean bean) {
                     LsLog.w(TAG, "upload_trace result = " + (bean == null ? "null": bean.toJson()));
-
-                    for (TraceLocation traceLocation: list) {
-                        traceLocation.setIsUpload(true);
-                        daoSession.update(traceLocation);
+                    if (bean.getCode().equals(Constants.SUCCEED)) {
+                        for (TraceLocation traceLocation: list) {
+                            traceLocation.setIsUpload(true);
+                            daoSession.update(traceLocation);
+                        }
                     }
                 }
             });

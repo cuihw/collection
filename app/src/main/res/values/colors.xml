@@ -47,6 +47,8 @@
     <color name="PrimaryRed">#ea3021</color>
     <!--淡灰色 -->
     <color name="Gainsboro">#DCDCDC</color>
+    <!--淡蓝色 -->
+    <color name="naviButtonPressed">#acceff</color>
 
     <color name="white">#FFFFFF</color>
     <color name="transparent_white">#48FFFFFF</color>
@@ -66,4 +68,6 @@
 
     <color name="transparent100">#00000000</color>
     <color name="tabfont">#4b4b4b</color>
+
+
 </resources>

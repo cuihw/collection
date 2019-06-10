@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:paddingRight="@dimen/item_padding"
+    >
+    <!-- outer circle -->
+    <item>
+        <shape>
+            <stroke
+                android:width="1pt"
+                android:color="@color/transparent100" />
+            <solid android:color="@color/transparent100" />
+        </shape>
+    </item>
+
+    <!-- inner shadow of outer circle -->
+    <item android:right="10dp">
+        <shape>
+            <stroke
+                android:width="1pt"
+                android:color="@color/transparent100" />
+            <gradient
+                android:angle="45"
+                android:endColor="#6a6b72"
+                android:startColor="#2d3134" />
+
+            <corners
+                android:bottomLeftRadius="5dp"
+                android:bottomRightRadius="5dp"
+                android:topLeftRadius="5dp"
+                android:topRightRadius="5dp" />
+        </shape>
+    </item>
+</layer-list>
