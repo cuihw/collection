@@ -30,11 +30,13 @@ import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.TextureMapView;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.model.LatLngBounds;
 import com.data.collection.R;
 import com.data.collection.module.MarkerItem;
 import com.data.collection.util.LocationController;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.PositionUtil;
+import com.data.collection.util.Utils;
 
 import butterknife.BindView;
 
@@ -49,21 +51,17 @@ import static android.content.Context.SENSOR_SERVICE;
  */
 public class FragmentCheckRecord extends FragmentBase {
     private static final String TAG = "FragmentCheckRecord";
+    private static final int accuracyCircleFillColor = 0xAAFFFF88;
+    private static final int accuracyCircleStrokeColor = 0xAA00FF00;
 
     @BindView(R.id.mapview)
     TextureMapView mMapView;
-
     @BindView(R.id.map_my_position)
     TextView myPosition;
-
-
     BaiduMap mBaiduMap;
-
+    BitmapDescriptor mMarkerBitmap;
     private LocationClient mLocClient;
-
     private MyLocationConfiguration.LocationMode mCurrentMode;
-    private static final int accuracyCircleFillColor = 0xAAFFFF88;
-    private static final int accuracyCircleStrokeColor = 0xAA00FF00;
     private SensorManager mSensorManager;
     private Double lastX = 0.0;
     private int mCurrentDirection = 0;
@@ -71,83 +69,30 @@ public class FragmentCheckRecord extends FragmentBase {
     private double mCurrentLon = 0.0;
     private float mCurrentAccracy;
     private boolean isFirstLoc = true;
-
     private ClusterManager<MarkerItem> mClusterManager;
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        LsLog.i(TAG, "onCreateView");
-
-        view = inflater.inflate(R.layout.fragment_home_check, container, false);
-
-        bindButterKnife();
-        initMap();
-        initMyLocation();
-        initSensor();
-
-        initCheckPoint();
-        initListener();
-        return view;
-    }
-
-    private void initListener() {
-        myPosition.setOnClickListener(v->goToMyLocation());
-    }
-
-    BitmapDescriptor mMarkerBitmap;
-
-    private void initCheckPoint() {
-        //构建Marker图标
-        mMarkerBitmap = BitmapDescriptorFactory
-                .fromResource(R.drawable.icon_gcoding);
-
-        //定义Maker坐标点113.597357,34.79826
-        LatLng point = new LatLng(34.79826, 113.597357);
-        addMarker(point);
-        //113.627612,34.791382
-        point = new LatLng(34.791382, 113.627612);
-        addMarker(point);
-    }
-
-    private void addMarker(LatLng point) {
-
-        OverlayOptions option = new MarkerOptions()
-                .position(point) //必传参数
-                .icon(mMarkerBitmap) //必传参数
-                // 设置平贴地图，在地图中双指下拉查看效果
-                .flat(false)
-                .title("查看效果")
-                .alpha(0.9f);
-
-        //在地图上添加Marker，并显示
-        mBaiduMap.addOverlay(option);
-
-    }
-
-    private void initSensor() {
-        mSensorManager = (SensorManager) getContext().getSystemService(SENSOR_SERVICE);//获取传感器管理服务
-    }
-
-    private void initMyLocation() {
-        MyLocationConfiguration.LocationMode mCurrentMode = MyLocationConfiguration.LocationMode.NORMAL;
-
-        // 定位点，默认的定位点图标为null
-        mBaiduMap.setMyLocationConfigeration(new MyLocationConfiguration(
-                        mCurrentMode, true, null));
-        mBaiduMap.setMyLocationEnabled(true);
-        mLocClient = new LocationClient(getContext());
-        mLocClient.registerLocationListener(myListener);
-        LocationClientOption option = new LocationClientOption();
-        option.setOpenGps(true); // 打开gps
-        option.setCoorType("bd09ll"); // 设置坐标类型
-        option.setScanSpan(1000);
-        mLocClient.setLocOption(option);
-        mLocClient.start();
-    }
-
     private MyLocationData locData;
+    SensorEventListener sensorEventListener = new SensorEventListener(){
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            if (mBaiduMap == null) return;
+            double x = event.values[SensorManager.DATA_X];
+            if (Math.abs(x - lastX) > 1.0) {
+                mCurrentDirection = (int) x;
+                locData = new MyLocationData.Builder()
+                        .accuracy(mCurrentAccracy)
+                        // 此处设置开发者获取到的方向信息，顺时针0-360
+                        .direction(mCurrentDirection).latitude(mCurrentLat)
+                        .longitude(mCurrentLon).build();
+                mBaiduMap.setMyLocationData(locData);
+            }
+            lastX = x;
+        }
 
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+        }
+    };
     private BDLocationListener myListener  = new BDLocationListener(){
         @Override
         public void onReceiveLocation(BDLocation location) {
@@ -174,6 +119,117 @@ public class FragmentCheckRecord extends FragmentBase {
             }
         }
     };
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        LsLog.i(TAG, "onCreateView");
+
+        view = inflater.inflate(R.layout.fragment_home_check, container, false);
+
+        bindButterKnife();
+        initMap();
+        initMyLocation();
+        initSensor();
+
+        initCheckPoint();
+        initListener();
+        return view;
+    }
+
+    private void initListener() {
+        myPosition.setOnClickListener(v->goToMyLocation());
+
+        mBaiduMap.setOnMapRenderCallbadk(new BaiduMap.OnMapRenderCallback() {
+            @Override
+            public void onMapRenderFinished() {
+                LsLog.w(TAG, "setOnMapRenderCallbadk....onMapRenderFinished");
+            }
+        });
+        mBaiduMap.setOnMapStatusChangeListener(new BaiduMap.OnMapStatusChangeListener() {
+            @Override
+            public void onMapStatusChangeStart(MapStatus mapStatus) {
+                LatLngBounds bound = mapStatus.bound;
+
+                LsLog.w(TAG, "onMapStatusChangeStart....bound = ： " + bound);
+
+                getInBoundsData(bound);
+            }
+
+            @Override
+            public void onMapStatusChangeStart(MapStatus mapStatus, int i) {
+
+            }
+
+            @Override
+            public void onMapStatusChange(MapStatus mapStatus) {
+            }
+
+            @Override
+            public void onMapStatusChangeFinish(MapStatus mapStatus) {
+
+            }
+        });
+    }
+
+    private void getInBoundsData(LatLngBounds bound) {
+        double latitude1 = bound.southwest.latitude;
+        double latitude2 = bound.northeast.latitude;
+        double longitude1 = bound.southwest.longitude;
+        double longitude2 = bound.northeast.longitude;
+        if (latitude1 > latitude2) {
+            Utils.swap(latitude1, latitude2);
+        }
+
+    }
+
+    private void initCheckPoint() {
+        //构建Marker图标
+        mMarkerBitmap = BitmapDescriptorFactory
+                .fromResource(R.drawable.icon_gcoding);
+
+        //定义Maker坐标点113.597357,34.79826
+        LatLng point = new LatLng(34.79826, 113.597357);
+        addMarker(point);
+        //113.627612,34.791382
+        point = new LatLng(34.791382, 113.627612);
+        addMarker(point);
+    }
+
+    private void addMarker(LatLng point) {
+
+        OverlayOptions option = new MarkerOptions()
+                .position(point) //必传参数
+                .icon(mMarkerBitmap) //必传参数
+                // 设置平贴地图，在地图中双指下拉查看效果
+                .flat(false)
+                .title("查看效果")
+                .alpha(0.9f);
+
+        //在地图上添加Marker，并显示
+        mBaiduMap.addOverlay(option);
+    }
+
+    private void initSensor() {
+        mSensorManager = (SensorManager) getContext().getSystemService(SENSOR_SERVICE);//获取传感器管理服务
+    }
+
+    private void initMyLocation() {
+        MyLocationConfiguration.LocationMode mCurrentMode = MyLocationConfiguration.LocationMode.NORMAL;
+
+        // 定位点，默认的定位点图标为null
+        mBaiduMap.setMyLocationConfigeration(
+                new MyLocationConfiguration(mCurrentMode, true, null));
+        mBaiduMap.setMyLocationEnabled(true);
+        mLocClient = new LocationClient(getContext());
+        mLocClient.registerLocationListener(myListener);
+        LocationClientOption option = new LocationClientOption();
+        option.setOpenGps(true); // 打开gps
+        option.setCoorType("bd09ll"); // 设置坐标类型
+        option.setScanSpan(1000);
+        mLocClient.setLocOption(option);
+        mLocClient.start();
+    }
 
     private void initMap() {
 
@@ -206,29 +262,6 @@ public class FragmentCheckRecord extends FragmentBase {
 
         mBaiduMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
     }
-
-    SensorEventListener sensorEventListener = new SensorEventListener(){
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            if (mBaiduMap == null) return;
-            double x = event.values[SensorManager.DATA_X];
-            if (Math.abs(x - lastX) > 1.0) {
-                mCurrentDirection = (int) x;
-                locData = new MyLocationData.Builder()
-                        .accuracy(mCurrentAccracy)
-                        // 此处设置开发者获取到的方向信息，顺时针0-360
-                        .direction(mCurrentDirection).latitude(mCurrentLat)
-                        .longitude(mCurrentLon).build();
-                mBaiduMap.setMyLocationData(locData);
-            }
-            lastX = x;
-        }
-
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-        }
-    };
 
     @Override
     public void onPause() {

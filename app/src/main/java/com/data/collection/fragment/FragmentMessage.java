@@ -101,7 +101,13 @@ public class FragmentMessage extends FragmentBase {
     }
 
     private void handleMessage(MessageBean bean) {
-        list = bean.getData().getData();
+        List<MessageData> data = bean.getData().getData();
+        if (data != null || data.size() > 0){
+            list.addAll(data);
+        } else {
+            return ;
+        }
+
         adapter.replaceAll(list);
         saveToDataBase(list);
     }

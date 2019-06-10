@@ -8,6 +8,8 @@ import android.view.View;
 import com.classic.adapter.BaseAdapterHelper;
 import com.classic.adapter.CommonAdapter;
 import com.data.collection.R;
+import com.data.collection.activity.NaviListActivity;
+import com.data.collection.activity.NaviToActivity;
 import com.data.collection.module.NaviData;
 import com.data.collection.util.LsLog;
 import com.data.collection.view.NoScrollListView;
@@ -106,6 +108,7 @@ public class MultipleLayoutAdapter  extends CommonAdapter<NaviData> {
 
     private void navito(NaviData subitem) {
         LsLog.w(TAG, "navito");
+        NaviToActivity.start(mContext, subitem);
     }
 
     @Override

@@ -50,6 +50,7 @@ public class FragmentOffline extends FragmentBase {
 
     @BindView(R.id.localButton)
     Button localButton;
+
     @BindView(R.id.clButton)
     Button clButton;
 

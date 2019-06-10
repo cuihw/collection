@@ -171,16 +171,6 @@ public class NaviListActivity extends BaseActivity {
         childAdapter = new MultipleLayoutAdapter(this, childSiteData);
 
         listviewChild.setAdapter(childAdapter);
-        listviewChild.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                NaviData item = childAdapter.getItem(position);
-                if (item.isSiteData()) {
-                    // 是导航站点，进入导航页面。
-                    NaviToActivity.start(NaviListActivity.this, item);
-                }
-            }
-        });
     }
 
     private void initListener() {

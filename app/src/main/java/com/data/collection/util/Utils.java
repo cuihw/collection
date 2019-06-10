@@ -199,4 +199,9 @@ public class Utils {
         return text;
     }
 
+    public static void swap(double a, double b) {
+        double c=a;
+        a=b;
+        b=c;
+    }
 }
