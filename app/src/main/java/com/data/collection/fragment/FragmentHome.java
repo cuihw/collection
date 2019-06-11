@@ -1,5 +1,9 @@
 package com.data.collection.fragment;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -16,9 +20,8 @@ import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
-import android.widget.FrameLayout;
-import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.baidu.location.BDLocation;
@@ -37,11 +40,26 @@ import com.data.collection.R;
 import com.data.collection.activity.AddCollectionActivity;
 import com.data.collection.activity.CollectionActivity;
 import com.data.collection.data.UserTrace;
+import com.data.collection.util.FileUtils;
 import com.data.collection.util.LocationController;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.PositionUtil;
 import com.data.collection.view.TitleView;
+import com.esri.arcgisruntime.geometry.Point;
+import com.esri.arcgisruntime.geometry.SpatialReferences;
+import com.esri.arcgisruntime.layers.RasterLayer;
+import com.esri.arcgisruntime.mapping.ArcGISMap;
+import com.esri.arcgisruntime.mapping.Basemap;
+import com.esri.arcgisruntime.mapping.popup.PopupDefinition;
+import com.esri.arcgisruntime.mapping.view.Graphic;
+import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
 import com.esri.arcgisruntime.mapping.view.MapView;
+import com.esri.arcgisruntime.raster.Raster;
+import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
+import com.esri.arcgisruntime.symbology.SimpleLineSymbol;
+import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
+
+import java.util.List;
 
 import butterknife.BindView;
 
@@ -56,9 +74,6 @@ import static android.content.Context.SENSOR_SERVICE;
  */
 public class FragmentHome extends FragmentBase {
     private static final String TAG = "FragmentHome";
-
-    @BindView(R.id.map_framelayout)
-    FrameLayout map_framelayout;
 
     @BindView(R.id.title_view)
     TitleView titleView;
@@ -75,11 +90,18 @@ public class FragmentHome extends FragmentBase {
     @BindView(R.id.map_type)
     TextView mapTypeTv;
 
+    @BindView(R.id.show_map_arcgis)
+    TextView showArcgisMap;
+
+    @BindView(R.id.baidu_container)
+    LinearLayout baiduMapContainer;
+
     private SupportMapFragment mapFragment;
     BaiduMap mBaiduMap;
 
     private LocationClient mLocClient;
 
+    @BindView(R.id.arcgis_map)
     MapView mMapView;
 
     private MyLocationConfiguration.LocationMode mCurrentMode;
@@ -92,6 +114,9 @@ public class FragmentHome extends FragmentBase {
     private double mCurrentLon = 0.0;
     private float mCurrentAccracy;
     private boolean isFirstLoc = true;
+
+    private boolean isShowArcgis = false;
+    private GraphicsOverlay mGraphicsOverlay;
 
     @Nullable
     @Override
@@ -114,8 +139,63 @@ public class FragmentHome extends FragmentBase {
         // 初始化，没有开始记录
         traceProcess.setVisibility(View.INVISIBLE);
 
-        mMapView = new MapView(getContext());
+        //mMapView = new MapView(getContext());
+        loadArcgisMap();
+    }
 
+    private void loadArcgisMap() {
+        ArcGISMap map = new ArcGISMap();
+        // add the map to a map view
+        mMapView.setMap(map);
+
+
+        String fileName = FileUtils.getFileDir() + "offline_map.tif";
+        Raster imageryRaster = new Raster(fileName);
+        RasterLayer rasterLayer =  new RasterLayer(imageryRaster);
+
+        mMapView.getMap().setBasemap(new Basemap(rasterLayer));
+
+//        Viewpoint vp = new Viewpoint(34.7967643, 113.6019350, 10000);
+//        map.setInitialViewpoint(vp);
+//        map.loadAsync();
+
+        createGraphicsOverlay();
+        createPointGraphics();
+    }
+
+
+    private void createGraphicsOverlay() {
+        if (mGraphicsOverlay == null) {
+            mGraphicsOverlay = new GraphicsOverlay();
+            mMapView.getGraphicsOverlays().add(mGraphicsOverlay);
+        }
+    }
+
+    private PictureMarkerSymbol getPictureMarkerSymbolFromUrl(int id ) {
+        Bitmap bitmap = BitmapFactory.decodeResource (getResources(), id);
+        BitmapDrawable draw = new BitmapDrawable(bitmap);
+        return new PictureMarkerSymbol(draw);
+    }
+    private void createPointGraphics() {
+        //34.7967643, 113.6019350,
+        Point point = new Point(113.6019350, 34.7967643, SpatialReferences.getWgs84());
+        SimpleMarkerSymbol pointSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.rgb(226, 119, 40), 10.0f);
+        pointSymbol.setOutline(new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.BLUE, 2.0f));
+        Graphic pointGraphic = new Graphic(point, pointSymbol);
+        mGraphicsOverlay.getGraphics().add(pointGraphic);
+
+        PictureMarkerSymbol pointMarker ;// = getPictureMarkerSymbolFromUrl();
+        pointMarker= getPictureMarkerSymbolFromUrl(R.mipmap.add_img);
+
+        point = new Point(113.7019350, 34.7967643, SpatialReferences.getWgs84());
+        pointGraphic = new Graphic(point, pointMarker);
+        mGraphicsOverlay.getGraphics().add(pointGraphic);
+
+        point = new Point(114.7019350, 34.7967643, SpatialReferences.getWgs84());
+        pointGraphic = new Graphic(point, pointMarker);
+        mGraphicsOverlay.getGraphics().add(pointGraphic);
+        mGraphicsOverlay.getSelectedGraphics();
+        mGraphicsOverlay.setPopupDefinition(new PopupDefinition());
     }
 
     private void initListener() {
@@ -139,6 +219,28 @@ public class FragmentHome extends FragmentBase {
             }
         });
 
+        showArcgisMap.setOnClickListener(v->{
+            isShowArcgis = !isShowArcgis;
+            if (isShowArcgis) {
+                mapTypeTv.setVisibility(View.GONE);
+                mMapView.setVisibility(View.VISIBLE);
+                showArcgisMap.setText("百度\n地图");
+                baiduMapContainer.setVisibility(View.GONE);
+                //mapFragment = SupportMapFragment.newInstance(bo);
+                manager.beginTransaction().remove(mapFragment).commit();
+
+            } else {
+                mapTypeTv.setVisibility(View.VISIBLE);
+
+                mMapView.setVisibility(View.GONE);
+
+                showArcgisMap.setText("Arcgis\n地图");
+                baiduMapContainer.setVisibility(View.VISIBLE);
+
+                initMap();
+                //manager.beginTransaction().add(R.id.map_framelayout, mapFragment, "map_fragment").commit();
+            }
+        });
     }
 
     private void clickTraceButton() {
@@ -219,7 +321,7 @@ public class FragmentHome extends FragmentBase {
             }
         }
     };
-
+    FragmentManager manager;
     private void initMap() {
 
         MapStatus.Builder builder = new MapStatus.Builder();
@@ -232,8 +334,10 @@ public class FragmentHome extends FragmentBase {
         builder.overlook(-20).zoom(15);
         BaiduMapOptions bo = new BaiduMapOptions().mapStatus(builder.build())
                 .zoomControlsEnabled(false);
+        //if (mapFragment == null)
         mapFragment = SupportMapFragment.newInstance(bo);
-        FragmentManager manager = getChildFragmentManager();
+
+        manager = getChildFragmentManager();
         manager.beginTransaction().add(R.id.map_framelayout, mapFragment, "map_fragment").commit();
 
         view.post(()->{
@@ -252,7 +356,9 @@ public class FragmentHome extends FragmentBase {
         mSensorManager.registerListener(sensorEventListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
                 SensorManager.SENSOR_DELAY_UI);
 
-
+        if (mMapView != null) {
+            mMapView.resume();
+        }
     }
 
     SensorEventListener sensorEventListener = new SensorEventListener(){
@@ -280,6 +386,9 @@ public class FragmentHome extends FragmentBase {
     @Override
     public void onPause() {
         mSensorManager.unregisterListener(sensorEventListener);
+
+        if (mMapView != null)  mMapView.pause();
+
         super.onPause();
     }
 
@@ -287,6 +396,8 @@ public class FragmentHome extends FragmentBase {
     public void onDestroy() {
         mLocClient.stop();
         mBaiduMap.setMyLocationEnabled(false);
+
+        if (mMapView != null)  mMapView.dispose();
         super.onDestroy();
     }
 

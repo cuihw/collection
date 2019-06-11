@@ -9,21 +9,11 @@
         android:id="@+id/title_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        title:TitleText="信息采集"
+        title:TitleText="离线底图"
         title:IconRight="@mipmap/icon_list_point"
         >
     </com.data.collection.view.TitleView>
-    <!-- open map -->
-    <LinearLayout
-        android:id="@+id/baidu_container"
-        android:layout_below="@+id/title_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <FrameLayout
-            android:id="@+id/map_framelayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </LinearLayout>
+
     <com.esri.arcgisruntime.mapping.view.MapView
         android:id="@+id/arcgis_map"
         android:visibility="invisible"

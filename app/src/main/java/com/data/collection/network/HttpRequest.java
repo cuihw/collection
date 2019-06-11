@@ -217,34 +217,6 @@ public class HttpRequest {
     public static void upLoadImgs(List<File> files, final ResponseListener<ImageUploadBean> listener) {
         OkHttpClient client = new OkHttpClient();
 
-//        MediaType mediaType = MediaType.parse("multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW");
-//        RequestBody body = RequestBody.create(mediaType, "------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition:" +
-//                " form-data; name=\"image[]\"; filename=\"1.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n\r\n" +
-//                "------WebKitFormBoundary7MA4YWxkTrZu0gW\r\n" +
-//                "Content-Disposition: form-data; name=\"image[]\"; filename=\"2.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n\r\n" +
-//                "------WebKitFormBoundary7MA4YWxkTrZu0gW--");
-//        Request request = new Request.Builder()
-//                .url("http://127.0.0.1/collect/index.php/app/v1/uploadMultiImg")
-//                .post(body)
-//                .addHeader("content-type", "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW")
-//                .addHeader("token", "endfY29sbGVjdGlvbl8xMjM0NTZ7ImlkIjoiMTAiLCJleHBpcmVkX2F0IjoxNTU5NzE4NzMyfQ==")
-//                .addHeader("User-Agent", "PostmanRuntime/7.13.0")
-//                .addHeader("Accept", "*/*")
-//                .addHeader("Cache-Control", "no-cache")
-//                .addHeader("Postman-Token", "62e336d5-377a-4809-aa68-60bf2954d52a,d09e6614-901f-4062-b8a8-262c18645259")
-//                .addHeader("Host", "127.0.0.1")
-//                .addHeader("accept-encoding", "gzip, deflate")
-//                .addHeader("content-length", "106477")
-//                .addHeader("Connection", "keep-alive")
-//                .addHeader("cache-control", "no-cache")
-//                .build();
-
-//        try {
-//            okhttp3.Response response = client.newCall(request).execute();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-
         if (files.size() > 0) {
             for (File file: files) {
                 if (file.length() > 1024 * 1024) {

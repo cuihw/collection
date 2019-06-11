@@ -54,7 +54,6 @@ public class App extends Application {
         initBaiduSdk();
         initLogin();
         getUserInfoCache();
-
         initDaoSession();
     }
 

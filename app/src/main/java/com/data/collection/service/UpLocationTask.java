@@ -76,6 +76,7 @@ public class UpLocationTask extends TimerTask {
             HttpRequest.postData(Constants.UPLOAD_LOCATION, params, new HttpRequest.RespListener<BaseBean>() {
                 @Override
                 public void onResponse(int status, BaseBean bean) {
+                    if (status != 0) return ;
                     LsLog.w(TAG, "upload_trace result = " + (bean == null ? "null": bean.toJson()));
                     if (bean.getCode().equals(Constants.SUCCEED)) {
                         for (TraceLocation traceLocation: list) {
