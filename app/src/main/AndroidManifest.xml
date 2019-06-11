@@ -22,6 +22,9 @@
     <uses-feature android:name = "android.hardware.camera" android:required="true" />
     <uses-feature android:name = "android.hardware.camera.autofocus" />
 
+    <!--Apps that use a MapView (2D) will require at least OpenGL 2.x:-->
+    <uses-feature android:glEsVersion="0x00020000" android:required="true" />
+
     <application
         android:name=".App"
         android:allowBackup="true"

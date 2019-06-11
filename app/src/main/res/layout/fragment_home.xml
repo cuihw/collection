@@ -19,6 +19,11 @@
         android:id="@+id/map_framelayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+    <com.esri.arcgisruntime.mapping.view.MapView
+        android:layout_below="@+id/title_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </com.esri.arcgisruntime.mapping.view.MapView>
 
     <TextView
         android:id="@+id/recode_trace"

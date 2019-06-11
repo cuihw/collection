@@ -17,6 +17,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
+import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -40,6 +41,7 @@ import com.data.collection.util.LocationController;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.PositionUtil;
 import com.data.collection.view.TitleView;
+import com.esri.arcgisruntime.mapping.view.MapView;
 
 import butterknife.BindView;
 
@@ -78,6 +80,8 @@ public class FragmentHome extends FragmentBase {
 
     private LocationClient mLocClient;
 
+    MapView mMapView;
+
     private MyLocationConfiguration.LocationMode mCurrentMode;
     private static final int accuracyCircleFillColor = 0xAAFFFF88;
     private static final int accuracyCircleStrokeColor = 0xAA00FF00;
@@ -109,6 +113,9 @@ public class FragmentHome extends FragmentBase {
     private void initView() {
         // 初始化，没有开始记录
         traceProcess.setVisibility(View.INVISIBLE);
+
+        mMapView = new MapView(getContext());
+
     }
 
     private void initListener() {
