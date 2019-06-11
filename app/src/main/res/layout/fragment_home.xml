@@ -24,13 +24,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </LinearLayout>
-    <com.esri.arcgisruntime.mapping.view.MapView
-        android:id="@+id/arcgis_map"
-        android:visibility="invisible"
-        android:layout_below="@+id/title_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    </com.esri.arcgisruntime.mapping.view.MapView>
 
     <TextView
         android:id="@+id/recode_trace"
@@ -60,7 +53,7 @@
         android:id="@+id/map_type"
         android:layout_width="@dimen/home_button"
         android:layout_height="@dimen/home_button"
-        android:layout_above="@+id/show_map_arcgis"
+        android:layout_above="@+id/recode_trace"
         android:layout_marginBottom="@dimen/item_padding"
         android:text="卫星\n地图"
         android:textSize="@dimen/font6"
@@ -75,9 +68,9 @@
         android:id="@+id/show_map_arcgis"
         android:layout_width="@dimen/home_button"
         android:layout_height="@dimen/home_button"
-        android:layout_above="@+id/recode_trace"
+        android:layout_above="@+id/map_type"
         android:layout_marginBottom="@dimen/item_padding"
-        android:text="Arcgis\n地图"
+        android:text="离线\n底图"
         android:textSize="@dimen/font6"
         android:textColor="@color/font6"
         android:gravity="center"
