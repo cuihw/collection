@@ -27,10 +27,6 @@ import com.baidu.mapapi.map.Polyline;
 import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.map.SupportMapFragment;
 import com.baidu.mapapi.model.LatLng;
-import com.baidu.trace.api.track.HistoryTrackResponse;
-import com.baidu.trace.api.track.OnTrackListener;
-import com.baidu.trace.api.track.TrackPoint;
-import com.baidu.trace.model.Point;
 import com.data.collection.R;
 import com.data.collection.activity.CommonActivity;
 import com.data.collection.data.UserTrace;
@@ -126,62 +122,6 @@ public class FragmentTrace extends FragmentBase {
 
     private void getAndShowTrace() {
         UserTrace.getInstance().getHistoryTrace(0, traceListener);
-    }
-
-    // 初始化轨迹监听器
-    OnTrackListener mTrackListener = new OnTrackListener() {
-        // 历史轨迹回调  HistoryTrackResponse  鉴权失败
-        @Override
-        public void onHistoryTrackCallback(HistoryTrackResponse response) {
-            Point startPoint = response.getStartPoint();
-            LsLog.w(TAG, response.message);
-            if (startPoint == null) {
-                ToastUtil.showTextToast(getContext(), "没有记录轨迹数据");
-                return;
-            } else {
-                if ("成功".equals(response.message))
-                ToastUtil.showTextToast(getContext(), "请求轨迹记录" + response.message);
-            }
-
-            long locTime = startPoint.getLocTime() * 1000;
-            Point endPoint = response.getEndPoint();
-            long locTime1 = endPoint.getLocTime()* 1000;
-            String starttime = DateUtils.formatTime(locTime, DateUtils.fmtYYYYMMDDhhmmss);
-            String endtime = DateUtils.formatTime(locTime1, DateUtils.fmtYYYYMMDDhhmmss);
-            LsLog.w(TAG, "start locTime:" + starttime + ", endtimd = " + endtime);
-            showTrace(response);
-        }
-    };
-
-    private void showTrace(HistoryTrackResponse response) {
-        Point startPoint = response.getStartPoint();
-        com.baidu.trace.model.LatLng location = startPoint.getLocation();
-        LatLng ll = new LatLng(location.getLatitude(), location.getLongitude());
-        MapStatus.Builder builder = new MapStatus.Builder();
-        builder.target(ll).zoom(18.0f);
-        mBaiduMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
-        List<TrackPoint> trackPoints = response.getTrackPoints();
-        List<LatLng> points= new ArrayList<>();
-
-        for (TrackPoint point : trackPoints) {
-            double latitude = point.getLocation().getLatitude();
-            double longitude = point.getLocation().getLongitude();
-            points.add(new LatLng(latitude, longitude));
-        }
-        if (points.size() < 1) {
-            ToastUtil.showTextToast(getContext(), "没有轨迹数据");
-            return ;
-        }
-        if (points.size() < 3) { //points count can not less than 2
-            points.add(points.get(0));
-        }
-
-        OverlayOptions ooPolyline11 = new PolylineOptions()
-                .width(20)
-                .points(points)
-//                .dottedLine(false)
-                .customTexture(mBlueTexture);
-        mTexturePolyline = (Polyline) mBaiduMap.addOverlay(ooPolyline11);
     }
 
     ITraceListener traceListener = new ITraceListener(){

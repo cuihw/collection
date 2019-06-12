@@ -33,8 +33,6 @@ public class App extends Application {
 
     DaoSession daoSession;
 
-
-
     public static App getInstence() {
         return instence;
     }

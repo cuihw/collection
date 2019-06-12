@@ -1,1 +1,1 @@
-include ':app', ':baidunavi'
+include ':app', ':zwnavi'

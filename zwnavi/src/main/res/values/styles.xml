@@ -1,0 +1,104 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <!--<item name="colorPrimary">@color/colorPrimary</item>-->
+        <!--<item name="colorPrimaryDark">@color/colorPrimaryDark</item>-->
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+
+    <style name="MyTabLayoutTextAppearance">
+        <item name="android:textSize">@dimen/font4</item>
+        <item name="android:textColor">@color/font2</item>
+    </style>
+
+
+    <style name="Bubble.TextAppearance.Dark" parent="android:TextAppearance.Medium">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">#ff7f7f7f</item>
+    </style>
+
+    <style name="Bubble.TextAppearance.Light" parent="Bubble.TextAppearance.Dark">
+        <item name="android:textColor">#ffeeeeee</item>
+    </style>
+
+    <style name="ClusterIcon.TextAppearance" parent="android:TextAppearance">
+        <item name="android:textColor">#ffeeeeee</item>
+    </style>
+
+
+    <style name="Dialog_Common" parent="@android:style/Theme.Dialog">
+        <!-- 边框 -->
+        <item name="android:windowFrame">@null</item>
+        <!-- 是否浮现在activity之上 -->
+        <item name="android:windowIsFloating">true</item>
+        <!-- 半透明 -->
+        <item name="android:windowIsTranslucent">false</item>
+        <!-- 无标题 -->
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <!-- 自己想要的背景 -->
+        <item name="android:background">@android:color/transparent</item>
+        <!-- 模糊 -->
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
+
+
+    <style name="MyDialog" parent="@android:style/Theme.Holo.Dialog">
+        <!-- 是否有边框 -->
+        <item name="android:windowFrame">@null</item>
+        <!--是否在悬浮Activity之上  -->
+        <item name="android:windowIsFloating">true</item>
+        <!-- 标题 -->
+        <item name="android:windowNoTitle">true</item>
+        <!--阴影  -->
+        <item name="android:windowIsTranslucent">true</item><!--半透明-->
+        <!--背景透明-->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <!-- 还可以加入一些弹出和退出的动画 (lan)-->
+    </style>
+
+
+    <declare-styleable name="JPTabBar">
+        <attr format="reference|color" name="TabNormalColor"/>
+        <attr format="reference|color" name="TabSelectColor"/>
+        <attr format="reference|color" name="TabSelectBg"/>
+        <attr format="dimension|reference" name="TabTextSize"/>
+        <attr format="string" name="TabTypeface"/>
+        <attr format="dimension|reference" name="TabIconSize"/>
+        <attr format="boolean" name="TabIconFilter"/>
+        <attr format="dimension|reference" name="TabMargin"/>
+        <attr format="enum" name="TabAnimate">
+            <enum name="Flip" value="0"/>
+            <enum name="Rotate" value="1"/>
+            <enum name="Scale" value="2"/>
+            <enum name="Jump" value="3"/>
+            <enum name="Scale2" value="4"/>
+            <enum name="None" value="5"/>
+        </attr>
+        <attr format="boolean" name="TabPressAnimateEnable"/>
+        <attr format="boolean" name="TabPageAnimateEnable"/>
+        <attr format="boolean" name="TabGradientEnable"/>
+        <attr format="dimension|reference" name="TabMiddleBottomDis"/>
+        <attr format="reference" name="TabMiddleView"/>
+        <attr format="dimension|reference" name="TabMiddleHMargin"/>
+        <attr format="reference|color" name="BadgeColor"/>
+        <attr format="dimension|reference" name="BadgePadding"/>
+        <attr format="reference|dimension" name="BadgeTextSize"/>
+        <attr format="reference|dimension" name="BadgeVerticalMargin"/>
+        <attr format="reference|dimension" name="BadgeHorizonalMargin"/>
+    </declare-styleable>
+
+
+    <declare-styleable name="TitleView">
+        <attr name="TitleText" format="string" />
+        <attr name="IconLeft" format="reference" />
+        <attr name="IconRight" format="reference" />
+    </declare-styleable>
+
+</resources>

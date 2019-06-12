@@ -1,0 +1,30 @@
+<resources>
+
+
+    <dimen name="font0">28sp</dimen>
+    <dimen name="font1">22sp</dimen>
+    <dimen name="font2">20sp</dimen>
+    <dimen name="font3">18sp</dimen>
+    <dimen name="font4">16sp</dimen>
+    <dimen name="font5">14sp</dimen>
+    <dimen name="font6">13sp</dimen>
+    <dimen name="font7">12sp</dimen>
+    <dimen name="font8">11sp</dimen>
+    <dimen name="font9">10sp</dimen>
+    <dimen name="division">9sp</dimen>
+    <dimen name="item_padding">10dp</dimen>
+    <dimen name="item_padding_small">5dp</dimen>
+    <dimen name="item_padding_largest">20dp</dimen>
+    <dimen name="item_padding_large">15dp</dimen>
+    <dimen name="title_image">30dp</dimen>
+    <dimen name="search_size">40dp</dimen>
+    <dimen name="home_button">44dp</dimen>
+    <dimen name="button_margin">30dp</dimen>
+    <dimen name="point_flag_size">30dp</dimen>
+    <dimen name="login_margin">60dp</dimen>
+    <dimen name="icon_size">44dp</dimen>
+    <dimen name="icon_size_settings">60dp</dimen>
+    <dimen name="photo_size">25dp</dimen>
+    <dimen name="navi_icon">70dp</dimen>
+    <dimen name="navi_icon_height">71dp</dimen>
+</resources>
