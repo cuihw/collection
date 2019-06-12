@@ -34,8 +34,6 @@ public class Utils {
         }
         return true;
     }
-
-
     /**
      * 写入剪切板数据
      *
@@ -90,7 +88,6 @@ public class Utils {
         }
         return tmp;
     }
-
     /**
      * 返回对应包的签名信息
      *
