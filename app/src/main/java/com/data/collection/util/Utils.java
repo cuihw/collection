@@ -164,12 +164,10 @@ public class Utils {
                 // put bitmap in the cache.
                 LsLog.w(TAG, " put bitmap in the cache. =" + url);
                 try {
-                    ImageLoader.getInstance().getDiskCache().save(url,loadedImage);
+                    ImageLoader.getInstance().getDiskCache().save(url, loadedImage);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
-
             }
             @Override
             public void onLoadingCancelled(String imageUri, View view) {

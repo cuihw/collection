@@ -1,5 +1,7 @@
 package com.data.collection.data.greendao;
 
+import com.baidu.mapapi.model.LatLng;
+
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
@@ -48,6 +50,11 @@ public class GatherPoint {
     private String imgs; //  网络图片路径
 
     private boolean isUploaded; // 是否已经上传
+
+    public LatLng getLatLnt(){
+        return  new LatLng(Double.parseDouble(latitude),Double.parseDouble(longitude));
+    }
+
 
     @Generated(hash = 858181134)
     public GatherPoint(Long offline_id, String id, @NotNull String name,

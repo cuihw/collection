@@ -59,7 +59,7 @@
             android:screenOrientation="portrait">
         </activity>
 
-        <activity android:name=".activity.CollectionActivity"
+        <activity android:name=".activity.CollectionListActivity"
             android:windowSoftInputMode="adjustPan|stateHidden"
             android:screenOrientation="portrait">
         </activity>

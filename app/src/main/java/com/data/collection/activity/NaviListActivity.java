@@ -156,13 +156,6 @@ public class NaviListActivity extends BaseActivity {
                     view.setSelected(true);
                     oldViewHold = view;
                 }
-
-//                if (item.isSelected()) {
-//                    view.setPressed(true);
-//                }
-//                else {
-//                    view.setPressed(false);
-//                }
             }
             NaviData oldItem;
             TextView oldViewHold;

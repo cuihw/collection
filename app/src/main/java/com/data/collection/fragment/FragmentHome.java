@@ -35,7 +35,7 @@ import com.baidu.mapapi.model.LatLng;
 import com.data.collection.R;
 import com.data.collection.activity.AddCollectionActivity;
 import com.data.collection.activity.ArcgisMapActivity;
-import com.data.collection.activity.CollectionActivity;
+import com.data.collection.activity.CollectionListActivity;
 import com.data.collection.data.UserTrace;
 import com.data.collection.util.LocationController;
 import com.data.collection.util.LsLog;
@@ -118,7 +118,7 @@ public class FragmentHome extends FragmentBase {
     private void initListener() {
         titleView.getRighticon().setOnClickListener(v->{
             // 显示采集列表。
-            CollectionActivity.start(getContext());
+            CollectionListActivity.start(getContext());
         });
 
         addPoint.setOnClickListener(v-> AddCollectionActivity.start(getContext(),null));

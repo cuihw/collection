@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int authBaseRequestCode = 1;
     private boolean hasInitSuccess = false;  // 百度导航初始化是否完成。
-
+    NaviData naviData;
     private static final String[] authBaseArr = {
             Manifest.permission.WRITE_EXTERNAL_STORAGE,   // 写内存
             Manifest.permission.ACCESS_FINE_LOCATION          // 精准定位
@@ -61,12 +61,21 @@ public class MainActivity extends AppCompatActivity {
 
 
         String naviDataString = getIntent().getStringExtra("naviData");
+        Log.w(TAG,"naviDataString" + naviDataString);
         if (!TextUtils.isEmpty(naviDataString)) {
             naviData = NaviData.fromJson(naviDataString);
         }
 
+        if (hasInitSuccess) {
+            beginNavi();
+        }
     }
-    NaviData naviData;
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Log.w(TAG,"onNewIntent");
+    }
 
     private void calRoutePlanNode(NaviData naviData, final int coType) {
         if (!hasInitSuccess) {
@@ -137,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
                                 Intent intent = new Intent(MainActivity.this,
                                         NaviActivity.class);
                                 startActivity(intent);
-                                //finish();
+                                finish();
                                 break;
                             default:
                                 break;
@@ -168,7 +177,6 @@ public class MainActivity extends AppCompatActivity {
         // libapp_BaiduMapApplib.so
         if (BaiduNaviManagerFactory.getBaiduNaviManager().isInited()) {
             hasInitSuccess = true;
-            beginNavi();
             return;
         }
         try {

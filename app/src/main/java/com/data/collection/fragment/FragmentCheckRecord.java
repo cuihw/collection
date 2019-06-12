@@ -12,18 +12,26 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
+
 import baidu.mapapi.clusterutil.clustering.ClusterManager;
+
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
+import com.baidu.mapapi.map.InfoWindow;
+import com.baidu.mapapi.map.MapPoi;
 import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
+import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.MyLocationData;
@@ -31,12 +39,28 @@ import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.TextureMapView;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.model.LatLngBounds;
+import com.data.collection.App;
 import com.data.collection.R;
+import com.data.collection.data.CacheData;
+import com.data.collection.data.greendao.DaoSession;
+import com.data.collection.data.greendao.GatherPoint;
+import com.data.collection.data.greendao.GatherPointDao;
+import com.data.collection.module.CollectType;
+import com.data.collection.module.Gps;
 import com.data.collection.module.MarkerItem;
+import com.data.collection.module.UserInfoBean;
 import com.data.collection.util.LocationController;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.PositionUtil;
+import com.data.collection.util.ToastUtil;
 import com.data.collection.util.Utils;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.imageaware.ImageAware;
+
+import org.greenrobot.greendao.query.QueryBuilder;
+
+import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 
@@ -51,8 +75,6 @@ import static android.content.Context.SENSOR_SERVICE;
  */
 public class FragmentCheckRecord extends FragmentBase {
     private static final String TAG = "FragmentCheckRecord";
-    private static final int accuracyCircleFillColor = 0xAAFFFF88;
-    private static final int accuracyCircleStrokeColor = 0xAA00FF00;
 
     @BindView(R.id.mapview)
     TextureMapView mMapView;
@@ -61,7 +83,7 @@ public class FragmentCheckRecord extends FragmentBase {
     BaiduMap mBaiduMap;
     BitmapDescriptor mMarkerBitmap;
     private LocationClient mLocClient;
-    private MyLocationConfiguration.LocationMode mCurrentMode;
+
     private SensorManager mSensorManager;
     private Double lastX = 0.0;
     private int mCurrentDirection = 0;
@@ -69,9 +91,15 @@ public class FragmentCheckRecord extends FragmentBase {
     private double mCurrentLon = 0.0;
     private float mCurrentAccracy;
     private boolean isFirstLoc = true;
-    private ClusterManager<MarkerItem> mClusterManager;
+
     private MyLocationData locData;
-    SensorEventListener sensorEventListener = new SensorEventListener(){
+
+    List<GatherPoint> dataList;
+
+    private InfoWindow mInfoWindow;
+    private View infoView;
+
+    SensorEventListener sensorEventListener = new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent event) {
             if (mBaiduMap == null) return;
@@ -93,7 +121,7 @@ public class FragmentCheckRecord extends FragmentBase {
 
         }
     };
-    private BDLocationListener myListener  = new BDLocationListener(){
+    private BDLocationListener myListener = new BDLocationListener() {
         @Override
         public void onReceiveLocation(BDLocation location) {
             // map view 销毁后不在处理新接收的位置
@@ -114,7 +142,8 @@ public class FragmentCheckRecord extends FragmentBase {
                 isFirstLoc = false;
                 LatLng ll = new LatLng(location.getLatitude(), location.getLongitude());
                 MapStatus.Builder builder = new MapStatus.Builder();
-                builder.target(ll).zoom(13.0f);
+                builder.target(ll).zoom(16.0f);
+
                 mBaiduMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
             }
         }
@@ -134,25 +163,46 @@ public class FragmentCheckRecord extends FragmentBase {
 
         initCheckPoint();
         initListener();
+        infoView = creatInfoView();
         return view;
     }
 
     private void initListener() {
-        myPosition.setOnClickListener(v->goToMyLocation());
+        myPosition.setOnClickListener(v -> goToMyLocation());
 
-        mBaiduMap.setOnMapRenderCallbadk(new BaiduMap.OnMapRenderCallback() {
+        mBaiduMap.setOnMapClickListener(new BaiduMap.OnMapClickListener() {
             @Override
-            public void onMapRenderFinished() {
-                LsLog.w(TAG, "setOnMapRenderCallbadk....onMapRenderFinished");
+            public void onMapClick(LatLng latLng) {
+                LsLog.w(TAG, "setOnMapClickListener = " + latLng);
+                if (mInfoWindow != null) {
+                    mBaiduMap.hideInfoWindow();
+                    mMapView.postInvalidate();
+                }
+            }
+
+            @Override
+            public boolean onMapPoiClick(MapPoi mapPoi) {
+                return false;
             }
         });
+
+        mBaiduMap.setOnMarkerClickListener(new BaiduMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+
+                LsLog.w(TAG, "setOnMarkerClickListener = " + marker.getTitle() + ", id = " + marker.getId());
+                mInfoWindow = createInfoWindow(infoView, marker.getTitle());
+                mBaiduMap.showInfoWindow(mInfoWindow);
+                return false;
+            }
+        });
+
+
         mBaiduMap.setOnMapStatusChangeListener(new BaiduMap.OnMapStatusChangeListener() {
             @Override
             public void onMapStatusChangeStart(MapStatus mapStatus) {
                 LatLngBounds bound = mapStatus.bound;
-
                 LsLog.w(TAG, "onMapStatusChangeStart....bound = ： " + bound);
-
                 getInBoundsData(bound);
             }
 
@@ -173,12 +223,40 @@ public class FragmentCheckRecord extends FragmentBase {
     }
 
     private void getInBoundsData(LatLngBounds bound) {
+
         double latitude1 = bound.southwest.latitude;
         double latitude2 = bound.northeast.latitude;
         double longitude1 = bound.southwest.longitude;
         double longitude2 = bound.northeast.longitude;
-        if (latitude1 > latitude2) {
-            Utils.swap(latitude1, latitude2);
+        latitude1 = latitude1 - 1;
+        latitude2 = latitude2 + 1;
+
+        longitude1 = longitude1 -1;
+        longitude2 = longitude2 + 1;
+
+        LsLog.w(TAG, "bounds:  latitude1 = " + latitude1 + ", latitude2 = " + latitude2
+                + ", longitude1 = " + longitude1 + ", longitude2 = " + longitude2
+        );
+
+        DaoSession daoSession = App.getInstence().getDaoSession();
+
+        QueryBuilder<GatherPoint> qb = daoSession.queryBuilder(GatherPoint.class)
+                .where(GatherPointDao.Properties.Latitude.gt("" + latitude1),
+                        GatherPointDao.Properties.Latitude.le("" + latitude2),
+                        GatherPointDao.Properties.Longitude.gt("" + longitude1),
+                        GatherPointDao.Properties.Longitude.le("" + longitude2))
+                .orderDesc(GatherPointDao.Properties.Updated_at);
+
+        dataList = qb.list(); // 查出当前对应的数据
+        LsLog.w(TAG, "dataList size = " + dataList.size());
+
+        for (GatherPoint point : dataList) {
+            double lat = Double.parseDouble(point.getLatitude());
+            double lng = Double.parseDouble(point.getLongitude());
+            LatLng llng = new LatLng(lat, lng);
+
+            llng = PositionUtil.GpsToBaiduLatLng(llng);
+            addMarker(llng, point.getName());
         }
 
     }
@@ -187,23 +265,23 @@ public class FragmentCheckRecord extends FragmentBase {
         //构建Marker图标
         mMarkerBitmap = BitmapDescriptorFactory
                 .fromResource(R.drawable.icon_gcoding);
-
+//
         //定义Maker坐标点113.597357,34.79826
-        LatLng point = new LatLng(34.79826, 113.597357);
-        addMarker(point);
-        //113.627612,34.791382
-        point = new LatLng(34.791382, 113.627612);
-        addMarker(point);
+//        LatLng point = new LatLng(34.79826, 113.597357);
+//        addMarker(point);
+//        //113.627612,34.791382
+//        point = new LatLng(34.791382, 113.627612);
+//        addMarker(point);
     }
 
-    private void addMarker(LatLng point) {
+    private void addMarker(LatLng point, String title) {
 
         OverlayOptions option = new MarkerOptions()
                 .position(point) //必传参数
                 .icon(mMarkerBitmap) //必传参数
                 // 设置平贴地图，在地图中双指下拉查看效果
                 .flat(false)
-                .title("查看效果")
+                .title(title)
                 .alpha(0.9f);
 
         //在地图上添加Marker，并显示
@@ -211,7 +289,7 @@ public class FragmentCheckRecord extends FragmentBase {
     }
 
     private void initSensor() {
-        mSensorManager = (SensorManager) getContext().getSystemService(SENSOR_SERVICE);//获取传感器管理服务
+        mSensorManager = (SensorManager) getContext().getSystemService(SENSOR_SERVICE);// 获取传感器管理服务
     }
 
     private void initMyLocation() {
@@ -249,7 +327,7 @@ public class FragmentCheckRecord extends FragmentBase {
         mBaiduMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
     }
 
-    private void goToMyLocation(){
+    private void goToMyLocation() {
 
         MapStatus.Builder builder = new MapStatus.Builder();
         Location location = LocationController.getInstance().getLocation();
@@ -258,7 +336,7 @@ public class FragmentCheckRecord extends FragmentBase {
             builder.target(p);
         }
 
-        if (mBaiduMap == null)  mBaiduMap = mMapView.getMap();
+        if (mBaiduMap == null) mBaiduMap = mMapView.getMap();
 
         mBaiduMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
     }
@@ -287,4 +365,70 @@ public class FragmentCheckRecord extends FragmentBase {
         mMapView.onDestroy();
         super.onDestroy();
     }
+
+    private View creatInfoView() {
+        RelativeLayout view =
+                (RelativeLayout) LayoutInflater.from(getActivity()).inflate(R.layout.info_window, null);
+        return view;
+    }
+
+    private InfoWindow createInfoWindow(View view, String name) {
+        GatherPoint pointInfo = null;
+        for (GatherPoint pt : dataList) {
+            if (pt.getName().equals(name)) {
+                pointInfo = pt;
+                break;
+            }
+        }
+
+        if (pointInfo == null) {
+            ToastUtil.showTextToast(getContext(), "不是一个采集点");
+            return null;
+        }
+
+        final GatherPoint point = pointInfo;
+
+        Map<String, CollectType> typeMaps = CacheData.getTypeMaps();
+        CollectType type = typeMaps.get(point.getType_id());
+
+        InfoWindowHolder infoHolder = null;
+        if (view.getTag() == null) {
+            infoHolder = new InfoWindowHolder();
+            infoHolder.name_tv = view.findViewById(R.id.name_tv);
+            infoHolder.type_tv = view.findViewById(R.id.type_tv);
+            infoHolder.point_tv = view.findViewById(R.id.point_tv);
+            infoHolder.check_btn = view.findViewById(R.id.check_btn);
+            infoHolder.type_icon = view.findViewById(R.id.type_icon);
+            view.setTag(infoHolder);
+        }
+        infoHolder = (InfoWindowHolder) view.getTag();
+
+        infoHolder.name_tv.setText(pointInfo.getName());
+        infoHolder.type_tv.setText(type.getName());
+        infoHolder.point_tv.setText(pointInfo.getLatitude() + ",  " + pointInfo.getLongitude());
+        infoHolder.check_btn.setOnClickListener(v -> checkPointRecord(point));
+        ImageLoader.getInstance().displayImage(type.getIcon(), infoHolder.type_icon);
+
+        LatLng latLnt = pointInfo.getLatLnt();
+        latLnt = PositionUtil.GpsToBaiduLatLng(latLnt);
+
+        mInfoWindow = new InfoWindow(view, latLnt, -50);
+
+        return mInfoWindow;
+    }
+
+    private void checkPointRecord(GatherPoint pointInfo) {
+        LsLog.w(TAG, "checkPointRecord..");
+    }
+
+    public static class InfoWindowHolder {
+        public TextView name_tv;
+        public TextView type_tv;
+        public TextView point_tv;
+        public Button check_btn;
+        public ImageView type_icon;
+
+    }
+
+
 }

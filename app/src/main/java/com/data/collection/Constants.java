@@ -1,11 +1,12 @@
 package com.data.collection;
 
 public class Constants {
-    //http://192.168.1.227/collect/index.php
+    // http://192.168.1.227/collect/index.php
+    // http://192.168.1.253/collection/index.php
 
-    public static final String HOST = "http://192.168.1.227/";
+    public static final String HOST = "http://192.168.1.253/";
 
-    public static final String BASE_URL_V1 = HOST + "collect/index.php/app/v1/";
+    public static final String BASE_URL_V1 = HOST + "collection/index.php/app/v1/";
 
     public static final String LOGIN = BASE_URL_V1 + "login";
 

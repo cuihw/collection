@@ -7,12 +7,19 @@ import com.data.collection.module.CollectType;
 import com.data.collection.module.UserInfoBean;
 import com.data.collection.util.Utils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CacheData {
 
     public static LoginData LOGIN_DATA= null;
     private static UserInfoBean userInfoBean;
+    private static Map<String, CollectType> TypeMaps = new HashMap<>();
+
+    public static Map<String, CollectType> getTypeMaps() {
+        return TypeMaps;
+    }
 
     public static UserInfoBean getUserInfoBean() {
         if (userInfoBean == null) {
@@ -46,6 +53,7 @@ public class CacheData {
                 if (types != null) {
                     for (CollectType item: types) {
                         Utils.cacheImage(item.getIcon());
+                        TypeMaps.put(item.getId(), item);
                     }
                 }
             }

@@ -145,6 +145,14 @@ public class PositionUtil {
         return converter.convert();
     }
 
+    public static LatLng BaiduLatLngToGps(LatLng sourceLatLng) {
+        CoordinateConverter converter  = new CoordinateConverter();
+        converter.from(CoordinateConverter.CoordType.BD09LL);
+        // sourceLatLng 待转换坐标
+        converter.coord(sourceLatLng);
+        return converter.convert();
+    }
+
 }
 
 

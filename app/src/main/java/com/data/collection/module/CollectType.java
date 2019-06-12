@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 
 import java.util.List;
 
+// 采集类型
 public class CollectType {
     private String id;
 

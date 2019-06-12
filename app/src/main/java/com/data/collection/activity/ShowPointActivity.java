@@ -444,6 +444,7 @@ public class ShowPointActivity extends BaseActivity {
         intent.setDataAndType(MediaStore.Images.Media.INTERNAL_CONTENT_URI, "image/*");
         startActivityForResult(intent, REQUEST_CODE_PIC_PHOTO);
     }
+
     private void callCamera() {
         if (!hasProjectInfo()) return;
         takeCameraFilename = FileUtils.getFileDir() + "zw" + System.currentTimeMillis() + ".jpg";

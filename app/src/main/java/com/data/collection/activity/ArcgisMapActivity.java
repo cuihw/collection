@@ -23,7 +23,6 @@ import com.esri.arcgisruntime.geometry.SpatialReferences;
 import com.esri.arcgisruntime.layers.RasterLayer;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
 import com.esri.arcgisruntime.mapping.Basemap;
-import com.esri.arcgisruntime.mapping.Viewpoint;
 import com.esri.arcgisruntime.mapping.popup.PopupDefinition;
 import com.esri.arcgisruntime.mapping.view.Graphic;
 import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
@@ -87,7 +86,7 @@ public class ArcgisMapActivity extends BaseActivity {
         recodeTrace.setOnClickListener(v-> clickTraceButton());
         showArcgisMap.setOnClickListener(v->finish());
         titleView.getLefticon().setOnClickListener(v->finish());
-        titleView.getRighticon().setOnClickListener(v->CollectionActivity.start(this));
+        titleView.getRighticon().setOnClickListener(v-> CollectionListActivity.start(this));
         addPoint.setOnClickListener(v->{AddCollectionActivity.start(this,null);});
     }
 

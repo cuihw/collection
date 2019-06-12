@@ -1,6 +1,8 @@
 package com.data.collection.adapter;
 
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.View;
@@ -107,8 +109,14 @@ public class MultipleLayoutAdapter  extends CommonAdapter<NaviData> {
     }
 
     private void navito(NaviData subitem) {
-        LsLog.w(TAG, "navito");
-        NaviToActivity.start(mContext, subitem);
+        LsLog.w(TAG, "navito: " + subitem.toJson());
+//        NaviToActivity.start(mContext, subitem);
+        String activity = "com.data.zwnavi.MainActivity";
+        ComponentName component = new ComponentName("com.data.zwnavi", activity);
+        Intent intent = new Intent();
+        intent.setComponent(component);
+        intent.putExtra("naviData", subitem.toJson());
+        mContext.startActivity(intent);
     }
 
     @Override
