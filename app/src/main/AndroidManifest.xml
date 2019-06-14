@@ -90,6 +90,14 @@
             android:screenOrientation="portrait">
         </activity>
 
+        <activity android:name=".activity.AddCheckReportActivitiy"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <activity android:name=".activity.CheckReportListActivitiy"
+            android:screenOrientation="portrait">
+        </activity>
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="b28f976141d974e46687f3037f3481eed0f128db"/>
@@ -104,14 +112,8 @@
             android:process=":remote" >
         </service>
 
-        <service
-            android:name="com.baidu.trace.LBSTraceService"
-            android:enabled="true"
-            android:process=":remote">
-        </service>
 
-        <service android:name=".service.TraceService" >
-        </service>
+
     </application>
 
 </manifest>

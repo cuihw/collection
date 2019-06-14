@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:title="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background5"
+    tools:context=".activity.CheckReportListActivitiy"
+    android:orientation="vertical"
+    >
+
+    <com.data.collection.view.TitleView
+        android:id="@+id/title_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        title:IconLeft="@mipmap/top_back"
+        title:TitleText="检查列表">
+
+    </com.data.collection.view.TitleView>
+
+    <LinearLayout
+        android:layout_below="@+id/title_view"
+        android:layout_above="@+id/commit_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/item_padding"
+        android:background="@drawable/round_background_10dp"
+        android:orientation="vertical"
+        >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/round_top_background3"
+            android:text="检查列表"
+            android:textSize="@dimen/font4"
+            android:padding="@dimen/item_padding"
+            />
+        <TextView
+            android:id="@+id/no_data_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="还没有检查数据，请填写"
+            android:padding="@dimen/item_padding"
+            android:layout_marginBottom="@dimen/item_padding"
+            />
+
+        <ListView
+            android:id="@+id/listview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </ListView>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/commit_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/round_background"
+        android:layout_marginLeft="@dimen/item_padding_large"
+        android:layout_marginRight="@dimen/item_padding_large"
+        android:text="同步数据"
+        android:textSize="@dimen/font2"
+        android:gravity="center"
+        android:padding="@dimen/item_padding"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/item_padding_largest"
+        />
+
+</RelativeLayout>

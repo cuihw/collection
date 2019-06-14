@@ -7,7 +7,7 @@
     <color name="colorPrimaryDark">#474747</color>
     <!--<color name="colorPrimary">#3F51B5</color>-->
     <!--<color name="colorPrimaryDark">#303F9F</color>-->
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorAccent">#0b6dfd</color>
 
     <color name="dark_gray">#999999</color>
 
@@ -69,5 +69,7 @@
     <color name="transparent100">#00000000</color>
     <color name="tabfont">#4b4b4b</color>
 
+    <color name="accuracyCircleFillColor">#AAFFFF88</color>
+    <color name="accuracyCircleStrokeColor">#AA00FF00</color>
 
 </resources>

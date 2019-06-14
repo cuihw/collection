@@ -1,52 +1,54 @@
 package com.data.collection.data.greendao;
 
-import com.data.collection.util.LsLog;
-import com.google.gson.Gson;
-
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.Unique;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Entity
 public class CheckPoint {
 
     private static final String TAG = "CheckPoint";
+
     @Id
     private Long id;
 
-    @NotNull
-    private Long pointid; // 检查点的ID,  根据ID可以获得坐标和属性等相关信息。
-
     @Unique
+    private String OnlineId; // 检查内容的ID
+
+    @NotNull
+    private Long pointid; // 检查点的ID,  根据ID可以获得坐标和属性等相关信息， 本地ID。
+
+    private String collectOnlineId; // 检查点的ID, 线上id HAO, 没有上传的时候，可能为空。
+
+    private String name; // 检查点名字
+
     private String time;// 检查时间 格式 2019-06-05 12:30:65
 
     private String reporter; // 上报人
 
     private String  check; // 检查内容
 
-    @Generated(hash = 363647605)
-    public CheckPoint(Long id, @NotNull Long pointid, String time, String reporter,
-            String check) {
+    private boolean isUploaded;
+
+    @Generated(hash = 799186666)
+    public CheckPoint(Long id, String OnlineId, @NotNull Long pointid,
+            String collectOnlineId, String name, String time, String reporter,
+            String check, boolean isUploaded) {
         this.id = id;
+        this.OnlineId = OnlineId;
         this.pointid = pointid;
+        this.collectOnlineId = collectOnlineId;
+        this.name = name;
         this.time = time;
         this.reporter = reporter;
         this.check = check;
+        this.isUploaded = isUploaded;
     }
 
     @Generated(hash = 1441852858)
     public CheckPoint() {
-    }
-
-    public String toJson(){
-        return new Gson().toJson(this);
     }
 
     public Long getId() {
@@ -57,12 +59,36 @@ public class CheckPoint {
         this.id = id;
     }
 
+    public String getOnlineId() {
+        return this.OnlineId;
+    }
+
+    public void setOnlineId(String OnlineId) {
+        this.OnlineId = OnlineId;
+    }
+
     public Long getPointid() {
         return this.pointid;
     }
 
     public void setPointid(Long pointid) {
         this.pointid = pointid;
+    }
+
+    public String getCollectOnlineId() {
+        return this.collectOnlineId;
+    }
+
+    public void setCollectOnlineId(String collectOnlineId) {
+        this.collectOnlineId = collectOnlineId;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getTime() {
@@ -89,4 +115,14 @@ public class CheckPoint {
         this.check = check;
     }
 
+    public boolean getIsUploaded() {
+        return this.isUploaded;
+    }
+
+    public void setIsUploaded(boolean isUploaded) {
+        this.isUploaded = isUploaded;
+    }
+
+
+    
 }

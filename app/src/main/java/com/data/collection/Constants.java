@@ -4,9 +4,9 @@ public class Constants {
     // http://192.168.1.227/collect/index.php
     // http://192.168.1.253/collection/index.php
 
-    public static final String HOST = "http://192.168.1.253/";
+    public static final String HOST = "http://192.168.1.227/";
 
-    public static final String BASE_URL_V1 = HOST + "collection/index.php/app/v1/";
+    public static final String BASE_URL_V1 = HOST + "collect/index.php/app/v1/";
 
     public static final String LOGIN = BASE_URL_V1 + "login";
 
@@ -33,6 +33,10 @@ public class Constants {
     public static final String GET_TRACE = BASE_URL_V1 + "fetchTrace";
 
     public static final String GET_NAVI_LIST = BASE_URL_V1 + "getInterestList";
+
+    public static final String SAVE_CHECK = BASE_URL_V1 + "saveCheck";
+
+    public static final String GET_CHECK_LIST = BASE_URL_V1 + "getCheckList";
 
     public static final String NO_PROJECT_INFO  ="没有项目信息，请先连接网络，登录服务器";
 

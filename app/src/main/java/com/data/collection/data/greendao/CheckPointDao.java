@@ -23,10 +23,14 @@ public class CheckPointDao extends AbstractDao<CheckPoint, Long> {
      */
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
-        public final static Property Pointid = new Property(1, Long.class, "pointid", false, "POINTID");
-        public final static Property Time = new Property(2, String.class, "time", false, "TIME");
-        public final static Property Reporter = new Property(3, String.class, "reporter", false, "REPORTER");
-        public final static Property Check = new Property(4, String.class, "check", false, "CHECK");
+        public final static Property OnlineId = new Property(1, String.class, "OnlineId", false, "ONLINE_ID");
+        public final static Property Pointid = new Property(2, Long.class, "pointid", false, "POINTID");
+        public final static Property CollectOnlineId = new Property(3, String.class, "collectOnlineId", false, "COLLECT_ONLINE_ID");
+        public final static Property Name = new Property(4, String.class, "name", false, "NAME");
+        public final static Property Time = new Property(5, String.class, "time", false, "TIME");
+        public final static Property Reporter = new Property(6, String.class, "reporter", false, "REPORTER");
+        public final static Property Check = new Property(7, String.class, "check", false, "CHECK");
+        public final static Property IsUploaded = new Property(8, boolean.class, "isUploaded", false, "IS_UPLOADED");
     }
 
 
@@ -43,10 +47,14 @@ public class CheckPointDao extends AbstractDao<CheckPoint, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"CHECK_POINT\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
-                "\"POINTID\" INTEGER NOT NULL ," + // 1: pointid
-                "\"TIME\" TEXT UNIQUE ," + // 2: time
-                "\"REPORTER\" TEXT," + // 3: reporter
-                "\"CHECK\" TEXT);"); // 4: check
+                "\"ONLINE_ID\" TEXT UNIQUE ," + // 1: OnlineId
+                "\"POINTID\" INTEGER NOT NULL ," + // 2: pointid
+                "\"COLLECT_ONLINE_ID\" TEXT," + // 3: collectOnlineId
+                "\"NAME\" TEXT," + // 4: name
+                "\"TIME\" TEXT," + // 5: time
+                "\"REPORTER\" TEXT," + // 6: reporter
+                "\"CHECK\" TEXT," + // 7: check
+                "\"IS_UPLOADED\" INTEGER NOT NULL );"); // 8: isUploaded
     }
 
     /** Drops the underlying database table. */
@@ -63,22 +71,38 @@ public class CheckPointDao extends AbstractDao<CheckPoint, Long> {
         if (id != null) {
             stmt.bindLong(1, id);
         }
-        stmt.bindLong(2, entity.getPointid());
+ 
+        String OnlineId = entity.getOnlineId();
+        if (OnlineId != null) {
+            stmt.bindString(2, OnlineId);
+        }
+        stmt.bindLong(3, entity.getPointid());
+ 
+        String collectOnlineId = entity.getCollectOnlineId();
+        if (collectOnlineId != null) {
+            stmt.bindString(4, collectOnlineId);
+        }
+ 
+        String name = entity.getName();
+        if (name != null) {
+            stmt.bindString(5, name);
+        }
  
         String time = entity.getTime();
         if (time != null) {
-            stmt.bindString(3, time);
+            stmt.bindString(6, time);
         }
  
         String reporter = entity.getReporter();
         if (reporter != null) {
-            stmt.bindString(4, reporter);
+            stmt.bindString(7, reporter);
         }
  
         String check = entity.getCheck();
         if (check != null) {
-            stmt.bindString(5, check);
+            stmt.bindString(8, check);
         }
+        stmt.bindLong(9, entity.getIsUploaded() ? 1L: 0L);
     }
 
     @Override
@@ -89,22 +113,38 @@ public class CheckPointDao extends AbstractDao<CheckPoint, Long> {
         if (id != null) {
             stmt.bindLong(1, id);
         }
-        stmt.bindLong(2, entity.getPointid());
+ 
+        String OnlineId = entity.getOnlineId();
+        if (OnlineId != null) {
+            stmt.bindString(2, OnlineId);
+        }
+        stmt.bindLong(3, entity.getPointid());
+ 
+        String collectOnlineId = entity.getCollectOnlineId();
+        if (collectOnlineId != null) {
+            stmt.bindString(4, collectOnlineId);
+        }
+ 
+        String name = entity.getName();
+        if (name != null) {
+            stmt.bindString(5, name);
+        }
  
         String time = entity.getTime();
         if (time != null) {
-            stmt.bindString(3, time);
+            stmt.bindString(6, time);
         }
  
         String reporter = entity.getReporter();
         if (reporter != null) {
-            stmt.bindString(4, reporter);
+            stmt.bindString(7, reporter);
         }
  
         String check = entity.getCheck();
         if (check != null) {
-            stmt.bindString(5, check);
+            stmt.bindString(8, check);
         }
+        stmt.bindLong(9, entity.getIsUploaded() ? 1L: 0L);
     }
 
     @Override
@@ -116,10 +156,14 @@ public class CheckPointDao extends AbstractDao<CheckPoint, Long> {
     public CheckPoint readEntity(Cursor cursor, int offset) {
         CheckPoint entity = new CheckPoint( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
-            cursor.getLong(offset + 1), // pointid
-            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // time
-            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // reporter
-            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4) // check
+            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // OnlineId
+            cursor.getLong(offset + 2), // pointid
+            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // collectOnlineId
+            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // name
+            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // time
+            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // reporter
+            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // check
+            cursor.getShort(offset + 8) != 0 // isUploaded
         );
         return entity;
     }
@@ -127,10 +171,14 @@ public class CheckPointDao extends AbstractDao<CheckPoint, Long> {
     @Override
     public void readEntity(Cursor cursor, CheckPoint entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
-        entity.setPointid(cursor.getLong(offset + 1));
-        entity.setTime(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
-        entity.setReporter(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
-        entity.setCheck(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
+        entity.setOnlineId(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
+        entity.setPointid(cursor.getLong(offset + 2));
+        entity.setCollectOnlineId(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
+        entity.setName(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
+        entity.setTime(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
+        entity.setReporter(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
+        entity.setCheck(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
+        entity.setIsUploaded(cursor.getShort(offset + 8) != 0);
      }
     
     @Override

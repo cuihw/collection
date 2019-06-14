@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/item_padding"
+    android:padding="@dimen/item_padding_largest"
+    android:orientation="vertical">
+    <TextView
+        android:id="@+id/local_indicate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/font9"
+        android:textColor="@color/font0"
+        android:text="本地未上传的数据"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone"
+        />
+    <TextView
+        android:layout_below="@+id/local_indicate"
+        android:id="@+id/name_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="采集点1"
+        android:textColor="@color/black"
+        android:textSize="@dimen/font2" />
+
+    <TextView
+        android:id="@+id/report_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/name_tv"
+        android:layout_marginTop="@dimen/item_padding"
+        android:text="水位28"
+        android:textColor="@color/font1"
+        android:textSize="@dimen/font4" />
+    <TextView
+        android:layout_below="@+id/local_indicate"
+        android:id="@+id/report_user"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:text="张  三"
+        android:textSize="@dimen/font4"
+        android:textColor="@color/font1"
+        />
+    <TextView
+        android:layout_toLeftOf="@+id/report_user"
+        android:layout_alignTop="@+id/report_user"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="上报人:  "
+        android:textSize="@dimen/font4"
+
+        android:textColor="@color/font1"
+        />
+    <TextView
+        android:id="@+id/time_tv"
+        android:layout_marginTop="@dimen/item_padding"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:text="2019-05-10 11:05:35"
+        android:layout_alignBottom="@+id/report_tv"
+        android:textColor="@color/font1"
+        android:textSize="@dimen/font4"
+        />
+
+
+</RelativeLayout>

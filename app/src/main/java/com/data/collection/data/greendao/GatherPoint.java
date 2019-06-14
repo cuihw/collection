@@ -8,8 +8,12 @@ import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.Unique;
 
+import java.io.Serializable;
+
+
 @Entity
-public class GatherPoint {
+public class GatherPoint implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private static final String TAG = "GatherPoint";
     @Id(autoincrement = true)

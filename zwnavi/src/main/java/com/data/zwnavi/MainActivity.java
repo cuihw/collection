@@ -81,13 +81,15 @@ public class MainActivity extends AppCompatActivity {
         if (!hasInitSuccess) {
             Toast.makeText(getApplicationContext(), "还未初始化!", Toast
                     .LENGTH_SHORT).show();
-            //finish();
+            Log.w(TAG,"hasInitSuccess is false");
+            finish();
         }
 
         Location location = LocationController.getInstance().getLocation();
         if (location == null) {
             ToastUtil.showTextToast(this, "请打开GPS确定位置开始导航");
-            //finish();
+            Log.w(TAG,"location is null");
+            finish();
             return;
         }
 

@@ -142,7 +142,10 @@ public class AddCollectionActivity extends BaseActivity {
     Location location;
     private void fillLongitudeAndLaititude() {
         location = LocationController.getInstance().getLocation();
-
+        if (location == null) {
+            ToastUtil.showTextToast(this, "Gps定位失败，请打开定位后再采集");
+            return;
+        }
         longitudeTv.setText("经度: " + location.getLongitude());
         laititudeTv.setText("纬度: " + location.getLatitude());
         altitudeTv.setText("高度: " + location.getAltitude());

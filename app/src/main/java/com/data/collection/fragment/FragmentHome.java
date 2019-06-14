@@ -82,9 +82,6 @@ public class FragmentHome extends FragmentBase {
 
     private LocationClient mLocClient;
 
-    private MyLocationConfiguration.LocationMode mCurrentMode;
-    private static final int accuracyCircleFillColor = 0xAAFFFF88;
-    private static final int accuracyCircleStrokeColor = 0xAA00FF00;
     private SensorManager mSensorManager;
     private Double lastX = 0.0;
     private int mCurrentDirection = 0;

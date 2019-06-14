@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    android:layout_width="300dp"
     android:layout_height="wrap_content"
     android:padding="@dimen/item_padding"
     android:layout_margin="@dimen/item_padding_largest"
-    android:background="@drawable/round_background"
+    android:background="@drawable/round_background_white"
     >
 
     <TextView
@@ -14,6 +14,7 @@
         android:text="采集点名称"
         android:textSize="@dimen/font3"
         android:layout_centerHorizontal="true"
+        android:textColor="@color/font0"
         />
     <LinearLayout
         android:id="@+id/type_ll"
@@ -37,6 +38,7 @@
             android:layout_marginLeft="@dimen/item_padding"
             android:text="树木"
             android:textSize="@dimen/font3"
+            android:textColor="@color/font1"
             />
     </LinearLayout>
 
@@ -46,6 +48,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="116.334129, 39.968484"
+        android:textColor="@color/font1"
         />
     <Button
         android:id="@+id/check_btn"

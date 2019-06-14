@@ -11,7 +11,7 @@
         android:id="@+id/title_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        title:TitleText="工具"
+        title:TitleText="项目信息"
         title:IconLeft="@mipmap/top_back"
         >
     </com.data.collection.view.TitleView>

@@ -4,6 +4,8 @@ import com.data.collection.App;
 import com.data.collection.module.LoginData;
 import com.data.collection.module.Project;
 import com.data.collection.module.CollectType;
+import com.data.collection.module.UserData;
+import com.data.collection.module.UserInfo;
 import com.data.collection.module.UserInfoBean;
 import com.data.collection.util.Utils;
 
@@ -30,7 +32,11 @@ public class CacheData {
 
     public static String getUserName(){
         if (userInfoBean != null) {
-            return userInfoBean.getData().getUser().getName();
+            UserData data = userInfoBean.getData();
+            if (data != null) {
+                UserInfo user = data.getUser();
+                return user== null?null : user.getName();
+            }
         }
         return null;
     }

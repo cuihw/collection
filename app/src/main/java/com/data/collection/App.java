@@ -9,6 +9,7 @@ import com.data.collection.data.UserTrace;
 import com.data.collection.data.CacheData;
 import com.data.collection.data.greendao.DaoMaster;
 import com.data.collection.data.greendao.DaoSession;
+import com.data.collection.data.greendao.MyOpenDaoHelper;
 import com.data.collection.listener.IListenerUserInfo;
 import com.data.collection.module.LoginBean;
 import com.data.collection.module.UserInfoBean;
@@ -56,7 +57,7 @@ public class App extends Application {
     }
 
     private void initDaoSession() {
-        DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, "info-db");
+        MyOpenDaoHelper helper = new MyOpenDaoHelper(this, "info-db");
         Database db = helper.getWritableDb();
         daoSession = new DaoMaster(db).newSession();
     }

@@ -3,6 +3,7 @@ package com.data.collection.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
@@ -226,6 +227,7 @@ public class CollectionListActivity extends BaseActivity {
         }
     }
 
+    // 请求更新采集点列表数据。
     private void requestSyncData(int page) {
 
         Map<String, Object> param = new HashMap<>();
@@ -246,7 +248,7 @@ public class CollectionListActivity extends BaseActivity {
             public void onResponse(int status, PointListBean bean) {
                 if (bean != null) {
                     LsLog.w(TAG, "get collection response: " + bean.toJson());
-                    handerSyncBean(bean);
+                    handlerSyncBean(bean);
                 }
                 hideBusy();
             }
@@ -255,18 +257,32 @@ public class CollectionListActivity extends BaseActivity {
     }
 
 
-    private void handerSyncBean(PointListBean bean) {
+    private void handlerSyncBean(PointListBean bean) {
         // 1. 存储到本地数据库； 2. 继续下载更新更多数据。
         PointListData data = bean.getData();
         List<PointData> data1 = data.getData();
 
+        dataList.clear();
+
         for (PointData pd: data1) {
             GatherPoint gatherPoint = pd.getGatherPoint();
             insertToDb(gatherPoint);
+            dataList.add(0,gatherPoint);
         }
         hideBusy();
-        // TODO:下载结束  隐藏忙图标
+        // TODO:下载结束  隐藏忙图标 刷新显示数据。
+        delayShowData(2000);
     }
+
+    private void delayShowData(int mills) {
+        new Handler().postDelayed(new Runnable(){
+            @Override
+            public void run() {
+                showData(false);
+            }
+        }, mills);
+    }
+
 
     private void hideBusy(){
         if (hud.isShowing()) {

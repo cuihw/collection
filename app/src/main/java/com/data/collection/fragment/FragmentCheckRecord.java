@@ -1,5 +1,6 @@
 package com.data.collection.fragment;
 
+import android.graphics.Bitmap;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -22,8 +23,6 @@ import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 
-import baidu.mapapi.clusterutil.clustering.ClusterManager;
-
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
@@ -41,21 +40,20 @@ import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.model.LatLngBounds;
 import com.data.collection.App;
 import com.data.collection.R;
+import com.data.collection.activity.AddCheckReportActivitiy;
+import com.data.collection.activity.CheckReportListActivitiy;
+import com.data.collection.activity.CollectionListActivity;
 import com.data.collection.data.CacheData;
 import com.data.collection.data.greendao.DaoSession;
 import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.data.greendao.GatherPointDao;
 import com.data.collection.module.CollectType;
-import com.data.collection.module.Gps;
-import com.data.collection.module.MarkerItem;
-import com.data.collection.module.UserInfoBean;
 import com.data.collection.util.LocationController;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.PositionUtil;
 import com.data.collection.util.ToastUtil;
-import com.data.collection.util.Utils;
+import com.data.collection.view.TitleView;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 
 import org.greenrobot.greendao.query.QueryBuilder;
 
@@ -80,6 +78,10 @@ public class FragmentCheckRecord extends FragmentBase {
     TextureMapView mMapView;
     @BindView(R.id.map_my_position)
     TextView myPosition;
+    @BindView(R.id.title_view)
+    TitleView titleView;
+
+
     BaiduMap mBaiduMap;
     BitmapDescriptor mMarkerBitmap;
     private LocationClient mLocClient;
@@ -132,6 +134,7 @@ public class FragmentCheckRecord extends FragmentBase {
             mCurrentLat = location.getLatitude();
             mCurrentLon = location.getLongitude();
             mCurrentAccracy = location.getRadius();
+            mCurrentAccracy = 0;
             locData = new MyLocationData.Builder()
                     .accuracy(location.getRadius())
                     // 此处设置开发者获取到的方向信息，顺时针0-360
@@ -168,16 +171,15 @@ public class FragmentCheckRecord extends FragmentBase {
     }
 
     private void initListener() {
+
+        titleView.getRighticon().setOnClickListener(v-> CheckReportListActivitiy.start(getContext()));
         myPosition.setOnClickListener(v -> goToMyLocation());
 
         mBaiduMap.setOnMapClickListener(new BaiduMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
                 LsLog.w(TAG, "setOnMapClickListener = " + latLng);
-                if (mInfoWindow != null) {
-                    mBaiduMap.hideInfoWindow();
-                    mMapView.postInvalidate();
-                }
+                hideInfoWindow();
             }
 
             @Override
@@ -189,9 +191,11 @@ public class FragmentCheckRecord extends FragmentBase {
         mBaiduMap.setOnMarkerClickListener(new BaiduMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
+                Bundle extraInfo = marker.getExtraInfo();
+                GatherPoint gatherPoint = (GatherPoint)extraInfo.getSerializable("GatherPoint");
+                LsLog.w(TAG, "setOnMarkerClickListener = " + gatherPoint.getName() + ", marker id = " + marker.getId());
 
-                LsLog.w(TAG, "setOnMarkerClickListener = " + marker.getTitle() + ", id = " + marker.getId());
-                mInfoWindow = createInfoWindow(infoView, marker.getTitle());
+                mInfoWindow = createInfoWindow(infoView, gatherPoint);
                 mBaiduMap.showInfoWindow(mInfoWindow);
                 return false;
             }
@@ -244,7 +248,8 @@ public class FragmentCheckRecord extends FragmentBase {
                 .where(GatherPointDao.Properties.Latitude.gt("" + latitude1),
                         GatherPointDao.Properties.Latitude.le("" + latitude2),
                         GatherPointDao.Properties.Longitude.gt("" + longitude1),
-                        GatherPointDao.Properties.Longitude.le("" + longitude2))
+                        GatherPointDao.Properties.Longitude.le("" + longitude2),
+                        GatherPointDao.Properties.IsUploaded.eq(true))
                 .orderDesc(GatherPointDao.Properties.Updated_at);
 
         dataList = qb.list(); // 查出当前对应的数据
@@ -256,7 +261,7 @@ public class FragmentCheckRecord extends FragmentBase {
             LatLng llng = new LatLng(lat, lng);
 
             llng = PositionUtil.GpsToBaiduLatLng(llng);
-            addMarker(llng, point.getName());
+            addMarker(llng, point);
         }
 
     }
@@ -265,27 +270,24 @@ public class FragmentCheckRecord extends FragmentBase {
         //构建Marker图标
         mMarkerBitmap = BitmapDescriptorFactory
                 .fromResource(R.drawable.icon_gcoding);
-//
-        //定义Maker坐标点113.597357,34.79826
-//        LatLng point = new LatLng(34.79826, 113.597357);
-//        addMarker(point);
-//        //113.627612,34.791382
-//        point = new LatLng(34.791382, 113.627612);
-//        addMarker(point);
+
     }
 
-    private void addMarker(LatLng point, String title) {
+    private void addMarker(LatLng point, GatherPoint gatherPoint) {
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("GatherPoint", gatherPoint);
 
         OverlayOptions option = new MarkerOptions()
                 .position(point) //必传参数
                 .icon(mMarkerBitmap) //必传参数
                 // 设置平贴地图，在地图中双指下拉查看效果
                 .flat(false)
-                .title(title)
+                .extraInfo(bundle)
                 .alpha(0.9f);
 
         //在地图上添加Marker，并显示
         mBaiduMap.addOverlay(option);
+        LsLog.w(TAG, "marker title = " + gatherPoint.getName());
     }
 
     private void initSensor() {
@@ -367,19 +369,11 @@ public class FragmentCheckRecord extends FragmentBase {
     }
 
     private View creatInfoView() {
-        RelativeLayout view =
-                (RelativeLayout) LayoutInflater.from(getActivity()).inflate(R.layout.info_window, null);
+        View view = LayoutInflater.from(getActivity()).inflate(R.layout.info_window, null);
         return view;
     }
 
-    private InfoWindow createInfoWindow(View view, String name) {
-        GatherPoint pointInfo = null;
-        for (GatherPoint pt : dataList) {
-            if (pt.getName().equals(name)) {
-                pointInfo = pt;
-                break;
-            }
-        }
+    private InfoWindow createInfoWindow(View view, GatherPoint pointInfo) {
 
         if (pointInfo == null) {
             ToastUtil.showTextToast(getContext(), "不是一个采集点");
@@ -406,11 +400,16 @@ public class FragmentCheckRecord extends FragmentBase {
         infoHolder.name_tv.setText(pointInfo.getName());
         infoHolder.type_tv.setText(type.getName());
         infoHolder.point_tv.setText(pointInfo.getLatitude() + ",  " + pointInfo.getLongitude());
-        infoHolder.check_btn.setOnClickListener(v -> checkPointRecord(point));
-        ImageLoader.getInstance().displayImage(type.getIcon(), infoHolder.type_icon);
+//
+//        infoHolder.type_icon.setImageDrawable(null);
+        Bitmap bitmap = ImageLoader.getInstance().loadImageSync(type.getIcon());
+        infoHolder.type_icon.setImageBitmap(bitmap);
+//        ImageLoader.getInstance().displayImage(type.getIcon(), infoHolder.type_icon);
 
         LatLng latLnt = pointInfo.getLatLnt();
         latLnt = PositionUtil.GpsToBaiduLatLng(latLnt);
+
+        infoHolder.check_btn.setOnClickListener(v -> checkPointRecord(point));
 
         mInfoWindow = new InfoWindow(view, latLnt, -50);
 
@@ -419,6 +418,17 @@ public class FragmentCheckRecord extends FragmentBase {
 
     private void checkPointRecord(GatherPoint pointInfo) {
         LsLog.w(TAG, "checkPointRecord..");
+        // 添加检查记录
+        AddCheckReportActivitiy.start(getContext(),pointInfo);
+
+        hideInfoWindow();
+    }
+
+    private void hideInfoWindow() {
+        if (mInfoWindow != null) {
+            mBaiduMap.hideInfoWindow();
+            mMapView.postInvalidate();
+        }
     }
 
     public static class InfoWindowHolder {
