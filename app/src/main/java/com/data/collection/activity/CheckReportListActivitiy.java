@@ -84,6 +84,9 @@ public class CheckReportListActivitiy extends BaseActivity {
                 .orderDesc(CheckPointDao.Properties.Time);
 
         checkPointList = qb.list(); // 查出当前对应的数据
+
+        if (no_data_tv == null) return;
+
         if (checkPointList == null || checkPointList.size() == 0) {
             no_data_tv.setVisibility(View.VISIBLE);
             return;
