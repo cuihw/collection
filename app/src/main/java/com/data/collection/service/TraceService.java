@@ -68,6 +68,10 @@ public class TraceService extends Service {
         @Override
         public void run() {
             Location loc = LocationController.getInstance().getLocation();
+            if (loc == null) {
+                LsLog.w(TAG, "Location is null , can't record trace. ");
+                return;
+            }
             TraceLocation tl = new TraceLocation();
             tl.setLatitude(loc.getLatitude() + "");
             tl.setLongitude(loc.getLongitude() + "");

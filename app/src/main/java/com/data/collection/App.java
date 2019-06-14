@@ -114,7 +114,6 @@ public class App extends Application {
         SDKInitializer.setCoordType(CoordType.BD09LL);
 
         UserTrace.getInstance().init(this);
-
     }
 
     private void showSignInfo() {
