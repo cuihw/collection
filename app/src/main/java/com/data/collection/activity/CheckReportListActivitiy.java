@@ -289,6 +289,7 @@ public class CheckReportListActivitiy extends BaseActivity {
 
         param.put("collect_id", point.getCollectOnlineId());
         param.put("content", point.getCheck());
+        param.put("create_time", point.getTime());
         HttpRequest.postData(context,Constants.SAVE_CHECK, param, listener);
     }
 
