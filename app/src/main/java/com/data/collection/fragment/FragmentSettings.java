@@ -106,7 +106,10 @@ public class FragmentSettings extends FragmentBase {
 
             @Override
             public void onResponse(int status, BaseBean bean) {
-                if (status != 0) return ;
+                if (status != 0) {
+                    // unread_count.setText("未读消息：0");
+                    return ;
+                }
                 String data = bean.getData().toString();
                 LsLog.i(TAG, "read data = " + data);
                 try {
@@ -121,6 +124,7 @@ public class FragmentSettings extends FragmentBase {
 
             }
         });
+        getUnreadCountDB();
 
     }
     long unreadCount;
@@ -132,6 +136,8 @@ public class FragmentSettings extends FragmentBase {
                 .orderDesc(MessageDataDao.Properties.Create_time);
 
         unreadCount = qb.count();// 查出当前未读
+
+        unread_count.setText("未读消息：" + unreadCount);
     }
 
     @Override

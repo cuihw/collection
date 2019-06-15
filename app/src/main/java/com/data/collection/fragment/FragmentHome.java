@@ -179,7 +179,7 @@ public class FragmentHome extends FragmentBase {
         mLocClient.registerLocationListener(myListener);
         LocationClientOption option = new LocationClientOption();
         option.setOpenGps(true); // 打开gps
-        option.setCoorType("bd09ll"); // 设置坐标类型
+        option.setCoorType("bd09"); // 设置坐标类型
         option.setScanSpan(10000);
         mLocClient.setLocOption(option);
         // mLocClient.start();
@@ -199,8 +199,8 @@ public class FragmentHome extends FragmentBase {
             locData = new MyLocationData.Builder()
                     .accuracy(location.getRadius())
                     // 此处设置开发者获取到的方向信息，顺时针0-360
-                    .direction(mCurrentDirection).latitude(location.getLatitude())
-                    .longitude(location.getLongitude()).build();
+                    .direction(mCurrentDirection).latitude(mCurrentLat)
+                    .longitude(mCurrentLon).build();
             mBaiduMap.setMyLocationData(locData);
             if (isFirstLoc) {
                 isFirstLoc = false;

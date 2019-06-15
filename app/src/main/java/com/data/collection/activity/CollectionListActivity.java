@@ -81,9 +81,9 @@ public class CollectionListActivity extends BaseActivity {
 
     CommonAdapter<GatherPoint> adapter;
 
-    List<GatherPoint> dataList;
+    List<GatherPoint> dataList;       // 同步网络数据
 
-    List<GatherPoint> dataLocalList;
+    List<GatherPoint> dataLocalList;  // 我的数据
 
     List<CollectType> collectTypes;
 
@@ -100,8 +100,8 @@ public class CollectionListActivity extends BaseActivity {
         setContentView(R.layout.activity_collection_list);
         initListener();
 
-        dataLocalList = getData(false); // local data
-        dataList = getData(true);
+        dataLocalList = getData(true); // local data
+        dataList = getData(false);
         initView();
 
         hud = KProgressHUD.create(this)
@@ -140,7 +140,7 @@ public class CollectionListActivity extends BaseActivity {
                 // upload_tv
                 TextView view = helper.getView(R.id.upload_tv);
                 if (item.getIsUploaded()) {
-                    view.setVisibility(View.INVISIBLE);
+                    view.setVisibility(View.GONE);
                 } else {
                     view.setVisibility(View.VISIBLE);
                 }
@@ -164,13 +164,21 @@ public class CollectionListActivity extends BaseActivity {
         }
     }
 
-    private List<GatherPoint> getData(boolean isUpload) {
-        DaoSession daoSession = App.getInstence().getDaoSession();
+    private List<GatherPoint> getData(boolean isMyCollectionData) {
 
+
+        DaoSession daoSession = App.getInstence().getDaoSession();
         QueryBuilder<GatherPoint> qb = daoSession.queryBuilder(GatherPoint.class)
-                .where(GatherPointDao.Properties.IsUploaded.eq(isUpload))
                 .orderDesc(GatherPointDao.Properties.Collected_at)
                 .orderDesc(GatherPointDao.Properties.Updated_at);
+
+        if (isMyCollectionData) { //
+            String userName = CacheData.getUserName();
+            LsLog.w(TAG, "get my collection data, my name is : " + userName);
+            qb.where(GatherPointDao.Properties.Report.eq(userName));
+        } else {
+            qb.where(GatherPointDao.Properties.IsUploaded.eq(true));
+        }
 
         List<GatherPoint> list = qb.list(); // 查出当前对应的数据
         return list;

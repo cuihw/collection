@@ -196,7 +196,9 @@ public class FragmentCheckRecord extends FragmentBase {
                 LsLog.w(TAG, "setOnMarkerClickListener = " + gatherPoint.getName() + ", marker id = " + marker.getId());
 
                 mInfoWindow = createInfoWindow(infoView, gatherPoint);
-                mBaiduMap.showInfoWindow(mInfoWindow);
+
+                if (mInfoWindow != null) mBaiduMap.showInfoWindow(mInfoWindow);
+
                 return false;
             }
         });
@@ -384,6 +386,11 @@ public class FragmentCheckRecord extends FragmentBase {
 
         Map<String, CollectType> typeMaps = CacheData.getTypeMaps();
         CollectType type = typeMaps.get(point.getType_id());
+
+        if (type == null) {
+            ToastUtil.showTextToast(getContext(), "采集点类型错误");
+            return null;
+        }
 
         InfoWindowHolder infoHolder = null;
         if (view.getTag() == null) {
