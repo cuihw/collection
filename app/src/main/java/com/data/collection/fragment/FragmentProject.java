@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -28,6 +29,9 @@ import com.data.collection.util.Utils;
 import com.data.collection.view.TitleView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
+import org.w3c.dom.Text;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -86,7 +90,7 @@ public class FragmentProject extends FragmentBase {
             return;
         }
         Project project = userInfoBean.getData().getProject();
-        projectName.setText("项目名字：" + project.getName());
+        projectName.setText("项目名称：" + project.getName());
 
         adapter = new CommonAdapter<CollectType>(getContext(),R.layout.item_project_attr, project.getTypes()) {
             @Override
@@ -97,9 +101,19 @@ public class FragmentProject extends FragmentBase {
 
                 ImageLoader.getInstance().displayImage(item.getIcon(), iconview);
 
+
+
                 List<Attrs> attrs = item.getAttrs();
                 String showOptingText = "";
                 String showFillText = "";
+
+                List<View> listView = new ArrayList<>();
+
+                TextView textView = new TextView(getContext());
+                textView.setText("测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试");
+                LinearLayout view = helper.getView(R.id.rootview);
+                view.addView(textView);
+
                 for (Attrs attr: attrs) {
                     if (attr.getType().equals("2")) {  // 选项框；
                         if (TextUtils.isEmpty(showOptingText)) {
