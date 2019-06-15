@@ -218,7 +218,14 @@ public class AddCollectionActivity extends BaseActivity {
             UserInfoBean userInfoBean = CacheData.getUserInfoBean();
             projectTypes = userInfoBean.getData().getProject().getTypes();
             PointTypeAdapter pointAdapter = new PointTypeAdapter(this, projectTypes);
+
             typeSpinner.setAdapter(pointAdapter);
+            if (collectType != null) {
+                int i = projectTypes.indexOf(collectType);
+                if (i != -1) {
+                    typeSpinner.setSelection(i);
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -226,9 +233,11 @@ public class AddCollectionActivity extends BaseActivity {
 
     private void initListener() {
         titleView.getLefticon().setOnClickListener(v->finish());
-        resetLayout.setOnClickListener(v->resetData());//  动态请求权限);
 
-        saveLayout.setOnClickListener(v->initPermission(SAVE_POINT));
+        resetLayout.setOnClickListener(v->resetData());
+
+        saveLayout.setOnClickListener(v->initPermission(SAVE_POINT));//  动态请求权限);
+
         imageview1.setOnClickListener(v->{
             if (imageList.size() == 0) {
                 initPermission(TAKE_PICTURE);
@@ -281,7 +290,13 @@ public class AddCollectionActivity extends BaseActivity {
     }
 
     private void resetData() {
-
+        nameTv.setText("");
+        commentsTv.setText("");
+        if (attrsView != null) {
+            attrsView.clearViewData();
+        }
+        imageList.clear();
+        showImageLayout();
     }
 
     GatherPoint gatherPoint;
@@ -297,9 +312,12 @@ public class AddCollectionActivity extends BaseActivity {
             return;
         }
         CollectType attrsValue = attrsView.getAttrsValue(selectedItem);
+
         if (attrsValue == null) {
             return;
         }
+
+        collectType = attrsValue;
 
         LsLog.w(TAG, "attrs: " + new Gson().toJson(attrsValue.getAttrs()));
         String des = commentsTv.getText().toString().trim(); // 备注

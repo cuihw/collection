@@ -50,11 +50,15 @@ public class PointTypeAdapter extends BaseAdapter {
             convertView.setTag(viewHolder);
         }
         ViewHolder holder = (ViewHolder) convertView.getTag();// get convertView's holder
-//        Bitmap cachedImage = Utils.getCachedImage(dataList.get(position).getIcon());
-//        if (cachedImage != null) holder.icon.setImageBitmap(cachedImage);
+
         ImageLoader.getInstance().displayImage(dataList.get(position).getIcon(),holder.icon);
         holder.type_name.setText(dataList.get(position).getName());
         return convertView;
+    }
+
+    public void setSelected(CollectType collectType) {
+        // dataList
+
     }
 
     class ViewHolder {

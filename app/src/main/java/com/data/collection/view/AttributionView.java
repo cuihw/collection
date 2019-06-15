@@ -229,5 +229,17 @@ public class AttributionView extends LinearLayout {
             }
         }
     }
+
+    public void clearViewData() {
+        for(View view : attrViewList) {
+            String tag = (String)view.getTag();
+            if (!TextUtils.isEmpty(tag)) {
+                if (tag.equals("fill_attr")) {
+                    EditText valueView = view.findViewById(R.id.value);
+                    valueView.setText("");
+                }
+            }
+        }
+    }
 }
 
