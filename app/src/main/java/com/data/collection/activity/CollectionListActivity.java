@@ -178,7 +178,6 @@ public class CollectionListActivity extends BaseActivity {
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                LsLog.w(TAG, "checkedId = " + checkedId);
                 if (R.id.local_button == checkedId) {
                     // show local data;
                     showData(true);
@@ -301,8 +300,8 @@ public class CollectionListActivity extends BaseActivity {
             HttpRequest.upLoadImgs(files, new HttpRequest.RespListener<ImageUploadBean>() {
                 @Override
                 public void onResponse(int status, ImageUploadBean bean) {
+                    LsLog.w(TAG, "upload image result..");
                     if (status == 0) {
-
                         List<ImageData.FileMap> files1 = bean.getData().getFiles();
                         String sss = new Gson().toJson(files1);
                         LsLog.i(TAG, "image files = " + sss + "; result: " + bean.toJson());
@@ -310,6 +309,9 @@ public class CollectionListActivity extends BaseActivity {
                         saveToDb(point);
                         uploadLocalData(point);
                         return;
+                    }
+                    if (status == HttpRequest.NET_ERROR) {
+                        ToastUtil.showTextToast(CollectionListActivity.this,"网络错误, 无法上传");
                     }
                     if (bean == null) {
                         LsLog.w(TAG, "save point result: null" + bean);
@@ -353,7 +355,7 @@ public class CollectionListActivity extends BaseActivity {
         HttpRequest.postData(null, Constants.SAVE_COLLECTION_POINT, param, new HttpRequest.RespListener<String>() {
             @Override
             public void onResponse(int status, String bean) {
-                LsLog.w(TAG, "save point result:" + bean);
+                LsLog.w(TAG, "save point result:" + bean.toString());
                 try {
                     JSONObject json = new JSONObject(bean);
                     String code = json.getString("code");

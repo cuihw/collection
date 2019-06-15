@@ -42,8 +42,11 @@ import static okhttp3.MediaType.*;
 public class HttpRequest {
     private static final String TAG = "HttpRequest";
 
+    public static final int   NET_ERROR = -10;
+
     private static OkHttpClient.Builder builder;
     private static OkHttpClient okHttpclient;
+
 
     public static void initOkGo(App appContext) {
 
@@ -101,7 +104,7 @@ public class HttpRequest {
                     public void onFinish() {
                         super.onFinish();
                         if (TextUtils.isEmpty(body)) {
-                            listener.onResponse(-1, null);
+                            listener.onResponse(NET_ERROR, null);
                         }
                     }
 
@@ -151,8 +154,9 @@ public class HttpRequest {
             @Override
             public void onFinish() {
                 super.onFinish();
+                LsLog.w(TAG, "onFinish body = " + body);
                 if (TextUtils.isEmpty(body)) {
-                    listener.onResponse(-1, null);
+                    listener.onResponse(NET_ERROR, null);
                 }
             }
 
@@ -207,9 +211,19 @@ public class HttpRequest {
     public static void getRequest(Context context, String url, final ResponseListener<String> listener) {
         OkGo.<String>get(url).tag(context.getClass().getSimpleName())
                 .execute(new StringCallback() {
+                    String body;
                     @Override
                     public void onSuccess(Response<String> response) {
+                        body = response.body();
                         listener.onResponse(0, response.body());
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        super.onFinish();
+                        if (TextUtils.isEmpty(body)) {
+                            listener.onResponse(NET_ERROR, null);
+                        }
                     }
                 });
     }
@@ -229,9 +243,19 @@ public class HttpRequest {
                 .headers("token", CacheData.LOGIN_DATA == null ? "" : CacheData.LOGIN_DATA.getToken())
                 .addFileParams("image[]", files).isMultipart(true)
                 .execute(new StringCallback() {
+                    String body ;
+
+                    @Override
+                    public void onFinish() {
+                        super.onFinish();
+                        if (TextUtils.isEmpty(body)) {
+                            listener.onResponse(NET_ERROR, null);
+                        }
+                    }
+
                     @Override
                     public void onSuccess(Response<String> response) {
-                        String body = response.body();
+                        body = response.body();
                         ImageUploadBean bean = null;
                         try {
                             bean = new Gson().fromJson(body, ImageUploadBean.class);

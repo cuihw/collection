@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -19,15 +18,10 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.classic.adapter.BaseAdapterHelper;
-import com.classic.adapter.CommonAdapter;
 import com.data.collection.App;
 import com.data.collection.Constants;
 import com.data.collection.R;
@@ -35,42 +29,24 @@ import com.data.collection.adapter.PointTypeAdapter;
 import com.data.collection.data.CacheData;
 import com.data.collection.data.greendao.DaoSession;
 import com.data.collection.data.greendao.GatherPoint;
-import com.data.collection.data.greendao.GatherPointDao;
 import com.data.collection.dialog.ButtomDialogView;
 import com.data.collection.module.Attrs;
 import com.data.collection.module.CollectType;
 import com.data.collection.module.ImageData;
-import com.data.collection.module.ImageUploadBean;
-import com.data.collection.module.PointData;
-import com.data.collection.module.PointListBean;
-import com.data.collection.module.PointListData;
 import com.data.collection.module.UserInfoBean;
-import com.data.collection.network.HttpRequest;
 import com.data.collection.util.BitmapUtil;
-import com.data.collection.util.DateUtils;
 import com.data.collection.util.FileUtils;
-import com.data.collection.util.LocationController;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.ToastUtil;
 import com.data.collection.view.AttributionView;
 import com.data.collection.view.TitleView;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.kaopiz.kprogresshud.KProgressHUD;
 import com.nostra13.universalimageloader.core.ImageLoader;
-
-import org.greenrobot.greendao.query.QueryBuilder;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.File;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import butterknife.BindView;
 
@@ -98,7 +74,7 @@ public class ShowPointActivity extends BaseActivity {
     @BindView(R.id.type_spinner)
     Spinner typeSpinner;
 
-    @BindView(R.id.camera_layout)
+    @BindView(R.id.reset_layout)
     LinearLayout cameraLayout;
 
     @BindView(R.id.attribution_layout)

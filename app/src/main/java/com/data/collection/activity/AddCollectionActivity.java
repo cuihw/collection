@@ -33,6 +33,7 @@ import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.dialog.ButtomDialogView;
 import com.data.collection.module.Attrs;
 import com.data.collection.module.CollectType;
+import com.data.collection.module.CollectionImage;
 import com.data.collection.module.UserInfoBean;
 import com.data.collection.util.BitmapUtil;
 import com.data.collection.util.DateUtils;
@@ -43,9 +44,9 @@ import com.data.collection.util.ToastUtil;
 import com.data.collection.view.AttributionView;
 import com.data.collection.view.TitleView;
 import com.google.gson.Gson;
-import com.kaopiz.kprogresshud.KProgressHUD;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -60,7 +61,12 @@ public class AddCollectionActivity extends BaseActivity {
     private static final int REQUEST_CODE_PIC_PHOTO = 2;
     private static final int REQUEST_CODE_TAKE_PHOTO = 3;
 
+    private static CollectType collectType;
+
     String takeCameraFilename; // 照相机照片保存路径
+
+
+    List<CollectionImage> imageList = new ArrayList<>();  // 采集点照片
 
     @BindView(R.id.title_view)
     TitleView titleView;
@@ -71,11 +77,14 @@ public class AddCollectionActivity extends BaseActivity {
     @BindView(R.id.type_spinner)
     Spinner typeSpinner;
 
-    @BindView(R.id.camera_layout)
-    LinearLayout cameraLayout;
+    @BindView(R.id.reset_layout)
+    LinearLayout resetLayout;
 
     @BindView(R.id.attribution_layout)
     LinearLayout attributionLayout;
+
+    @BindView(R.id.attribution_layout1)
+    LinearLayout attributionLayout1;
 
     @BindView(R.id.save_layout)
     LinearLayout saveLayout;
@@ -133,6 +142,30 @@ public class AddCollectionActivity extends BaseActivity {
         initListener();
     }
 
+    private void showImageLayout(){
+        int size = imageList.size();
+        switch (size) {
+            case 0:
+                imageLayout2.setVisibility(View.INVISIBLE);
+                imageLayout3.setVisibility(View.INVISIBLE);
+                break;
+            case 1:
+                imageLayout2.setVisibility(View.VISIBLE);
+                imageLayout3.setVisibility(View.INVISIBLE);
+                break;
+            case 2:
+                imageLayout2.setVisibility(View.VISIBLE);
+                imageLayout3.setVisibility(View.VISIBLE);
+                break;
+            case 3:
+                imageLayout2.setVisibility(View.VISIBLE);
+                imageLayout3.setVisibility(View.VISIBLE);
+                break;
+        }
+
+        showImageInUI();
+    }
+
     private void initView() {
         deleteImage1.setVisibility(View.INVISIBLE);
         deleteImage2.setVisibility(View.INVISIBLE);
@@ -171,6 +204,14 @@ public class AddCollectionActivity extends BaseActivity {
             attrsView.setViewAttri(attrs);
             attributionLayout.addView(attrsView);
         }
+
+        if (attrsView.getAttrViewList().size() == 0) {
+            // 隐藏属性
+            attributionLayout1.setVisibility(View.GONE);
+        } else {
+            // 显示
+            attributionLayout1.setVisibility(View.VISIBLE);
+        }
     }
     private void initSpinner() {
         try {
@@ -185,45 +226,44 @@ public class AddCollectionActivity extends BaseActivity {
 
     private void initListener() {
         titleView.getLefticon().setOnClickListener(v->finish());
-        cameraLayout.setOnClickListener(v->initPermission(TAKE_PICTURE));//  动态请求权限);
+        resetLayout.setOnClickListener(v->resetData());//  动态请求权限);
 
         saveLayout.setOnClickListener(v->initPermission(SAVE_POINT));
         imageview1.setOnClickListener(v->{
-            String tag = (String)imageview1.getTag();
-            if (TextUtils.isEmpty(tag)) {
+            if (imageList.size() == 0) {
                 initPermission(TAKE_PICTURE);
             }
         });
         imageview2.setOnClickListener(v->{
-            String tag = (String)imageview2.getTag();
-            if (TextUtils.isEmpty(tag)) {
+            if (imageList.size() == 1) {
                 initPermission(TAKE_PICTURE);
             }
         });
         imageview3.setOnClickListener(v->{
-            String tag = (String)imageview3.getTag();
-            if (TextUtils.isEmpty(tag)) {
+            if (imageList.size() == 2) {
                 initPermission(TAKE_PICTURE);
             }
         });
 
         deleteImage1.setOnClickListener(v->{
-            String tag = (String)imageview1.getTag();
-            if (!TextUtils.isEmpty(tag)) {
-                imageview1.setImageResource(R.mipmap.icon_add_pic);
-                imageview1.setTag("");
-                deleteImage1.setVisibility(View.INVISIBLE);
+            if (imageList.size() > 0) {
+                imageList.remove(0);
             }
+            showImageLayout();
         });
         deleteImage2.setOnClickListener(v->{
-            imageview2.setImageResource(R.mipmap.icon_add_pic);
-            imageview2.setTag("");
-            deleteImage2.setVisibility(View.INVISIBLE);
+            if (imageList.size() > 1) {
+                imageList.remove(1);
+            }
+
+            showImageLayout();
+
         });
         deleteImage3.setOnClickListener(v->{
-            imageview3.setImageResource(R.mipmap.icon_add_pic);
-            imageview3.setTag("");
-            deleteImage3.setVisibility(View.INVISIBLE);
+            if (imageList.size() > 2) {
+                imageList.remove(2);
+            }
+            showImageLayout();
         });
 
         typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -237,6 +277,10 @@ public class AddCollectionActivity extends BaseActivity {
 
             }
         });
+
+    }
+
+    private void resetData() {
 
     }
 
@@ -279,18 +323,17 @@ public class AddCollectionActivity extends BaseActivity {
         }
         gatherPoint.setAttrs(new Gson().toJson(attrsValue.getAttrs()));
 
-        String path = (String)imageview1.getTag();
-        if (!TextUtils.isEmpty(path)) {
-            gatherPoint.setPicPath1(path);
+        if (imageList.size() == 1) {
+            gatherPoint.setPicPath1(imageList.get(0).filename);
+        } else if(imageList.size() == 2) {
+            gatherPoint.setPicPath1(imageList.get(0).filename);
+            gatherPoint.setPicPath2(imageList.get(1).filename);
+        }else if(imageList.size() == 3) {
+            gatherPoint.setPicPath1(imageList.get(0).filename);
+            gatherPoint.setPicPath2(imageList.get(1).filename);
+            gatherPoint.setPicPath3(imageList.get(2).filename);
         }
-        path = (String)imageview2.getTag();
-        if (!TextUtils.isEmpty(path)) {
-            gatherPoint.setPicPath2(path);
-        }
-        path = (String)imageview3.getTag();
-        if (!TextUtils.isEmpty(path)) {
-            gatherPoint.setPicPath3(path);
-        }
+
         DaoSession daoSession =  App.getInstence().getDaoSession();
         long id = daoSession.insertOrReplace(gatherPoint);
         Log.i(TAG, "save id = " + id);
@@ -372,38 +415,72 @@ public class AddCollectionActivity extends BaseActivity {
                     Uri data1 = data.getData();
                     takeCameraFilename = FileUtils.getFilePathByUri(this, data1);
                     LsLog.i(TAG, "onPickPhotoResult: " + takeCameraFilename);
-                    bitmap = BitmapFactory.decodeFile(takeCameraFilename);
-                    if (bitmap != null) {
-                        setImage(bitmap);
-                    }
+                    addImageFile();
+                    showImageLayout();
                     break;
                 case REQUEST_CODE_TAKE_PHOTO:
                     if (takeCameraFilename != null) {
-                        bitmap = BitmapUtil.trimBitmapFile(takeCameraFilename);
-                        if (bitmap != null) {
-                            setImage(bitmap);
-                        }
+                        addImageFile();
+                        showImageLayout();
                     }
                     break;
             }
         }
     }
 
-    private void setImage(Bitmap bitmap) {
-        if (bitmap == null) return;
-        String tag1 = (String)imageview1.getTag();
-        String tag2 = (String)imageview2.getTag();
-        if (TextUtils.isEmpty(tag1)) {
+    private void addImageFile(){
+        CollectionImage image = new CollectionImage();
+        image.filename = takeCameraFilename;
+        imageList.add(image);
+    }
+
+    private void showImageInUI() {
+        int size = imageList.size();
+        if (size == 0) {
+            imageview1.setImageBitmap(null);
+            deleteImage1.setVisibility(View.INVISIBLE);
+
+            imageview2.setImageBitmap(null);
+            deleteImage2.setVisibility(View.INVISIBLE);
+
+            imageview3.setImageBitmap(null);
+            deleteImage3.setVisibility(View.INVISIBLE);
+
+        } else if (size == 1) {
+            Bitmap bitmap = BitmapFactory.decodeFile(imageList.get(0).filename);
             imageview1.setImageBitmap(bitmap);
-            imageview1.setTag(takeCameraFilename);
             deleteImage1.setVisibility(View.VISIBLE);
-        } else if (TextUtils.isEmpty(tag2)){
+
+            imageview2.setImageBitmap(null);
+            deleteImage2.setVisibility(View.INVISIBLE);
+
+            imageview3.setImageBitmap(null);
+            deleteImage3.setVisibility(View.INVISIBLE);
+
+        } else if (size == 2){
+
+            Bitmap bitmap = BitmapFactory.decodeFile(imageList.get(0).filename);
+            imageview1.setImageBitmap(bitmap);
+            deleteImage1.setVisibility(View.VISIBLE);
+            bitmap = BitmapFactory.decodeFile(imageList.get(1).filename);
             imageview2.setImageBitmap(bitmap);
-            imageview2.setTag(takeCameraFilename);
             deleteImage2.setVisibility(View.VISIBLE);
-        } else { // 前两个有了，直接替换第三个
+
+            imageview3.setImageBitmap(null);
+            deleteImage3.setVisibility(View.INVISIBLE);
+
+        } else if (size == 3){
+
+            Bitmap bitmap = BitmapFactory.decodeFile(imageList.get(0).filename);
+            imageview1.setImageBitmap(bitmap);
+            deleteImage1.setVisibility(View.VISIBLE);
+
+            bitmap = BitmapFactory.decodeFile(imageList.get(1).filename);
+            imageview2.setImageBitmap(bitmap);
+            deleteImage2.setVisibility(View.VISIBLE);
+
+            bitmap = BitmapFactory.decodeFile(imageList.get(2).filename);
             imageview3.setImageBitmap(bitmap);
-            imageview3.setTag(takeCameraFilename);
             deleteImage3.setVisibility(View.VISIBLE);
         }
     }
