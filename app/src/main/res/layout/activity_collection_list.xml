@@ -4,7 +4,7 @@
     xmlns:title="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background1"
+    android:background="@color/background5"
     >
     <LinearLayout
         android:layout_above="@+id/action_sync_all"
@@ -55,9 +55,11 @@
         <ListView
             android:layout_margin="@dimen/item_padding_small"
             android:id="@+id/listview"
-            android:divider="@color/font0"
+            android:divider="@color/font1"
             android:dividerHeight="1px"
             android:layout_width="match_parent"
+            android:padding="@dimen/item_padding"
+            android:background="@drawable/round_background"
             android:layout_height="wrap_content">
         </ListView>
         <TextView
@@ -79,6 +81,7 @@
         android:layout_marginBottom="@dimen/item_padding"
         android:layout_marginLeft="@dimen/login_margin"
         android:layout_marginRight="@dimen/login_margin"
+        android:padding="@dimen/item_padding"
         android:gravity="center"
         android:text="全部上传"
         android:textSize="@dimen/font3"

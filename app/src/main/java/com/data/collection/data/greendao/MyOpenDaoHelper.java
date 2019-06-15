@@ -36,12 +36,15 @@ public class MyOpenDaoHelper extends DaoMaster.OpenHelper {
             // alter table 表名 ADD 字段 类型 NOT NULL Default 0
             upgrade2To3(db);
         }
+        if (oldVersion == 1 && newVersion == 3) {
+            upgrade1To2(db);
+            upgrade2To3(db);
+        }
     }
 
     private void upgrade1To2(Database db) {
         db.execSQL("alter table CHECK_POINT ADD IS_UPLOADED INTEGER NOT NULL Default 0");
     }
-
 
     private void upgrade2To3(Database db) {
         db.execSQL("alter table CHECK_POINT ADD PROJECT_ID TEXT");

@@ -84,17 +84,13 @@ public class HttpRequest {
         postData(null, url, params, listener);
     }
 
-    public static <T> void postJson(final Context context, String url, Map<String, Object> params, final RespListener listener) {
+    public static <T> void postJson(final Context context, String url, String tag, Map<String, Object> params, final RespListener listener) {
         if (params == null) {
             params = new HashMap<>();
         }
         JSONObject jsonObject = new JSONObject(params);
-        String clz = null;
-        if (context != null) {
-            clz = context.getClass().getSimpleName();
-            LsLog.i(TAG, "set the class name as tag clz = " + clz);
-        }
-        OkGo.<String>post(url).tag(clz).headers("platform", "Android")
+
+        OkGo.<String>post(url).tag(tag).headers("platform", "Android")
                 .headers("token", CacheData.LOGIN_DATA == null ? "" : CacheData.LOGIN_DATA.getToken())
                 .upJson(jsonObject)
                 .execute(new HStringCallback(context) {
@@ -127,17 +123,24 @@ public class HttpRequest {
                 });
     }
 
+
+
     public static <T> void postData(final Context context, String url, Map<String, Object> params, final RespListener listener) {
-        if (params == null) {
-            params = new HashMap<>();
-        }
-        JSONObject jsonObject = new JSONObject(params);
-        Log.i(TAG, "params:" + jsonObject.toString());
         String clz = null;
         if (context != null) {
             clz = context.getClass().getSimpleName();
             LsLog.i(TAG, "set the class name as tag clz = " + clz);
         }
+        postData(context, url, clz, params, listener);
+    }
+
+    public static <T> void postData(final Context context, String url, String tag, Map<String, Object> params, final RespListener listener) {
+        if (params == null) {
+            params = new HashMap<>();
+        }
+        JSONObject jsonObject = new JSONObject(params);
+        Log.i(TAG, "params:" + jsonObject.toString());
+
         HttpParams hparams = new HttpParams();
         for (String key : params.keySet()) {
             String s = params.get(key).toString();
@@ -145,42 +148,43 @@ public class HttpRequest {
             hparams.put(key, s);
         }
 
-        OkGo.<String>post(url).tag(clz).headers("platform", "Android")
+        OkGo.<String>post(url).tag(tag).headers("platform", "Android")
                 .headers("token", CacheData.LOGIN_DATA == null ? "" : CacheData.LOGIN_DATA.getToken())
                 .params(hparams)
                 .execute(new HStringCallback(context) {
-            String body = null;
+                    String body = null;
 
-            @Override
-            public void onFinish() {
-                super.onFinish();
-                LsLog.w(TAG, "onFinish body = " + body);
-                if (TextUtils.isEmpty(body)) {
-                    listener.onResponse(NET_ERROR, null);
-                }
-            }
-
-            @Override
-            public void onSuccess(Response<String> response) {
-                body = response.body();
-                try {
-                    Class<T> clz = listener.getClazz();
-                    String name = clz.getName();
-                    if (name.equals("java.lang.String")) {
-                        listener.onResponse(0, body);
-                    } else if (clz != null) {
-                        T data = new Gson().fromJson(body, clz);
-                        listener.onResponse(0, data);
-                    } else {
-                        listener.onResponse(0, body);
+                    @Override
+                    public void onFinish() {
+                        super.onFinish();
+                        LsLog.w(TAG, "onFinish body = " + body);
+                        if (TextUtils.isEmpty(body)) {
+                            listener.onResponse(NET_ERROR, null);
+                        }
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    listener.onResponse(-1, null);
-                }
-            }
-        });
+
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        body = response.body();
+                        try {
+                            Class<T> clz = listener.getClazz();
+                            String name = clz.getName();
+                            if (name.equals("java.lang.String")) {
+                                listener.onResponse(0, body);
+                            } else if (clz != null) {
+                                T data = new Gson().fromJson(body, clz);
+                                listener.onResponse(0, data);
+                            } else {
+                                listener.onResponse(0, body);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            listener.onResponse(-1, null);
+                        }
+                    }
+                });
     }
+
 
     static public abstract class RespListener<T> implements ResponseListener<T> {
         private Class<T> clazz;

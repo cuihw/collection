@@ -87,6 +87,8 @@ public class CollectionListActivity extends BaseActivity {
 
     List<CollectType> collectTypes;
 
+    int needUploadSize = 0;
+
     public static void start(Context context) {
         Intent intent = new Intent(context, CollectionListActivity.class);
         context.startActivity(intent);
@@ -139,7 +141,6 @@ public class CollectionListActivity extends BaseActivity {
                 TextView view = helper.getView(R.id.upload_tv);
                 if (item.getIsUploaded()) {
                     view.setVisibility(View.INVISIBLE);
-                    // view.setText("查看");
                 } else {
                     view.setVisibility(View.VISIBLE);
                 }
@@ -147,6 +148,7 @@ public class CollectionListActivity extends BaseActivity {
                 helper.setOnClickListener(R.id.upload_tv, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        needUploadSize = 1;
                         uploadLocalDataWithImage(item);
                     }
                 });
@@ -155,7 +157,7 @@ public class CollectionListActivity extends BaseActivity {
         listView.setAdapter(adapter);
 
 
-        if (dataLocalList == null || dataLocalList.size() == 0 ) {
+        if (dataLocalList == null || dataLocalList.size() == 0) {
             noDataTv.setVisibility(View.VISIBLE);
         } else {
             noDataTv.setVisibility(View.INVISIBLE);
@@ -167,6 +169,7 @@ public class CollectionListActivity extends BaseActivity {
 
         QueryBuilder<GatherPoint> qb = daoSession.queryBuilder(GatherPoint.class)
                 .where(GatherPointDao.Properties.IsUploaded.eq(isUpload))
+                .orderDesc(GatherPointDao.Properties.Collected_at)
                 .orderDesc(GatherPointDao.Properties.Updated_at);
 
         List<GatherPoint> list = qb.list(); // 查出当前对应的数据
@@ -181,7 +184,7 @@ public class CollectionListActivity extends BaseActivity {
                 if (R.id.local_button == checkedId) {
                     // show local data;
                     showData(true);
-                    if (dataLocalList == null || dataLocalList.size() == 0 ) {
+                    if (dataLocalList == null || dataLocalList.size() == 0) {
                         noDataTv.setVisibility(View.VISIBLE);
                     } else {
                         noDataTv.setVisibility(View.INVISIBLE);
@@ -189,7 +192,7 @@ public class CollectionListActivity extends BaseActivity {
                 } else {
                     // show synced data;
                     showData(false);
-                    if (dataList == null || dataList.size() == 0 ) {
+                    if (dataList == null || dataList.size() == 0) {
                         noDataTv.setVisibility(View.VISIBLE);
                     } else {
                         noDataTv.setVisibility(View.INVISIBLE);
@@ -213,6 +216,17 @@ public class CollectionListActivity extends BaseActivity {
     private void uploadAllLocalData() {
         String label = actionSyncAll.getText().toString().trim();
         if (label.equals("全部上传")) {
+            if (!hud.isShowing()) {
+                hud.show();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (hud.isShowing()) hud.dismiss();
+                    }
+                }, 1000 * 60);
+            }
+
+            needUploadSize = dataLocalList.size();
             for (GatherPoint point : dataLocalList) {
                 uploadLocalDataWithImage(point);
             }
@@ -263,10 +277,10 @@ public class CollectionListActivity extends BaseActivity {
 
         dataList.clear();
 
-        for (PointData pd: data1) {
+        for (PointData pd : data1) {
             GatherPoint gatherPoint = pd.getGatherPoint();
             insertToDb(gatherPoint);
-            dataList.add(0,gatherPoint);
+            dataList.add(0, gatherPoint);
         }
         hideBusy();
         // TODO:下载结束  隐藏忙图标 刷新显示数据。
@@ -274,7 +288,7 @@ public class CollectionListActivity extends BaseActivity {
     }
 
     private void delayShowData(int mills) {
-        new Handler().postDelayed(new Runnable(){
+        new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 showData(false);
@@ -283,7 +297,7 @@ public class CollectionListActivity extends BaseActivity {
     }
 
 
-    private void hideBusy(){
+    private void hideBusy() {
         if (hud.isShowing()) {
             hud.dismiss();
         }
@@ -301,23 +315,26 @@ public class CollectionListActivity extends BaseActivity {
                 @Override
                 public void onResponse(int status, ImageUploadBean bean) {
                     LsLog.w(TAG, "upload image result..");
+
                     if (status == 0) {
+
                         List<ImageData.FileMap> files1 = bean.getData().getFiles();
                         String sss = new Gson().toJson(files1);
                         LsLog.i(TAG, "image files = " + sss + "; result: " + bean.toJson());
                         point.setImgs(sss);
                         saveToDb(point);
-                        uploadLocalData(point);
                         return;
                     }
                     if (status == HttpRequest.NET_ERROR) {
-                        ToastUtil.showTextToast(CollectionListActivity.this,"网络错误, 无法上传");
+                        ToastUtil.showTextToast(CollectionListActivity.this, "网络错误, 无法上传");
                     }
                     if (bean == null) {
                         LsLog.w(TAG, "save point result: null" + bean);
                     } else {
                         LsLog.w(TAG, "save point result: " + bean.toJson());
                     }
+
+                    uploadLocalData(point);
                 }
             });
         } else {
@@ -352,43 +369,52 @@ public class CollectionListActivity extends BaseActivity {
             e.printStackTrace();
         }
 
-        HttpRequest.postData(null, Constants.SAVE_COLLECTION_POINT, param, new HttpRequest.RespListener<String>() {
-            @Override
-            public void onResponse(int status, String bean) {
-                LsLog.w(TAG, "save point result:" + bean.toString());
-                try {
-                    JSONObject json = new JSONObject(bean);
-                    String code = json.getString("code");
-                    String msg = json.getString("msg");
-                    ToastUtil.showTextToast(CollectionListActivity.this, msg);
+        HttpRequest.postData(null,
+                Constants.SAVE_COLLECTION_POINT, TAG, param, new HttpRequest.RespListener<String>() {
+                    @Override
+                    public void onResponse(int status, String bean) {
+                        if (status == 0) {
+                            try {
+                                LsLog.w(TAG, "save point result:" + bean.toString());
+                                JSONObject json = new JSONObject(bean);
+                                String code = json.getString("code");
+                                String msg = json.getString("msg");
+                                ToastUtil.showTextToast(CollectionListActivity.this, msg);
 
-                    if (code.equals("1")) {
-                        JSONObject data = json.getJSONObject("data");
-                        point.setUpdated_at(data.getString("updated_at"));
-                        point.setId(data.getString("id"));
-                        point.setIsUploaded(true);
-                        saveToDb(point); // 更新数据库
-                        // 更新本地列表
-                        dataLocalList.remove(point);
-                        dataList.add(point);
-                        adapter.replaceAll(dataLocalList);
-                    } else {
+                                if (code.equals("1")) {
+                                    JSONObject data = json.getJSONObject("data");
+                                    point.setUpdated_at(data.getString("updated_at"));
+                                    point.setId(data.getString("id"));
+                                    point.setIsUploaded(true);
+                                    saveToDb(point); // 更新数据库
+                                    // 更新本地列表
+                                    dataLocalList.remove(point);
+                                    dataList.add(point);
+                                    adapter.replaceAll(dataLocalList);
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        int size = dataLocalList.size();
+                        LsLog.w(TAG, "upload size: " + size);
+                        needUploadSize--;
+                        LsLog.w(TAG, "needUploadSize = " + needUploadSize);
 
+                        if (needUploadSize == 0) {
+                            if (hud.isShowing()) {
+                                hud.dismiss();
+                            }
+                        }
                     }
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-
-            }
-        });
+                });
 
     }
 
     private void saveToDb(GatherPoint point) {
         App.getInstence().getDaoSession().update(point);
     }
+
     private void insertToDb(GatherPoint point) {
         long insert = App.getInstence().getDaoSession().insertOrReplace(point);
         LsLog.w(TAG, "insertid = " + insert);
@@ -423,7 +449,6 @@ public class CollectionListActivity extends BaseActivity {
         return null;
     }
 
-
     private void showData(boolean isLocalData) {
         if (adapter == null) return;
         if (isLocalData) {
@@ -439,5 +464,10 @@ public class CollectionListActivity extends BaseActivity {
         }
     }
 
-
+    @Override
+    protected void onDestroy() {
+        HttpRequest.cancleRequest(TAG);
+        HttpRequest.cancleRequest("upLoadImgs");
+        super.onDestroy();
+    }
 }
