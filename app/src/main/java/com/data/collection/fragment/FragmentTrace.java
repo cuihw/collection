@@ -141,7 +141,7 @@ public class FragmentTrace extends FragmentBase {
 
     private void showLocalTrace(long time ,List<TraceLocation> list) {
         if (list == null || list.size() == 0) {
-            UserTrace.getInstance().getDataFromServer(getContext(),time,new ITraceListener(){
+            UserTrace.getInstance().getDataFromServer(getContext(),time, new ITraceListener(){
                 @Override
                 public void onTraceList(List<TraceLocation> list) {
                     showTrace(list);
@@ -186,7 +186,7 @@ public class FragmentTrace extends FragmentBase {
         }
 
         OverlayOptions ooPolyline11 = new PolylineOptions()
-                .width(20)
+                .width(40)
                 .points(points)
                 .customTexture(mBlueTexture);
         mTexturePolyline = (Polyline) mBaiduMap.addOverlay(ooPolyline11);

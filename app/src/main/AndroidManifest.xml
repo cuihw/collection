@@ -98,6 +98,7 @@
 
         <activity
             android:name=".activity.AddCheckReportActivitiy"
+            android:windowSoftInputMode="stateHidden|adjustPan"
             android:screenOrientation="portrait"></activity>
 
         <activity
@@ -105,8 +106,8 @@
             android:screenOrientation="portrait"></activity>
 
         <service
-            android:name=".service.TraceService"
-            android:process=":remote"></service>
+            android:name=".service.TraceService" >
+        </service>
 
         <meta-data
             android:name="io.fabric.ApiKey"
@@ -121,8 +122,6 @@
             android:name="com.baidu.location.f"
             android:enabled="true"
             android:process=":remote"></service>
-
-
     </application>
 
 </manifest>

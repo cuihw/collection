@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -109,6 +110,13 @@ public class AddCollectionActivity extends BaseActivity {
     @BindView(R.id.comments_tv)
     TextView commentsTv;
 
+    @BindView(R.id.image_layout2)
+    RelativeLayout imageLayout2;
+
+    // 添加图片目前先用这种方式，后面使用GridView优化
+    @BindView(R.id.image_layout3)
+    RelativeLayout imageLayout3;
+
     public static void start(Context context, Bundle bundle){
         Intent intent = new Intent(context, AddCollectionActivity.class);
         if (bundle != null) {
@@ -146,9 +154,9 @@ public class AddCollectionActivity extends BaseActivity {
             ToastUtil.showTextToast(this, "Gps定位失败，请打开定位后再采集");
             return;
         }
-        longitudeTv.setText("经度: " + location.getLongitude());
-        laititudeTv.setText("纬度: " + location.getLatitude());
-        altitudeTv.setText("高度: " + location.getAltitude());
+        longitudeTv.setText("经度: \n" + location.getLongitude());
+        laititudeTv.setText("纬度: \n" + location.getLatitude());
+        altitudeTv.setText("高度: \n" + location.getAltitude());
 
         long time = System.currentTimeMillis();
         timeTv.setText("采集时间: " + DateUtils.formatTime(time, DateUtils.fmtYYYYMMDDhhmmss));
@@ -178,6 +186,7 @@ public class AddCollectionActivity extends BaseActivity {
     private void initListener() {
         titleView.getLefticon().setOnClickListener(v->finish());
         cameraLayout.setOnClickListener(v->initPermission(TAKE_PICTURE));//  动态请求权限);
+
         saveLayout.setOnClickListener(v->initPermission(SAVE_POINT));
         imageview1.setOnClickListener(v->{
             String tag = (String)imageview1.getTag();

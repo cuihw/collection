@@ -2,6 +2,7 @@ package com.data.collection;
 
 import android.app.Application;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.baidu.mapapi.CoordType;
 import com.baidu.mapapi.SDKInitializer;
@@ -48,12 +49,12 @@ public class App extends Application {
         // Fabric.with(this, new Crashlytics());
         instence = this;
 
+        initDaoSession();
         ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(this));
 
         initBaiduSdk();
         initLogin();
         getUserInfoCache();
-        initDaoSession();
     }
 
     private void initDaoSession() {
@@ -129,9 +130,24 @@ public class App extends Application {
             HttpRequest.postData(Constants.USER_INFO,null,  new HttpRequest.RespListener<UserInfoBean>() {
                 @Override
                 public void onResponse(int status, UserInfoBean bean) {
-                    saveUserInfo(bean);
-                    if (listenerUserInfo != null) {
-                        listenerUserInfo.onUserInfoChange(bean);
+                    if (status == 0) {
+                        if (bean.getCode().equals(Constants.SUCCEED)) {
+                            UserInfoBean userInfoBean = CacheData.getUserInfoBean();
+                            String local = userInfoBean.getData().getProject().getId();
+                            String id = bean.getData().getProject().getId();
+                            if (id.equals(local)) {
+                                // TODO： 删除数据库里面的项目数据。
+                                Log.w(TAG, "new project id ,delete old project data.");
+                                if (daoSession != null) {
+                                    daoSession.getGatherPointDao().deleteAll();
+                                    daoSession.getCheckPointDao().deleteAll();
+                                }
+                            }
+                            saveUserInfo(bean);
+                            if (listenerUserInfo != null) {
+                                listenerUserInfo.onUserInfoChange(bean);
+                            }
+                        }
                     }
                 }
             });

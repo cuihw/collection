@@ -164,6 +164,10 @@ public class Utils {
                 // put bitmap in the cache.
                 LsLog.w(TAG, " put bitmap in the cache. =" + url);
                 try {
+                    if (loadedImage == null) {
+                        LsLog.w(TAG, "bitmap loadedImage null");
+                        return;
+                    }
                     ImageLoader.getInstance().getDiskCache().save(url, loadedImage);
                 } catch (IOException e) {
                     e.printStackTrace();

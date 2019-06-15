@@ -90,6 +90,8 @@ public class FragmentHome extends FragmentBase {
     private float mCurrentAccracy;
     private boolean isFirstLoc = true;
 
+    private MyLocationData locData;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -184,15 +186,10 @@ public class FragmentHome extends FragmentBase {
         mLocClient.start();
     }
 
-
-    private MyLocationData locData;
-
-
     private BDLocationListener myListener  = new BDLocationListener(){
         @Override
         public void onReceiveLocation(BDLocation location) {
             // map view 销毁后不在处理新接收的位置
-
             if (location == null || isHidden()) {
                 return;
             }
@@ -236,10 +233,8 @@ public class FragmentHome extends FragmentBase {
         view.post(()->{
             mBaiduMap = mapFragment.getMapView().getMap();
             LsLog.i(TAG, "mBaiduMap = " + mBaiduMap);
-
             initMyLocation();
         });
-
     }
 
     @Override

@@ -32,10 +32,12 @@ public class CheckPoint {
 
     private boolean isUploaded;
 
-    @Generated(hash = 799186666)
+    private String projectId; // 检查项所属项目id
+
+    @Generated(hash = 2107125328)
     public CheckPoint(Long id, String OnlineId, @NotNull Long pointid,
             String collectOnlineId, String name, String time, String reporter,
-            String check, boolean isUploaded) {
+            String check, boolean isUploaded, String projectId) {
         this.id = id;
         this.OnlineId = OnlineId;
         this.pointid = pointid;
@@ -45,6 +47,7 @@ public class CheckPoint {
         this.reporter = reporter;
         this.check = check;
         this.isUploaded = isUploaded;
+        this.projectId = projectId;
     }
 
     @Generated(hash = 1441852858)
@@ -121,6 +124,14 @@ public class CheckPoint {
 
     public void setIsUploaded(boolean isUploaded) {
         this.isUploaded = isUploaded;
+    }
+
+    public String getProjectId() {
+        return this.projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
     }
 
 

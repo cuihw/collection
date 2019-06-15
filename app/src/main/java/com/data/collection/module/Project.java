@@ -24,7 +24,7 @@ public class Project {
     public void setTypes(List<CollectType> types){
         this.types = types;
     }
-    public List<CollectType> getTypes(){
+    public List<CollectType> getTypes() {
         return this.types;
     }
 }
