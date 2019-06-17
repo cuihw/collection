@@ -35,7 +35,7 @@ public class CacheData {
             UserData data = userInfoBean.getData();
             if (data != null) {
                 UserInfo user = data.getUser();
-                return user== null?null : user.getName();
+                return user== null ? null : user.getName();
             }
         }
         return null;

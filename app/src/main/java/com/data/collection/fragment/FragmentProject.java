@@ -137,18 +137,33 @@ public class FragmentProject extends FragmentBase {
             view = LayoutInflater.from(getContext()).inflate(R.layout.view_project_attris_option, null);
             TextView ckname = view.findViewById(R.id.ckey_name);
             ckname.setText(attr.getLabel());
-            TextView ckdefault = view.findViewById(R.id.ckey_default);
-            ckdefault.setText("选择属性，默认值：" + attr.getValue());
 
             TextView ckvalues = view.findViewById(R.id.ckey_values);
+
+
+            String defaultVaule = "";
             List<Options> options = attr.getOptions();
+
             StringBuffer sb = new StringBuffer();
+
+
             sb.append("【");
             for (Options opt : options) {
-                sb.append(opt.getLabel());
+                sb.append(opt.getLabel()).append(", ");
+                if (attr.getValue().equals(opt.getValue())) {
+                    defaultVaule = opt.getLabel();
+                }
             }
-            sb.append("】");
-            ckvalues.setText(sb.toString());
+
+            TextView ckdefault = view.findViewById(R.id.ckey_default);
+            ckdefault.setText(" 选择属性，默认值：" + defaultVaule);
+
+            String substring = sb.substring(0, sb.lastIndexOf(", "));
+
+            substring = substring + "】";
+
+            ckvalues.setText(substring);
+
         } else if (attr.getType().equals("1")) {
             view = LayoutInflater.from(getContext()).inflate(R.layout.view_project_attris_fill, null);
             TextView ckname = view.findViewById(R.id.ckey_name);

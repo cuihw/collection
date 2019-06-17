@@ -29,10 +29,10 @@
     <ListView
         android:id="@+id/listview"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:divider="@null"
         android:dividerHeight="@dimen/item_padding"
         android:paddingLeft="@dimen/item_padding"
-        android:paddingRight="@dimen/item_padding"
-        android:layout_height="wrap_content">
+        android:paddingRight="@dimen/item_padding">
     </ListView>
 </LinearLayout>

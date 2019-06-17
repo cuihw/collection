@@ -46,19 +46,8 @@
 
     <TextView
         android:layout_toRightOf="@+id/icon_type"
-        android:id="@+id/is_uploaded"
-        android:layout_below="@+id/name_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="已上传"
-        android:layout_marginLeft="@dimen/item_padding"
-        android:textSize="@dimen/font8"
-        android:textColor="@color/font0"
-        />
-    <TextView
-        android:layout_toRightOf="@+id/icon_type"
         android:id="@+id/location"
-        android:layout_below="@+id/is_uploaded"
+        android:layout_below="@+id/name_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="经度：114.45645123"
@@ -93,5 +82,17 @@
         android:padding="@dimen/item_padding"
         android:layout_centerVertical="true"
         android:gravity="center"
+        />
+
+    <TextView
+        android:id="@+id/is_uploaded"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="已上传"
+        android:textSize="@dimen/font8"
+        android:textColor="@color/font0"
+        android:layout_below="@+id/icon_type"
+        android:layout_marginTop="22dp"
+        android:layout_marginLeft="@dimen/item_padding"
         />
 </RelativeLayout>

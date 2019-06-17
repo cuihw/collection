@@ -133,9 +133,13 @@ public class App extends Application {
                     if (status == 0) {
                         if (bean.getCode().equals(Constants.SUCCEED)) {
                             UserInfoBean userInfoBean = CacheData.getUserInfoBean();
-                            String local = userInfoBean.getData().getProject().getId();
+                            String local = "";
+                            if (userInfoBean != null) {
+                                local = userInfoBean.getData().getProject().getId();
+                            }
+
                             String id = bean.getData().getProject().getId();
-                            if (id.equals(local)) {
+                            if (!id.equals(local)) {
                                 // TODO： 删除数据库里面的项目数据。
                                 Log.w(TAG, "new project id ,delete old project data.");
                                 if (daoSession != null) {

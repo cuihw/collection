@@ -22,6 +22,7 @@ import com.data.collection.data.CacheData;
 import com.data.collection.data.greendao.DaoSession;
 import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.data.greendao.GatherPointDao;
+import com.data.collection.module.BaseBean;
 import com.data.collection.module.ImageData;
 import com.data.collection.module.ImageUploadBean;
 import com.data.collection.module.PointData;
@@ -83,11 +84,13 @@ public class CollectionListActivity extends BaseActivity {
 
     List<GatherPoint> dataList;       // 同步网络数据
 
-    List<GatherPoint> dataLocalList;  // 我的数据
+    List<GatherPoint> myCollectDataList;  // 我的数据
 
     List<CollectType> collectTypes;
 
     int needUploadSize = 0;
+
+    boolean hasLocalData = false;
 
     public static void start(Context context) {
         Intent intent = new Intent(context, CollectionListActivity.class);
@@ -100,7 +103,7 @@ public class CollectionListActivity extends BaseActivity {
         setContentView(R.layout.activity_collection_list);
         initListener();
 
-        dataLocalList = getData(true); // local data
+        myCollectDataList = getData(true); // local data
         dataList = getData(false);
         initView();
 
@@ -119,7 +122,7 @@ public class CollectionListActivity extends BaseActivity {
         }
         collectTypes = userInfoBean.getData().getProject().getTypes();
 
-        adapter = new CommonAdapter<GatherPoint>(this, R.layout.item_gather_point, dataLocalList) {
+        adapter = new CommonAdapter<GatherPoint>(this, R.layout.item_gather_point, myCollectDataList) {
             @Override
             public void onUpdate(BaseAdapterHelper helper, GatherPoint item, int position) {
                 helper.setText(R.id.name, item.getName());
@@ -130,6 +133,16 @@ public class CollectionListActivity extends BaseActivity {
                         thisType = type;
                     }
                 }
+
+                int showValue = View.VISIBLE;
+                if (isShowLocalData) {
+                    showValue = View.VISIBLE;
+                } else {
+                    showValue =  View.GONE;
+                }
+
+                helper.setVisible(R.id.is_uploaded, showValue);
+
                 if (thisType != null) {
                     ImageView imageView = helper.getView(R.id.icon_type);
                     ImageLoader.getInstance().displayImage(thisType.getIcon(), imageView);
@@ -140,9 +153,12 @@ public class CollectionListActivity extends BaseActivity {
                 // upload_tv
                 TextView view = helper.getView(R.id.upload_tv);
                 if (item.getIsUploaded()) {
-                    view.setVisibility(View.GONE);
+                    view.setVisibility(View.INVISIBLE);
+                    helper.setText(R.id.is_uploaded, "已上传");
                 } else {
+                    hasLocalData = true; // 有本地数据；
                     view.setVisibility(View.VISIBLE);
+                    helper.setText(R.id.is_uploaded, "未上传");
                 }
 
                 helper.setOnClickListener(R.id.upload_tv, new View.OnClickListener() {
@@ -156,8 +172,7 @@ public class CollectionListActivity extends BaseActivity {
         };
         listView.setAdapter(adapter);
 
-
-        if (dataLocalList == null || dataLocalList.size() == 0) {
+        if (myCollectDataList == null || myCollectDataList.size() == 0) {
             noDataTv.setVisibility(View.VISIBLE);
         } else {
             noDataTv.setVisibility(View.INVISIBLE);
@@ -166,7 +181,6 @@ public class CollectionListActivity extends BaseActivity {
 
     private List<GatherPoint> getData(boolean isMyCollectionData) {
 
-
         DaoSession daoSession = App.getInstence().getDaoSession();
         QueryBuilder<GatherPoint> qb = daoSession.queryBuilder(GatherPoint.class)
                 .orderDesc(GatherPointDao.Properties.Collected_at)
@@ -174,6 +188,11 @@ public class CollectionListActivity extends BaseActivity {
 
         if (isMyCollectionData) { //
             String userName = CacheData.getUserName();
+            if (TextUtils.isEmpty(userName)) {
+                ToastUtil.showTextToast(this, "用户名不正确，请稍后再试");
+                finish();
+            }
+
             LsLog.w(TAG, "get my collection data, my name is : " + userName);
             qb.where(GatherPointDao.Properties.Report.eq(userName));
         } else {
@@ -190,14 +209,16 @@ public class CollectionListActivity extends BaseActivity {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 if (R.id.local_button == checkedId) {
+                    myCollectDataList = getData(true);
                     // show local data;
                     showData(true);
-                    if (dataLocalList == null || dataLocalList.size() == 0) {
+                    if (myCollectDataList == null || myCollectDataList.size() == 0) {
                         noDataTv.setVisibility(View.VISIBLE);
                     } else {
                         noDataTv.setVisibility(View.INVISIBLE);
                     }
                 } else {
+                    dataList = getData(false);
                     // show synced data;
                     showData(false);
                     if (dataList == null || dataList.size() == 0) {
@@ -224,6 +245,10 @@ public class CollectionListActivity extends BaseActivity {
     private void uploadAllLocalData() {
         String label = actionSyncAll.getText().toString().trim();
         if (label.equals("全部上传")) {
+            if (!hasLocalData) {
+                ToastUtil.showTextToast(this, "我采集的数据已全部上传");
+                return;
+            }
             if (!hud.isShowing()) {
                 hud.show();
                 new Handler().postDelayed(new Runnable() {
@@ -234,8 +259,8 @@ public class CollectionListActivity extends BaseActivity {
                 }, 1000 * 60);
             }
 
-            needUploadSize = dataLocalList.size();
-            for (GatherPoint point : dataLocalList) {
+            needUploadSize = myCollectDataList.size();
+            for (GatherPoint point : myCollectDataList) {
                 uploadLocalDataWithImage(point);
             }
         } else {
@@ -263,7 +288,6 @@ public class CollectionListActivity extends BaseActivity {
             param.put("page", page);
         }
 
-
         HttpRequest.postData(this, Constants.GET_COLLECTION_POINT, param, new HttpRequest.RespListener<PointListBean>() {
             @Override
             public void onResponse(int status, PointListBean bean) {
@@ -273,7 +297,6 @@ public class CollectionListActivity extends BaseActivity {
                 }
                 hideBusy();
             }
-
         });
     }
 
@@ -325,23 +348,22 @@ public class CollectionListActivity extends BaseActivity {
                     LsLog.w(TAG, "upload image result..");
 
                     if (status == 0) {
-
                         List<ImageData.FileMap> files1 = bean.getData().getFiles();
                         String sss = new Gson().toJson(files1);
                         LsLog.i(TAG, "image files = " + sss + "; result: " + bean.toJson());
                         point.setImgs(sss);
                         saveToDb(point);
-                        return;
                     }
                     if (status == HttpRequest.NET_ERROR) {
                         ToastUtil.showTextToast(CollectionListActivity.this, "网络错误, 无法上传");
                     }
                     if (bean == null) {
-                        LsLog.w(TAG, "save point result: null" + bean);
+                        LsLog.w(TAG, "upLoadImgs result: null" + bean);
                     } else {
-                        LsLog.w(TAG, "save point result: " + bean.toJson());
+                        LsLog.w(TAG, "upLoadImgs result: " + bean.toJson());
                     }
 
+                    // 有图片的情况下，要等图片上传返回结果后再上传采集点信息。
                     uploadLocalData(point);
                 }
             });
@@ -383,10 +405,12 @@ public class CollectionListActivity extends BaseActivity {
                     public void onResponse(int status, String bean) {
                         if (status == 0) {
                             try {
-                                LsLog.w(TAG, "save point result:" + bean.toString());
+                                BaseBean basebean = new Gson().fromJson(bean, BaseBean.class);
+                                LsLog.w(TAG, "save point result:" + basebean.toJson());
                                 JSONObject json = new JSONObject(bean);
                                 String code = json.getString("code");
                                 String msg = json.getString("msg");
+
                                 ToastUtil.showTextToast(CollectionListActivity.this, msg);
 
                                 if (code.equals("1")) {
@@ -396,15 +420,15 @@ public class CollectionListActivity extends BaseActivity {
                                     point.setIsUploaded(true);
                                     saveToDb(point); // 更新数据库
                                     // 更新本地列表
-                                    dataLocalList.remove(point);
+                                    // myCollectDataList.remove(point);
                                     dataList.add(point);
-                                    adapter.replaceAll(dataLocalList);
+                                    adapter.replaceAll(myCollectDataList);
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
                         }
-                        int size = dataLocalList.size();
+                        int size = myCollectDataList.size();
                         LsLog.w(TAG, "upload size: " + size);
                         needUploadSize--;
                         LsLog.w(TAG, "needUploadSize = " + needUploadSize);
@@ -424,8 +448,22 @@ public class CollectionListActivity extends BaseActivity {
     }
 
     private void insertToDb(GatherPoint point) {
-        long insert = App.getInstence().getDaoSession().insertOrReplace(point);
-        LsLog.w(TAG, "insertid = " + insert);
+        String id = point.getId();
+        DaoSession daoSession = App.getInstence().getDaoSession();
+        QueryBuilder<GatherPoint> qb = daoSession.queryBuilder(GatherPoint.class)
+                .where(GatherPointDao.Properties.Id.eq(id));
+
+        List<GatherPoint> list = qb.list(); // 查出当前对应的数据
+        long insert;
+        if (list != null  && list.size() > 0) {
+            GatherPoint point1 = list.get(0);
+            insert = point1.getOffline_id();
+            point.setOffline_id(insert);
+            App.getInstence().getDaoSession().update(point);
+        } else {
+            insert = App.getInstence().getDaoSession().insert(point);
+        }
+        LsLog.w(TAG, "insertToDb insertid = " + insert);
     }
 
 
@@ -457,11 +495,14 @@ public class CollectionListActivity extends BaseActivity {
         return null;
     }
 
+    boolean isShowLocalData = true;
+
     private void showData(boolean isLocalData) {
+        isShowLocalData = isLocalData;
         if (adapter == null) return;
         if (isLocalData) {
-            if (dataLocalList != null) {
-                adapter.replaceAll(dataLocalList);
+            if (myCollectDataList != null) {
+                adapter.replaceAll(myCollectDataList);
             }
             actionSyncAll.setText("全部上传");
         } else {
