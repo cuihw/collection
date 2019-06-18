@@ -119,7 +119,7 @@ public class FragmentProject extends FragmentBase {
                 for (Attrs attr : attrs) {
                     View infoView = getInfoView(attr);
                     if (infoView != null) {
-                        if (attr.getType().equals("2")) {
+                        if (attr.getType().equals(Attrs.TYPE_OPTION)) {
                             listView.add(0, infoView);
                         } else {
                             listView.add(infoView);
@@ -158,7 +158,7 @@ public class FragmentProject extends FragmentBase {
         //view = inflater.inflate(R.layout.fragment_settings_project, container, false);
         LsLog.w(TAG, "getInfoView attr= " + attr.toJson());
         View view = null;
-        if (attr.getType().equals("2")) {  // 选项框；
+        if (attr.getType().equals(Attrs.TYPE_OPTION)) {  // 选项框；
             view = LayoutInflater.from(getContext()).inflate(R.layout.view_project_attris_option, null);
             TextView ckname = view.findViewById(R.id.ckey_name);
             ckname.setText(attr.getLabel());
@@ -184,13 +184,13 @@ public class FragmentProject extends FragmentBase {
 
             ckvalues.setText(substring);
 
-        } else if (attr.getType().equals("1")) {
+        } else if (attr.getType().equals(Attrs.TYPE_TEXT)) {
             view = LayoutInflater.from(getContext()).inflate(R.layout.view_project_attris_fill, null);
             TextView ckname = view.findViewById(R.id.ckey_name);
             TextView ckvalues = view.findViewById(R.id.ckey_values);
             ckname.setText(attr.getLabel());
             ckvalues.setText("填写文本属性");
-        } else if (attr.getType().equals("3")) {
+        } else if (attr.getType().equals(Attrs.TYPE_NUMBERIC)) {
             view = LayoutInflater.from(getContext()).inflate(R.layout.view_project_attris_fill, null);
             TextView ckname = view.findViewById(R.id.ckey_name);
             TextView ckvalues = view.findViewById(R.id.ckey_values);

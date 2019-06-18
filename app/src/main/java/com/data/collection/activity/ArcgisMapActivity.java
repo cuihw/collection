@@ -61,7 +61,6 @@ public class ArcgisMapActivity extends BaseActivity {
     @BindView(R.id.show_map_arcgis)
     TextView showArcgisMap;
 
-
     private GraphicsOverlay mGraphicsOverlay;
 
     public static void start(Context context) {
@@ -76,7 +75,6 @@ public class ArcgisMapActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_arcgis_map);
-
 
         initView();
         initListener();

@@ -5,6 +5,9 @@ import com.google.gson.Gson;
 import java.util.List;
 
 public class Attrs {
+    public static final String TYPE_TEXT = "1";
+    public static final String TYPE_OPTION = "2";
+    public static final String TYPE_NUMBERIC = "3";
 
     private String id;
 
@@ -71,4 +74,6 @@ public class Attrs {
     public String toJson() {
         return new Gson().toJson(this);
     }
+
+
 }

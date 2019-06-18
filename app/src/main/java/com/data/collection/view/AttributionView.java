@@ -1,6 +1,7 @@
 package com.data.collection.view;
 
 import android.content.Context;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -72,11 +73,13 @@ public class AttributionView extends LinearLayout {
     public void setViewAttri(List<Attrs> attrs) {
         if (attrs != null && attrs.size() > 0){
             for (Attrs attr: attrs) {
-                if (attr.getType().equals("2")) {
+                if (attr.getType().equals(Attrs.TYPE_OPTION)) {
                     List<String> options = attr.getOptions();
                     createOptionAttr(attr.getLabel(), options);
-                } else {
-                    createFillAttr(attr.getLabel());
+                } else if (attr.getType().equals(Attrs.TYPE_TEXT)){
+                    createFillAttr(attr.getLabel(), false);
+                } else if (attr.getType().equals(Attrs.TYPE_NUMBERIC)){
+                    createFillAttr(attr.getLabel(), true);
                 }
             }
         }
@@ -89,7 +92,7 @@ public class AttributionView extends LinearLayout {
         }
     }
 
-    private synchronized void createFillAttr(String name){ // 填写
+    private synchronized void createFillAttr(String name, boolean isNumber){ // 填写
 
         View view = inflater.inflate(R.layout.view_attribution_fill, this, false);
         view.setTag("fill_attr");
@@ -102,6 +105,11 @@ public class AttributionView extends LinearLayout {
         }
         TextView ckeyview = view.findViewById(R.id.ckey);
         ckeyview.setText(name);
+
+        EditText et = view.findViewById(R.id.value);
+        if (isNumber) {
+            et.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        }
         addChildView(view);
     }
 
@@ -195,20 +203,19 @@ public class AttributionView extends LinearLayout {
             String type1 = attr.getType();  // type == 1 填空
             List<String> options = attr.getOptions();
 
-            for (View view:attrViewList) {
+            for (View view: attrViewList) {
                 String tag = (String)view.getTag();
                 TextView ckeyview = view.findViewById(R.id.ckey);
                 String labelValue = ckeyview.getText().toString().trim();
-                if (type1.equals("1")) {
+                if (Attrs.TYPE_TEXT.equals(type1) || Attrs.TYPE_NUMBERIC.equals(type1)) {
                     if (tag.equals("fill_attr") && labelValue.equals(label)) {
-
                         EditText valueView = view.findViewById(R.id.value);
                         valueView.setText(value);
                         if (isUploaded) {
                             valueView.setEnabled(false);
                         }
                     }
-                } else if (tag.equals("option_attr") && labelValue.equals(label)){
+                } else if (Attrs.TYPE_OPTION.equals(type1) && tag.equals("option_attr") && labelValue.equals(label)){
                     Spinner spinner = view.findViewById(R.id.spinner);
                     int spinnerIndex = 0;
                     for (int i = 0; i < options.size(); i++) {

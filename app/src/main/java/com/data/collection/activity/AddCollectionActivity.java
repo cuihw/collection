@@ -35,9 +35,6 @@ import com.data.collection.dialog.ButtomDialogView;
 import com.data.collection.module.Attrs;
 import com.data.collection.module.CollectType;
 import com.data.collection.module.CollectionImage;
-import com.data.collection.module.ImageData;
-import com.data.collection.module.Project;
-import com.data.collection.module.UserData;
 import com.data.collection.module.UserInfoBean;
 import com.data.collection.util.DateUtils;
 import com.data.collection.util.FileUtils;
@@ -142,9 +139,13 @@ public class AddCollectionActivity extends BaseActivity {
             // 隐藏下面的功能按钮
             bottomLayout.setVisibility(View.GONE);
         }
-        String id = gatherPoint.getId();
-        CollectType collectType = CacheData.getTypeMaps().get(id);
-        if (collectType != null) typeSpinner.setSelection(collectType.getIndex());
+        String type_id = gatherPoint.getType_id();
+        CollectType collectType = CacheData.getTypeMaps().get(type_id);
+        if (collectType != null) {
+            typeSpinner.setSelection(collectType.getIndex());
+        } else {
+            LsLog.w(TAG, "collectType == null");
+        }
         nameTv.setText(gatherPoint.getName());
         nameTv.setEnabled(false);
         longitudeTv.setText("经度: \n" + gatherPoint.getLongitude());
@@ -153,34 +154,37 @@ public class AddCollectionActivity extends BaseActivity {
         timeTv.setText(gatherPoint.getCollected_at());
         commentsTv.setText(gatherPoint.getDesc());
 
-        attrsView.setGatherPoint(gatherPoint);
+        createAttrsView(collectType.getIndex());
+
+        // attrsView.setGatherPoint(gatherPoint);
 
         if (gatherPoint.getIsUploaded()) { // 加载网络图片
             String imgs = gatherPoint.getImgs();
             if (!TextUtils.isEmpty(imgs)) {
                 Type type =new TypeToken<List<CollectionImage>>(){}.getType();
                 List<CollectionImage> list = new Gson().fromJson(imgs, type);
+                for (CollectionImage image:list) {
+                    image.isUrlImage = true;
+                }
                 imageList.clear();
                 imageList.addAll(list);
             }
-
         } else { // 本地图片
             // gatherPoint
             String picPath1 = gatherPoint.getPicPath1();
             if (!TextUtils.isEmpty(picPath1)) {
                 Type type =new TypeToken<List<CollectionImage>>(){}.getType();
                 List<CollectionImage> list = new Gson().fromJson(picPath1, type);
-                for (CollectionImage image: list) {
-                    image.isUrlImage = true;
-                }
                 imageList.clear();
                 imageList.addAll(list);
             }
-            if  (imageList.size() < 3) {
-                imageList.add(new CollectionImage());
-            }
+
         }
         adapter.replaceAll(imageList);
+
+        if (imageList.size() == 0) {
+            gridView.setVisibility(View.GONE);
+        }
 
     }
 
@@ -201,10 +205,10 @@ public class AddCollectionActivity extends BaseActivity {
                 ImageView delete = helper.getView(R.id.delete_image);
 
                 if (item.isUrlImage) {
-                    Bitmap bitmap = ImageLoader.getInstance().loadImageSync(item.url);
+                    ImageLoader.getInstance().displayImage(item.url, imageview);
                     delete.setVisibility(View.GONE);
-                    imageview.setImageBitmap(bitmap);
-
+//                    Bitmap bitmap = ImageLoader.getInstance().loadImageSync(item.url);
+//                    imageview.setImageBitmap(bitmap);
                 } else if (TextUtils.isEmpty(item.filename)) {
                     imageview.setImageBitmap(null);
                     delete.setVisibility(View.GONE);
@@ -278,6 +282,11 @@ public class AddCollectionActivity extends BaseActivity {
             // 显示
             attributionLayout1.setVisibility(View.VISIBLE);
         }
+
+        if (gatherPoint != null) {
+            attrsView.setGatherPoint(gatherPoint);
+        }
+
     }
     private void initSpinner() {
         try {

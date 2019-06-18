@@ -135,7 +135,7 @@ public class FragmentMessage extends FragmentBase {
         adapter = new CommonAdapter<MessageData>(getContext(),R.layout.item_message, list) {
             @Override
             public void onUpdate(BaseAdapterHelper helper, MessageData item, int position) {
-                int icon = item.getType().equals("0") ? R.mipmap.icon_msg_unread: R.mipmap.icon_msg_read;
+                int icon = item.getType().equals(MessageData.UNREAD) ? R.mipmap.icon_msg_unread: R.mipmap.icon_msg_read;
                 helper.setImageResource(R.id.message_read, icon);
                 helper.setText(R.id.title_message, item.getTitle());
                 helper.setText(R.id.messgage_body, item.getContent());
@@ -170,8 +170,8 @@ public class FragmentMessage extends FragmentBase {
     }
 
     private void setMessageRead(MessageData messageData) {
-        if (messageData.getType().equals("0")) { // 原来是未读的，现在设置成已读的
-            messageData.setType("1");
+        if (messageData.getType().equals(MessageData.UNREAD)) { // 原来是未读的，现在设置成已读的
+            messageData.setType(MessageData.READ);
             messageData.setRead_at(DateUtils.getNow(DateUtils.fmtYYYYMMDDhhmmss));
             DaoSession daoSession =  App.getInstence().getDaoSession();
             daoSession.insertOrReplace(messageData);

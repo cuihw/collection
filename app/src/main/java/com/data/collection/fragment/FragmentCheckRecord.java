@@ -164,7 +164,7 @@ public class FragmentCheckRecord extends FragmentBase {
         initMyLocation();
         initSensor();
 
-        initCheckPoint();
+//        initCheckPoint();
         initListener();
         infoView = creatInfoView();
         return view;
@@ -268,16 +268,21 @@ public class FragmentCheckRecord extends FragmentBase {
 
     }
 
-    private void initCheckPoint() {
-        //构建Marker图标
-        mMarkerBitmap = BitmapDescriptorFactory
-                .fromResource(R.drawable.icon_gcoding);
+//    private void initCheckPoint() {
+//        //构建Marker图标
+//        mMarkerBitmap = BitmapDescriptorFactory
+//                .fromResource(R.drawable.icon_gcoding);
+//
+//    }
 
-    }
+
 
     private void addMarker(LatLng point, GatherPoint gatherPoint) {
         Bundle bundle = new Bundle();
         bundle.putSerializable("GatherPoint", gatherPoint);
+
+
+        mMarkerBitmap = getMarkerBitmap(gatherPoint);
 
         OverlayOptions option = new MarkerOptions()
                 .position(point) //必传参数
@@ -290,6 +295,22 @@ public class FragmentCheckRecord extends FragmentBase {
         //在地图上添加Marker，并显示
         mBaiduMap.addOverlay(option);
         LsLog.w(TAG, "marker title = " + gatherPoint.getName());
+    }
+
+    private BitmapDescriptor getMarkerBitmap(GatherPoint gatherPoint) {
+        String type_id = gatherPoint.getType_id();
+        CollectType collectType = CacheData.getTypeMaps().get(type_id);
+        if (collectType != null) {
+            View view = LayoutInflater.from(getActivity()).inflate(R.layout.view_point_marker, null);
+            TextView name = view.findViewById(R.id.name_tv);
+            name.setText(gatherPoint.getName());
+            ImageView icon = view.findViewById(R.id.icon_iv);
+            Bitmap bitmap = ImageLoader.getInstance().loadImageSync(collectType.getIcon());
+            icon.setImageBitmap(bitmap);
+            return BitmapDescriptorFactory.fromView(view);
+        }
+
+        return BitmapDescriptorFactory.fromResource(R.drawable.icon_gcoding);
     }
 
     private void initSensor() {
@@ -444,7 +465,6 @@ public class FragmentCheckRecord extends FragmentBase {
         public TextView point_tv;
         public Button check_btn;
         public ImageView type_icon;
-
     }
 
 

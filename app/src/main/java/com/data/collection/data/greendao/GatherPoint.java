@@ -1,5 +1,8 @@
 package com.data.collection.data.greendao;
 
+import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
+
 import com.baidu.mapapi.model.LatLng;
 
 import org.greenrobot.greendao.annotation.Entity;
@@ -63,6 +66,15 @@ public class GatherPoint implements Serializable, Comparable<GatherPoint> {
     @Override
     public int compareTo(GatherPoint o) { //
         return this.updated_at.compareTo(o.updated_at);
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (obj instanceof GatherPoint) {
+            GatherPoint gp = (GatherPoint)obj;
+            return gp.report.equals(this.report) && gp.updated_at.equals(this.updated_at);
+        }
+        return false;
     }
 
     @Generated(hash = 858181134)

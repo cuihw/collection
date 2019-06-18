@@ -6,6 +6,8 @@ import org.greenrobot.greendao.annotation.Generated;
 
 @Entity
 public class MessageData {
+    public static final String UNREAD = "0";
+    public static final String READ = "1";
     @Id
     private String id;
 
@@ -13,7 +15,7 @@ public class MessageData {
 
     private String content;
 
-    private String type;
+    private String type;  //
 
     private String read_at;
 

@@ -86,7 +86,6 @@ public class AddCheckReportActivitiy extends BaseActivity {
         } else {
             no_data_tv.setVisibility(View.GONE);
         }
-
         adapter.replaceAll(checkPointList);
     }
 

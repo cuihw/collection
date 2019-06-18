@@ -343,7 +343,9 @@ public class CollectionListActivity extends BaseActivity {
         for (PointData pd : data1) {
             GatherPoint gatherPoint = pd.getGatherPoint();
             insertToDb(gatherPoint);
-            dataList.add(0, gatherPoint);
+            if (!dataList.contains(gatherPoint)) {
+                dataList.add(0, gatherPoint);
+            }
         }
 
         Collections.sort(dataList); //
@@ -503,6 +505,7 @@ public class CollectionListActivity extends BaseActivity {
             insert = point1.getOffline_id();
             point.setOffline_id(insert);
             App.getInstence().getDaoSession().update(point);
+            LsLog.w(TAG, "update data id = " + insert);
         } else {
             insert = App.getInstence().getDaoSession().insert(point);
         }
