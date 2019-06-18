@@ -144,15 +144,19 @@ public class CollectionListActivity extends BaseActivity {
                 if (isShowLocalData) {
                     showValue = View.VISIBLE;
                 } else {
-                    showValue =  View.GONE;
+                    showValue = View.GONE;
                 }
 
                 helper.setVisible(R.id.is_uploaded, showValue);
 
+                ImageView imageView = helper.getView(R.id.icon_type);
+
                 if (thisType != null) {
-                    ImageView imageView = helper.getView(R.id.icon_type);
                     ImageLoader.getInstance().displayImage(thisType.getIcon(), imageView);
                     helper.setText(R.id.type_name, thisType.getName());
+                } else {
+                    imageView.setImageResource(R.mipmap.ic_popup_dialog_close);
+                    helper.setText(R.id.type_name, "没有类型");
                 }
                 helper.setText(R.id.location, "经度：" + item.getLongitude() + "， 维度：" + item.getLatitude());
                 helper.setText(R.id.time, "更新时间: " + item.getUpdated_at());
@@ -241,7 +245,7 @@ public class CollectionListActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 GatherPoint item = adapter.getItem(position);
-                AddCollectionActivity.start(CollectionListActivity.this,item);
+                AddCollectionActivity.start(CollectionListActivity.this, item);
 //                Bundle bundle = new Bundle();
 //                bundle.putString("GatherPoint", new Gson().toJson(item));
 //                ShowPointActivity.start(CollectionListActivity.this, bundle);
@@ -302,7 +306,9 @@ public class CollectionListActivity extends BaseActivity {
                     LsLog.w(TAG, "get collection response: " + bean.toJson());
                     handlerSyncBean(bean);
                 }
-                hideBusy();
+                if (status != 0) {
+                    hideBusy();
+                }
             }
         });
     }
@@ -310,8 +316,26 @@ public class CollectionListActivity extends BaseActivity {
 
     private void handlerSyncBean(PointListBean bean) {
         // 1. 存储到本地数据库； 2. 继续下载更新更多数据。
+        if (bean == null) {
+            ToastUtil.showTextToast(this, "同步完成");
+            hideBusy();
+            return;
+        }
+
+
         PointListData data = bean.getData();
+        if (data == null) {
+            ToastUtil.showTextToast(this, "同步完成");
+            hideBusy();
+            return;
+        }
+
         List<PointData> data1 = data.getData();
+        if (data1 == null) {
+            ToastUtil.showTextToast(this, "同步完成");
+            hideBusy();
+            return;
+        }
 
         for (PointData pd : data1) {
             GatherPoint gatherPoint = pd.getGatherPoint();
@@ -320,10 +344,21 @@ public class CollectionListActivity extends BaseActivity {
         }
 
         Collections.sort(dataList); //
-
-        hideBusy();
         // TODO:下载结束  隐藏忙图标 刷新显示数据。
         delayShowData(2000);
+
+        int total = Integer.parseInt(data.getTotal());
+        int size = data1.size();
+        int per_page = Integer.parseInt(data.getPer_page());
+
+        if (total < per_page || size < per_page) {
+            // 下载完毕
+            ToastUtil.showTextToast(this, "同步完成");
+            hideBusy();
+        } else {
+            requestSyncData(1);
+        }
+
     }
 
     private void delayShowData(int mills) {
@@ -343,6 +378,7 @@ public class CollectionListActivity extends BaseActivity {
     }
 
     private void uploadLocalDataWithImage(GatherPoint point) {
+        if (point == null) return;
 
         List<File> files = getFiles(point);
 
@@ -375,6 +411,10 @@ public class CollectionListActivity extends BaseActivity {
 
 
     private void uploadLocalData(GatherPoint point) {
+
+        if (point == null) return;
+        LsLog.w(TAG, "uploadLocalData : " + point.getName());
+
         Map<String, Object> param = new HashMap<>();
         param.put("type_id", point.getType_id());
         param.put("name", point.getName());
@@ -455,7 +495,7 @@ public class CollectionListActivity extends BaseActivity {
 
         List<GatherPoint> list = qb.list(); // 查出当前对应的数据
         long insert;
-        if (list != null  && list.size() > 0) {
+        if (list != null && list.size() > 0) {
             GatherPoint point1 = list.get(0);
             insert = point1.getOffline_id();
             point.setOffline_id(insert);
@@ -470,13 +510,14 @@ public class CollectionListActivity extends BaseActivity {
         List<File> files = new ArrayList<>();
         String imagesdata = point.getPicPath1();
         if (!TextUtils.isEmpty(imagesdata)) {
-            Type type =new TypeToken<List<CollectionImage>>(){}.getType();
+            Type type = new TypeToken<List<CollectionImage>>() {
+            }.getType();
             List<CollectionImage> imagelists = new Gson().fromJson(imagesdata, type);
 
-            for (CollectionImage image: imagelists) {
+            for (CollectionImage image : imagelists) {
                 File fileByName = getFileByName(image.filename);
                 if (fileByName != null) {
-                    files.add( fileByName);
+                    files.add(fileByName);
                 }
             }
         }

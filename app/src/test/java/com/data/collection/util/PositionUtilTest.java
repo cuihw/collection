@@ -36,4 +36,11 @@ public class PositionUtilTest {
     @Test
     public void gpsToBaiduLatLng() {
     }
+
+    @Test
+    public void stringCompare(){
+        int i1 = "2".compareTo("15");
+        int i2 = "2".compareTo("5");
+        System.out.println("i1 = " + i1 + ", i2 = " + i2);
+    }
 }

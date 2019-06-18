@@ -11,7 +11,7 @@ public class PointListData {
 
     private String current_page;
 
-    private List<PointData> data ;
+    private List<PointData> data;
 
     public String getTotal() {
         return total;
