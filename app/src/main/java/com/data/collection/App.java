@@ -160,6 +160,7 @@ public class App extends Application {
 
     private void saveUserInfo(UserInfoBean bean) {
         if (bean == null) return;
+        Log.w(TAG, "saveUserInfo = " + bean.toJson());
         PreferencesUtils.putString(this, Constants.USER_INFO, bean.toJson());
         CacheData.setUserInfoBean(bean);
     }

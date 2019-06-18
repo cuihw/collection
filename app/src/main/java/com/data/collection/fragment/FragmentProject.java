@@ -20,7 +20,6 @@ import com.data.collection.activity.CommonActivity;
 import com.data.collection.data.CacheData;
 import com.data.collection.module.Attrs;
 import com.data.collection.module.CollectType;
-import com.data.collection.module.Options;
 import com.data.collection.module.Project;
 import com.data.collection.module.UserData;
 import com.data.collection.module.UserInfoBean;
@@ -116,29 +115,35 @@ public class FragmentProject extends FragmentBase {
                 ImageLoader.getInstance().displayImage(item.getIcon(), iconview);
                 List<Attrs> attrs = item.getAttrs();
 
-                List<View> listView = new ArrayList<>();
+                final List<View> listView = new ArrayList<>();
                 for (Attrs attr : attrs) {
                     View infoView = getInfoView(attr);
-                    if (attr.getType().equals("2")) {
-                        listView.add(0, infoView);
-                    } else {
-                        listView.add(infoView);
+                    if (infoView != null) {
+                        if (attr.getType().equals("2")) {
+                            listView.add(0, infoView);
+                        } else {
+                            listView.add(infoView);
+                        }
                     }
                 }
+                LinearLayout rootview = helper.getView(R.id.rootview);
+                rootview.removeAllViews();
 
                 if (listView.size() > 0) {
+                    LsLog.w(TAG, "listView.size() = " + listView.size());
                     View view = listView.get(0);
                     View top = view.findViewById(R.id.divider_top);
                     top.setVisibility(View.GONE);
-
                     view = listView.get(listView.size() - 1);
+
                     View bottom = view.findViewById(R.id.divider_bottom);
                     bottom.setVisibility(View.GONE);
-                    LinearLayout rootview = helper.getView(R.id.rootview);
-                    rootview.removeAllViews();
                     for (View viewc : listView) {
                         rootview.addView(viewc);
                     }
+                } else {
+                    View viewChild = LayoutInflater.from(getContext()).inflate(R.layout.view_project_attris_empty, null);
+                    rootview.addView(viewChild);
                 }
             }
         };
@@ -157,21 +162,16 @@ public class FragmentProject extends FragmentBase {
             view = LayoutInflater.from(getContext()).inflate(R.layout.view_project_attris_option, null);
             TextView ckname = view.findViewById(R.id.ckey_name);
             ckname.setText(attr.getLabel());
-
             TextView ckvalues = view.findViewById(R.id.ckey_values);
-
-
             String defaultVaule = "";
-            List<Options> options = attr.getOptions();
+            List<String> options = attr.getOptions();
 
             StringBuffer sb = new StringBuffer();
-
-
             sb.append("【");
-            for (Options opt : options) {
-                sb.append(opt.getLabel()).append(", ");
-                if (attr.getValue().equals(opt.getValue())) {
-                    defaultVaule = opt.getLabel();
+            for (String opt : options) {
+                sb.append(opt).append(", ");
+                if (attr.getValue().equals(opt)) {
+                    defaultVaule = opt;
                 }
             }
 
@@ -187,7 +187,15 @@ public class FragmentProject extends FragmentBase {
         } else if (attr.getType().equals("1")) {
             view = LayoutInflater.from(getContext()).inflate(R.layout.view_project_attris_fill, null);
             TextView ckname = view.findViewById(R.id.ckey_name);
+            TextView ckvalues = view.findViewById(R.id.ckey_values);
             ckname.setText(attr.getLabel());
+            ckvalues.setText("填写文本属性");
+        } else if (attr.getType().equals("3")) {
+            view = LayoutInflater.from(getContext()).inflate(R.layout.view_project_attris_fill, null);
+            TextView ckname = view.findViewById(R.id.ckey_name);
+            TextView ckvalues = view.findViewById(R.id.ckey_values);
+            ckname.setText(attr.getLabel());
+            ckvalues.setText("填写数字属性");
         }
         return view;
     }

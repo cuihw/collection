@@ -30,6 +30,8 @@ import com.data.collection.module.PointData;
 import com.data.collection.module.PointListBean;
 import com.data.collection.module.CollectType;
 import com.data.collection.module.PointListData;
+import com.data.collection.module.Project;
+import com.data.collection.module.UserData;
 import com.data.collection.module.UserInfoBean;
 import com.data.collection.network.HttpRequest;
 import com.data.collection.util.LsLog;
@@ -121,11 +123,13 @@ public class CollectionListActivity extends BaseActivity {
     private void initView() {
         localButton.setChecked(true);
 
-        UserInfoBean userInfoBean = CacheData.getUserInfoBean();
-        if (userInfoBean == null) {
+        if (!CacheData.isValidProject()) {
             ToastUtil.showTextToast(this, Constants.NO_PROJECT_INFO);
             return;
         }
+
+        UserInfoBean userInfoBean = CacheData.getUserInfoBean();
+
         collectTypes = userInfoBean.getData().getProject().getTypes();
 
         adapter = new CommonAdapter<GatherPoint>(this, R.layout.item_gather_point, myCollectDataList) {
@@ -200,9 +204,8 @@ public class CollectionListActivity extends BaseActivity {
             String userName = CacheData.getUserName();
             if (TextUtils.isEmpty(userName)) {
                 ToastUtil.showTextToast(this, "用户名不正确，请稍后再试");
-                finish();
+                return null;
             }
-
             LsLog.w(TAG, "get my collection data, my name is : " + userName);
             qb.where(GatherPointDao.Properties.Report.eq(userName));
         } else {

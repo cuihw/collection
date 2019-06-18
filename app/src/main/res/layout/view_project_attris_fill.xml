@@ -21,7 +21,6 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="@dimen/item_padding"
             android:gravity="right"
-            android:padding="@dimen/item_padding"
             android:text="编号"
             android:textColor="@color/font1"
             android:textSize="@dimen/font2" />

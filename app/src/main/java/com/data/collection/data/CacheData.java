@@ -1,12 +1,14 @@
 package com.data.collection.data;
 
 import com.data.collection.App;
+import com.data.collection.Constants;
 import com.data.collection.module.LoginData;
 import com.data.collection.module.Project;
 import com.data.collection.module.CollectType;
 import com.data.collection.module.UserData;
 import com.data.collection.module.UserInfo;
 import com.data.collection.module.UserInfoBean;
+import com.data.collection.util.ToastUtil;
 import com.data.collection.util.Utils;
 
 import java.util.HashMap;
@@ -66,6 +68,35 @@ public class CacheData {
                 }
             }
         }
+    }
+
+    public static boolean isValidProject(){
+        if (userInfoBean == null) {
+            return false;
+        }
+
+        UserData data = userInfoBean.getData();
+        if (data == null) {
+            return false;
+        }
+        UserInfo user = data.getUser();
+        if (user == null) {
+            return false;
+        }
+        String name = user.getName();
+        if (name == null) {
+            return false;
+        }
+
+        Project project = data.getProject();
+        if (project == null) {
+            return false;
+        }
+        List<CollectType> types = project.getTypes();
+        if (types == null || types.size() == 0) {
+            return false;
+        }
+        return true;
     }
 
 

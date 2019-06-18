@@ -10,14 +10,14 @@ public class Attrs {
 
     private String label;
 
-    private List<Options> options ;
+    private List<String> options ;
     // 属性默认值
     private String value;
 
     // types[].attrs[].required 	string 	是否为必填项
     private String required;
 
-    // types[].attrs[].type 	string 	属性类型 1-输入框；2-下拉框
+    // types[].attrs[].type 	string 	属性类型 1-输入框 文本；2-下拉框 ；3- 输入框 数字
     private String type;
 
     public String getId() {
@@ -36,11 +36,11 @@ public class Attrs {
         this.label = label;
     }
 
-    public List<Options> getOptions() {
+    public List<String> getOptions() {
         return options;
     }
 
-    public void setOptions(List<Options> options) {
+    public void setOptions(List<String> options) {
         this.options = options;
     }
 

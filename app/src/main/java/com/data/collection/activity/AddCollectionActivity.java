@@ -184,11 +184,6 @@ public class AddCollectionActivity extends BaseActivity {
 
     }
 
-    public void addUrlImageFile(String url) {
-
-    }
-
-
     private void initView() {
         initSpinner();
 
@@ -286,19 +281,14 @@ public class AddCollectionActivity extends BaseActivity {
     }
     private void initSpinner() {
         try {
-            UserInfoBean userInfoBean = CacheData.getUserInfoBean();
-            UserData data = userInfoBean.getData();
-            if (data == null) {
-                ToastUtil.showTextToast(this, getString(R.string.no_project_data));
-                return;
-            }
-            Project project = data.getProject();
-            if (project == null) {
-                ToastUtil.showTextToast(this, getString(R.string.no_project_data));
-                return;
-            }
 
-            projectTypes = project.getTypes();
+            if (!CacheData.isValidProject()) {
+                ToastUtil.showTextToast(this, getString(R.string.no_project_data));
+                return;
+            }
+            UserInfoBean userInfoBean = CacheData.getUserInfoBean();
+            projectTypes = userInfoBean.getData().getProject().getTypes();
+
             if (projectTypes == null || projectTypes.size() == 0) {
                 ToastUtil.showTextToast(this, getString(R.string.no_project_data));
                 return;

@@ -14,15 +14,11 @@ import android.widget.TextView;
 import com.data.collection.R;
 import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.module.Attrs;
-import com.data.collection.module.ImageData;
-import com.data.collection.module.Options;
 import com.data.collection.module.CollectType;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.ToastUtil;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
-import org.w3c.dom.Attr;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -77,7 +73,7 @@ public class AttributionView extends LinearLayout {
         if (attrs != null && attrs.size() > 0){
             for (Attrs attr: attrs) {
                 if (attr.getType().equals("2")) {
-                    List<Options> options = attr.getOptions();
+                    List<String> options = attr.getOptions();
                     createOptionAttr(attr.getLabel(), options);
                 } else {
                     createFillAttr(attr.getLabel());
@@ -119,7 +115,7 @@ public class AttributionView extends LinearLayout {
         container.addView(view, index);
     }
 
-    private synchronized void createOptionAttr(String name, List<Options> option){
+    private synchronized void createOptionAttr(String name, List<String> option){
 
         View view = inflater.inflate(R.layout.view_attribution_option, this, false);
         view.setTag("option_attr");
@@ -128,8 +124,8 @@ public class AttributionView extends LinearLayout {
 
         Spinner spinner = view.findViewById(R.id.spinner);
         List<String> labels = new ArrayList<>();
-        for (Options opt: option) {
-            labels.add(opt.getLabel());
+        for (String opt: option) {
+            labels.add(opt);
         }
 
         ArrayAdapter<String>  adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, labels);
@@ -197,7 +193,7 @@ public class AttributionView extends LinearLayout {
             String value = attr.getValue();
             String label = attr.getLabel();
             String type1 = attr.getType();  // type == 1 填空
-            List<Options> options = attr.getOptions();
+            List<String> options = attr.getOptions();
 
             for (View view:attrViewList) {
                 String tag = (String)view.getTag();
@@ -216,7 +212,7 @@ public class AttributionView extends LinearLayout {
                     Spinner spinner = view.findViewById(R.id.spinner);
                     int spinnerIndex = 0;
                     for (int i = 0; i < options.size(); i++) {
-                        if (options.get(i).getValue().equals(value)) {
+                        if (options.get(i).equals(value)) {
                             spinnerIndex = i;
                             break;
                         }

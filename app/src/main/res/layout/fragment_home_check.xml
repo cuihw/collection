@@ -29,7 +29,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:text="我的\n位置"
-        android:textSize="@dimen/font6"
+        android:textSize="@dimen/font3"
         android:textColor="@color/font6"
         android:gravity="center"
         android:clickable="true"
