@@ -37,6 +37,7 @@
                 android:background="@drawable/checkbox_selector"
                 android:button="@null"
                 android:gravity="center"
+                android:textSize="@dimen/font3"
                 android:text="我的数据"
                 android:textColor="@drawable/button1_text_selector" />
             <RadioButton
@@ -47,6 +48,7 @@
                 android:layout_weight="1"
                 android:background="@drawable/checkbox_selector"
                 android:button="@null"
+                android:textSize="@dimen/font3"
                 android:gravity="center"
                 android:text="同步数据"
                 android:textColor="@drawable/button1_text_selector" />

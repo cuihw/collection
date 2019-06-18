@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.baidu.navisdk.adapter.BNRoutePlanNode;
@@ -42,10 +43,14 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.ACCESS_FINE_LOCATION          // 精准定位
     };
 
+    TextView messageTv;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
         hud = KProgressHUD.create(this)
                 .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
                 .setCancellable(false);
@@ -69,6 +74,8 @@ public class MainActivity extends AppCompatActivity {
         if (hasInitSuccess) {
             beginNavi();
         }
+
+        messageTv = findViewById(R.id.message_tv);
     }
 
     @Override
@@ -177,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
         }
-        // libapp_BaiduMapApplib.so
+        //  6.0 libapp_BaiduMapApplib.so
         if (BaiduNaviManagerFactory.getBaiduNaviManager().isInited()) {
             hasInitSuccess = true;
             return;
@@ -259,6 +266,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         hud.show();
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (hud.isShowing()) hud.dismiss();
+                ToastUtil.showTextToast(MainActivity.this, "路径计算错误，请检查网络和GPS是否正常");
+                messageTv.setText("路径计算错误，请检查网络和GPS是否正常");
+                // 调用百度导航（网页）
+
+            }
+        }, 1000*5);
     }
 
     @Override

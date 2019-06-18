@@ -49,6 +49,8 @@ import org.w3c.dom.Text;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -153,7 +155,7 @@ public class CollectionListActivity extends BaseActivity {
                     helper.setText(R.id.type_name, thisType.getName());
                 }
                 helper.setText(R.id.location, "经度：" + item.getLongitude() + "， 维度：" + item.getLatitude());
-                helper.setText(R.id.time, "采集时间:" + item.getCollected_at());
+                helper.setText(R.id.time, "更新时间: " + item.getUpdated_at());
                 // upload_tv
                 TextView view = helper.getView(R.id.upload_tv);
                 if (item.getIsUploaded()) {
@@ -311,13 +313,14 @@ public class CollectionListActivity extends BaseActivity {
         PointListData data = bean.getData();
         List<PointData> data1 = data.getData();
 
-        dataList.clear();
-
         for (PointData pd : data1) {
             GatherPoint gatherPoint = pd.getGatherPoint();
             insertToDb(gatherPoint);
             dataList.add(0, gatherPoint);
         }
+
+        Collections.sort(dataList); //
+
         hideBusy();
         // TODO:下载结束  隐藏忙图标 刷新显示数据。
         delayShowData(2000);

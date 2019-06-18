@@ -9,10 +9,11 @@ import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.Unique;
 
 import java.io.Serializable;
+import java.util.Comparator;
 
 
 @Entity
-public class GatherPoint implements Serializable {
+public class GatherPoint implements Serializable, Comparable<GatherPoint> {
     private static final long serialVersionUID = 1L;
 
     private static final String TAG = "GatherPoint";
@@ -59,6 +60,10 @@ public class GatherPoint implements Serializable {
         return  new LatLng(Double.parseDouble(latitude),Double.parseDouble(longitude));
     }
 
+    @Override
+    public int compareTo(GatherPoint o) { //
+        return this.updated_at.compareTo(o.updated_at);
+    }
 
     @Generated(hash = 858181134)
     public GatherPoint(Long offline_id, String id, @NotNull String name,
@@ -225,7 +230,6 @@ public class GatherPoint implements Serializable {
     public void setIsUploaded(boolean isUploaded) {
         this.isUploaded = isUploaded;
     }
-
 
 
 }

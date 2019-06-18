@@ -150,7 +150,7 @@ public class AddCollectionActivity extends BaseActivity {
         longitudeTv.setText("经度: \n" + gatherPoint.getLongitude());
         laititudeTv.setText("纬度: \n" + gatherPoint.getLatitude());
         altitudeTv.setText("高度: \n" + gatherPoint.getHeight());
-        timeTv.setText("采集时间: " + gatherPoint.getCollected_at());
+        timeTv.setText(gatherPoint.getCollected_at());
         commentsTv.setText(gatherPoint.getDesc());
 
         attrsView.setGatherPoint(gatherPoint);
@@ -261,7 +261,7 @@ public class AddCollectionActivity extends BaseActivity {
         altitudeTv.setText("高度: \n" + location.getAltitude());
 
         long time = System.currentTimeMillis();
-        timeTv.setText("采集时间: " + DateUtils.formatTime(time, DateUtils.fmtYYYYMMDDhhmmss));
+        timeTv.setText(DateUtils.formatTime(time, DateUtils.fmtYYYYMMDDhhmmss));
     }
 
     private void createAttrsView(int i) {
@@ -384,11 +384,13 @@ public class AddCollectionActivity extends BaseActivity {
             gatherPoint.setLongitude("" + location.getLongitude());
             gatherPoint.setLatitude("" + location.getLatitude());
             gatherPoint.setHeight("" + location.getAltitude());
-            long time = System.currentTimeMillis();
-            gatherPoint.setCollected_at(DateUtils.formatTime(time, DateUtils.fmtYYYYMMDDhhmmss));
         } else {
             ToastUtil.showTextToast(this, "定位失败，请打开GPS，等待定位");
         }
+
+        gatherPoint.setCollected_at(timeTv.getText().toString());
+        gatherPoint.setUpdated_at(timeTv.getText().toString());
+
         gatherPoint.setAttrs(new Gson().toJson(attrsValue.getAttrs()));
 
         if (imageList.size() > 0) {
