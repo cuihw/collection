@@ -17,4 +17,7 @@
     <string name="location_west">西经 %s</string>
 
     <string name="trace_process">●记录轨迹中...</string>
+
+    <string name="no_project_data">没有项目数据，请联系管理员</string>
+
 </resources>

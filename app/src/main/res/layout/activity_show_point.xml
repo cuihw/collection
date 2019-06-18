@@ -31,22 +31,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/item_padding_small"
-                android:background="@drawable/round_top_background1"
+                android:background="@drawable/round_background"
                 android:padding="@dimen/item_padding_small">
 
-                <EditText
-                    android:id="@+id/name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_margin="@dimen/item_padding"
-                    android:background="@color/background1"
-                    android:hint="请输入采集点名称" />
-
                 <LinearLayout
+                    android:layout_marginTop="@dimen/item_padding"
+                    android:id="@+id/type_option_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/name"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
@@ -55,7 +47,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/name"
-                        android:text="选择采集类型" />
+                        android:text="请选择类型：" />
 
                     <Spinner
                         android:id="@+id/type_spinner"
@@ -64,41 +56,69 @@
                         android:layout_below="@+id/name">
                     </Spinner>
                 </LinearLayout>
+                <LinearLayout
+                    android:layout_below="@+id/type_option_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    >
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="采集点名称："
+                        />
+                    <EditText
+                        android:id="@+id/name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginRight="@dimen/item_padding"
+                        android:hint="请输入采集点名称" />
+
+                </LinearLayout>
+
             </RelativeLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/item_padding_small"
-                android:background="@drawable/round_background_10dp"
+                android:background="@drawable/round_background"
                 android:orientation="vertical"
                 android:padding="@dimen/item_padding_small">
 
-                <TextView
-                    android:id="@+id/longitude_tv"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="@dimen/item_padding"
-                    android:text="经度：E 114.56456" />
+                    android:orientation="horizontal"
+                    >
+                    <TextView
+                        android:id="@+id/longitude_tv"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/item_padding"
+                        android:layout_weight="3"
+                        android:lines="2"
+                        android:text="经度：\n114.564565645656456564565645656456" />
+                    <TextView
+                        android:id="@+id/laititude_tv"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/item_padding"
+                        android:layout_weight="3"
+                        android:lines="2"
+                        android:text="纬度：\n44.56456" />
 
-                <TextView
-                    android:id="@+id/laititude_tv"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="@dimen/item_padding"
-                    android:text="纬度：N 44.56456" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/background2" />
-
-                <TextView
-                    android:id="@+id/altitude_tv"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="@dimen/item_padding"
-                    android:text="高度：128m" />
+                    <TextView
+                        android:id="@+id/altitude_tv"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/item_padding"
+                        android:layout_weight="4"
+                        android:lines="2"
+                        android:text="高度：\n128m" />
+                </LinearLayout>
 
                 <View
                     android:layout_width="match_parent"
@@ -142,12 +162,28 @@
 
             <!-- 属性hold space -->
             <LinearLayout
-                android:id="@+id/attribution_layout"
+                android:id="@+id/attribution_layout1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/item_padding_small"
+                android:background="@drawable/round_background_10dp"
                 android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/font3"
+                    android:gravity="center"
+                    android:text="采集属性"
+                    android:padding="@dimen/item_padding"
+                    android:background="@drawable/round_top_background3"
+                    />
+                <LinearLayout
+                    android:id="@+id/attribution_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
+                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
@@ -167,9 +203,8 @@
                         android:layout_width="102dp"
                         android:layout_height="88dp"
                         android:layout_margin="@dimen/item_padding"
-                        android:background="@color/background2"
-                        android:scaleType="centerCrop"
-                        android:src="@mipmap/icon_add_pic" />
+                        android:background="@mipmap/add_img"
+                        android:scaleType="centerCrop"/>
 
                     <ImageView
                         android:id="@+id/delete_image1"
@@ -181,8 +216,10 @@
                 </RelativeLayout>
 
                 <RelativeLayout
+                    android:id="@+id/image_layout2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:visibility="invisible"
                     android:layout_weight="1">
 
                     <ImageView
@@ -190,9 +227,8 @@
                         android:layout_width="102dp"
                         android:layout_height="88dp"
                         android:layout_margin="@dimen/item_padding"
-                        android:background="@color/background2"
-                        android:scaleType="centerCrop"
-                        android:src="@mipmap/icon_add_pic" />
+                        android:background="@mipmap/add_img"
+                        android:scaleType="centerCrop" />
                     <ImageView
                         android:id="@+id/delete_image2"
                         android:layout_width="@dimen/point_flag_size"
@@ -203,6 +239,9 @@
                 </RelativeLayout>
 
                 <RelativeLayout
+
+                    android:id="@+id/image_layout3"
+                    android:visibility="invisible"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1">
@@ -212,9 +251,9 @@
                         android:layout_width="102dp"
                         android:layout_height="88dp"
                         android:layout_margin="@dimen/item_padding"
-                        android:background="@color/background2"
+                        android:background="@mipmap/add_img"
                         android:scaleType="centerCrop"
-                        android:src="@mipmap/icon_add_pic" />
+                        />
 
                     <ImageView
                         android:id="@+id/delete_image3"
@@ -229,6 +268,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="200dp"/>
         </LinearLayout>
+
     </ScrollView>
 
     <LinearLayout
@@ -252,12 +292,12 @@
             <ImageView
                 android:layout_width="@dimen/photo_size"
                 android:layout_height="@dimen/photo_size"
-                android:src="@mipmap/icon_camera" />
+                android:src="@mipmap/ic_menu_revert" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="拍照"
+                android:text="重置"
                 android:textColor="@color/font4"
                 android:textSize="@dimen/font4" />
         </LinearLayout>

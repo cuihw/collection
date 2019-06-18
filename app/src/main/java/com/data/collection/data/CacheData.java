@@ -57,9 +57,11 @@ public class CacheData {
             if (project != null) {
                 List<CollectType> types = project.getTypes();
                 if (types != null) {
-                    for (CollectType item: types) {
-                        Utils.cacheImage(item.getIcon());
-                        TypeMaps.put(item.getId(), item);
+                    for (int i = 0; i < types.size(); i ++ ) {
+                        CollectType collectType = types.get(i);
+                        collectType.setIndex(i);
+                        Utils.cacheImage(collectType.getIcon());
+                        TypeMaps.put(collectType.getId(), collectType);
                     }
                 }
             }

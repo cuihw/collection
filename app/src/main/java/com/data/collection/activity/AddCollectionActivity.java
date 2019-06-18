@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,13 +15,15 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.classic.adapter.BaseAdapterHelper;
+import com.classic.adapter.CommonAdapter;
 import com.data.collection.App;
 import com.data.collection.Constants;
 import com.data.collection.R;
@@ -34,8 +35,10 @@ import com.data.collection.dialog.ButtomDialogView;
 import com.data.collection.module.Attrs;
 import com.data.collection.module.CollectType;
 import com.data.collection.module.CollectionImage;
+import com.data.collection.module.ImageData;
+import com.data.collection.module.Project;
+import com.data.collection.module.UserData;
 import com.data.collection.module.UserInfoBean;
-import com.data.collection.util.BitmapUtil;
 import com.data.collection.util.DateUtils;
 import com.data.collection.util.FileUtils;
 import com.data.collection.util.LocationController;
@@ -44,8 +47,11 @@ import com.data.collection.util.ToastUtil;
 import com.data.collection.view.AttributionView;
 import com.data.collection.view.TitleView;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.io.File;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,7 +70,6 @@ public class AddCollectionActivity extends BaseActivity {
     private static CollectType collectType;
 
     String takeCameraFilename; // 照相机照片保存路径
-
 
     List<CollectionImage> imageList = new ArrayList<>();  // 采集点照片
 
@@ -89,20 +94,6 @@ public class AddCollectionActivity extends BaseActivity {
     @BindView(R.id.save_layout)
     LinearLayout saveLayout;
 
-    @BindView(R.id.image1)
-    ImageView imageview1;
-    @BindView(R.id.image2)
-    ImageView imageview2;
-    @BindView(R.id.image3)
-    ImageView imageview3;
-
-    @BindView(R.id.delete_image1)
-    ImageView deleteImage1;
-    @BindView(R.id.delete_image2)
-    ImageView deleteImage2;
-    @BindView(R.id.delete_image3)
-    ImageView deleteImage3;
-
     AttributionView attrsView; // propreties
 
     List<CollectType> projectTypes;
@@ -119,18 +110,20 @@ public class AddCollectionActivity extends BaseActivity {
     @BindView(R.id.comments_tv)
     TextView commentsTv;
 
-    @BindView(R.id.image_layout2)
-    RelativeLayout imageLayout2;
+    @BindView(R.id.grid_view)
+    GridView gridView;
 
-    // 添加图片目前先用这种方式，后面使用GridView优化
-    @BindView(R.id.image_layout3)
-    RelativeLayout imageLayout3;
+    @BindView(R.id.bottom_layout)
+    LinearLayout bottomLayout;
 
-    public static void start(Context context, Bundle bundle){
+    CommonAdapter<CollectionImage> adapter;
+
+    static GatherPoint gatherPoint;
+
+
+    public static void start(Context context, GatherPoint gatherPoint){
         Intent intent = new Intent(context, AddCollectionActivity.class);
-        if (bundle != null) {
-            intent.putExtras(bundle);
-        }
+        AddCollectionActivity.gatherPoint = gatherPoint;
         context.startActivity(intent);
     }
 
@@ -142,34 +135,61 @@ public class AddCollectionActivity extends BaseActivity {
         initListener();
     }
 
-    private void showImageLayout(){
-        int size = imageList.size();
-        switch (size) {
-            case 0:
-                imageLayout2.setVisibility(View.INVISIBLE);
-                imageLayout3.setVisibility(View.INVISIBLE);
-                break;
-            case 1:
-                imageLayout2.setVisibility(View.VISIBLE);
-                imageLayout3.setVisibility(View.INVISIBLE);
-                break;
-            case 2:
-                imageLayout2.setVisibility(View.VISIBLE);
-                imageLayout3.setVisibility(View.VISIBLE);
-                break;
-            case 3:
-                imageLayout2.setVisibility(View.VISIBLE);
-                imageLayout3.setVisibility(View.VISIBLE);
-                break;
+    private void showPoint(GatherPoint gatherPoint) {
+        if (gatherPoint == null) return;
+        if (gatherPoint.getIsUploaded()) {
+            // 不让编辑
+            // 隐藏下面的功能按钮
+            bottomLayout.setVisibility(View.GONE);
         }
+        String id = gatherPoint.getId();
+        CollectType collectType = CacheData.getTypeMaps().get(id);
+        if (collectType != null) typeSpinner.setSelection(collectType.getIndex());
+        nameTv.setText(gatherPoint.getName());
+        nameTv.setEnabled(false);
+        longitudeTv.setText("经度: \n" + gatherPoint.getLongitude());
+        laititudeTv.setText("纬度: \n" + gatherPoint.getLatitude());
+        altitudeTv.setText("高度: \n" + gatherPoint.getHeight());
+        timeTv.setText("采集时间: " + gatherPoint.getCollected_at());
+        commentsTv.setText(gatherPoint.getDesc());
 
-        showImageInUI();
+        attrsView.setGatherPoint(gatherPoint);
+
+        if (gatherPoint.getIsUploaded()) { // 加载网络图片
+            String imgs = gatherPoint.getImgs();
+            if (!TextUtils.isEmpty(imgs)) {
+                Type type =new TypeToken<List<CollectionImage>>(){}.getType();
+                List<CollectionImage> list = new Gson().fromJson(imgs, type);
+                imageList.clear();
+                imageList.addAll(list);
+            }
+
+        } else { // 本地图片
+            // gatherPoint
+            String picPath1 = gatherPoint.getPicPath1();
+            if (!TextUtils.isEmpty(picPath1)) {
+                Type type =new TypeToken<List<CollectionImage>>(){}.getType();
+                List<CollectionImage> list = new Gson().fromJson(picPath1, type);
+                for (CollectionImage image: list) {
+                    image.isUrlImage = true;
+                }
+                imageList.clear();
+                imageList.addAll(list);
+            }
+            if  (imageList.size() < 3) {
+                imageList.add(new CollectionImage());
+            }
+        }
+        adapter.replaceAll(imageList);
+
     }
 
+    public void addUrlImageFile(String url) {
+
+    }
+
+
     private void initView() {
-        deleteImage1.setVisibility(View.INVISIBLE);
-        deleteImage2.setVisibility(View.INVISIBLE);
-        deleteImage3.setVisibility(View.INVISIBLE);
         initSpinner();
 
         fillLongitudeAndLaititude();
@@ -177,6 +197,55 @@ public class AddCollectionActivity extends BaseActivity {
         if (hasProjectInfo()) {
             attrsView = new AttributionView(this);
             createAttrsView(0);
+        }
+
+        adapter = new CommonAdapter<CollectionImage>(this, R.layout.item_gather_point_img) {
+            @Override
+            public void onUpdate(BaseAdapterHelper helper, CollectionImage item, int position) {
+                ImageView imageview = helper.getView(R.id.image);
+                ImageView delete = helper.getView(R.id.delete_image);
+
+                if (item.isUrlImage) {
+                    Bitmap bitmap = ImageLoader.getInstance().loadImageSync(item.url);
+                    delete.setVisibility(View.GONE);
+                    imageview.setImageBitmap(bitmap);
+
+                } else if (TextUtils.isEmpty(item.filename)) {
+                    imageview.setImageBitmap(null);
+                    delete.setVisibility(View.GONE);
+                    imageview.setOnClickListener( v-> addPicture(position));
+                } else {
+                    delete.setVisibility(View.VISIBLE);
+                    Uri uri = Uri.fromFile(new File(item.filename));
+                    imageview.setImageURI(uri);
+                    delete.setOnClickListener(v->deleteImage(position));
+                }
+            }
+        };
+        imageList.add(new CollectionImage());
+        adapter.replaceAll(imageList);
+        gridView.setAdapter(adapter);
+
+        if (gatherPoint != null) {
+            showPoint(gatherPoint);
+        }
+    }
+
+
+
+    private void deleteImage(int position) {
+        imageList.remove(position);
+        if (position == 2) {
+            imageList.add(new CollectionImage());
+        }
+        adapter.replaceAll(imageList);
+    }
+
+    private void addPicture(int position) {
+        // 点击最后一个，是+ 号的才增加图片
+        int size = imageList.size();
+        if (size - 1 == position) {
+            initPermission(TAKE_PICTURE);
         }
     }
 
@@ -198,11 +267,13 @@ public class AddCollectionActivity extends BaseActivity {
     private void createAttrsView(int i) {
         attrsView.clearView();
         attributionLayout.removeAllViews();
-        if (projectTypes != null) {
+        if (projectTypes != null && projectTypes.size() > i) {
             CollectType types = projectTypes.get(i);
             List<Attrs> attrs = types.getAttrs();
             attrsView.setViewAttri(attrs);
             attributionLayout.addView(attrsView);
+        } else {
+            ToastUtil.showTextToast(this, "项目中的采集类型为空，请联系管理员配置");
         }
 
         if (attrsView.getAttrViewList().size() == 0) {
@@ -216,7 +287,23 @@ public class AddCollectionActivity extends BaseActivity {
     private void initSpinner() {
         try {
             UserInfoBean userInfoBean = CacheData.getUserInfoBean();
-            projectTypes = userInfoBean.getData().getProject().getTypes();
+            UserData data = userInfoBean.getData();
+            if (data == null) {
+                ToastUtil.showTextToast(this, getString(R.string.no_project_data));
+                return;
+            }
+            Project project = data.getProject();
+            if (project == null) {
+                ToastUtil.showTextToast(this, getString(R.string.no_project_data));
+                return;
+            }
+
+            projectTypes = project.getTypes();
+            if (projectTypes == null || projectTypes.size() == 0) {
+                ToastUtil.showTextToast(this, getString(R.string.no_project_data));
+                return;
+            }
+
             PointTypeAdapter pointAdapter = new PointTypeAdapter(this, projectTypes);
 
             typeSpinner.setAdapter(pointAdapter);
@@ -237,43 +324,6 @@ public class AddCollectionActivity extends BaseActivity {
         resetLayout.setOnClickListener(v->resetData());
 
         saveLayout.setOnClickListener(v->initPermission(SAVE_POINT));//  动态请求权限);
-
-        imageview1.setOnClickListener(v->{
-            if (imageList.size() == 0) {
-                initPermission(TAKE_PICTURE);
-            }
-        });
-        imageview2.setOnClickListener(v->{
-            if (imageList.size() == 1) {
-                initPermission(TAKE_PICTURE);
-            }
-        });
-        imageview3.setOnClickListener(v->{
-            if (imageList.size() == 2) {
-                initPermission(TAKE_PICTURE);
-            }
-        });
-
-        deleteImage1.setOnClickListener(v->{
-            if (imageList.size() > 0) {
-                imageList.remove(0);
-            }
-            showImageLayout();
-        });
-        deleteImage2.setOnClickListener(v->{
-            if (imageList.size() > 1) {
-                imageList.remove(1);
-            }
-
-            showImageLayout();
-
-        });
-        deleteImage3.setOnClickListener(v->{
-            if (imageList.size() > 2) {
-                imageList.remove(2);
-            }
-            showImageLayout();
-        });
 
         typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -296,10 +346,10 @@ public class AddCollectionActivity extends BaseActivity {
             attrsView.clearViewData();
         }
         imageList.clear();
-        showImageLayout();
+        imageList.add(new CollectionImage());
     }
 
-    GatherPoint gatherPoint;
+
     private void savePoint() {
         if (!hasProjectInfo()) return;
 
@@ -341,15 +391,9 @@ public class AddCollectionActivity extends BaseActivity {
         }
         gatherPoint.setAttrs(new Gson().toJson(attrsValue.getAttrs()));
 
-        if (imageList.size() == 1) {
-            gatherPoint.setPicPath1(imageList.get(0).filename);
-        } else if(imageList.size() == 2) {
-            gatherPoint.setPicPath1(imageList.get(0).filename);
-            gatherPoint.setPicPath2(imageList.get(1).filename);
-        }else if(imageList.size() == 3) {
-            gatherPoint.setPicPath1(imageList.get(0).filename);
-            gatherPoint.setPicPath2(imageList.get(1).filename);
-            gatherPoint.setPicPath3(imageList.get(2).filename);
+        if (imageList.size() > 0) {
+            String s = new Gson().toJson(imageList);
+            gatherPoint.setPicPath1(s);
         }
 
         DaoSession daoSession =  App.getInstence().getDaoSession();
@@ -434,12 +478,10 @@ public class AddCollectionActivity extends BaseActivity {
                     takeCameraFilename = FileUtils.getFilePathByUri(this, data1);
                     LsLog.i(TAG, "onPickPhotoResult: " + takeCameraFilename);
                     addImageFile();
-                    showImageLayout();
                     break;
                 case REQUEST_CODE_TAKE_PHOTO:
                     if (takeCameraFilename != null) {
                         addImageFile();
-                        showImageLayout();
                     }
                     break;
             }
@@ -449,58 +491,15 @@ public class AddCollectionActivity extends BaseActivity {
     private void addImageFile(){
         CollectionImage image = new CollectionImage();
         image.filename = takeCameraFilename;
-        imageList.add(image);
-    }
-
-    private void showImageInUI() {
         int size = imageList.size();
-        if (size == 0) {
-            imageview1.setImageBitmap(null);
-            deleteImage1.setVisibility(View.INVISIBLE);
 
-            imageview2.setImageBitmap(null);
-            deleteImage2.setVisibility(View.INVISIBLE);
-
-            imageview3.setImageBitmap(null);
-            deleteImage3.setVisibility(View.INVISIBLE);
-
-        } else if (size == 1) {
-            Bitmap bitmap = BitmapFactory.decodeFile(imageList.get(0).filename);
-            imageview1.setImageBitmap(bitmap);
-            deleteImage1.setVisibility(View.VISIBLE);
-
-            imageview2.setImageBitmap(null);
-            deleteImage2.setVisibility(View.INVISIBLE);
-
-            imageview3.setImageBitmap(null);
-            deleteImage3.setVisibility(View.INVISIBLE);
-
-        } else if (size == 2){
-
-            Bitmap bitmap = BitmapFactory.decodeFile(imageList.get(0).filename);
-            imageview1.setImageBitmap(bitmap);
-            deleteImage1.setVisibility(View.VISIBLE);
-            bitmap = BitmapFactory.decodeFile(imageList.get(1).filename);
-            imageview2.setImageBitmap(bitmap);
-            deleteImage2.setVisibility(View.VISIBLE);
-
-            imageview3.setImageBitmap(null);
-            deleteImage3.setVisibility(View.INVISIBLE);
-
-        } else if (size == 3){
-
-            Bitmap bitmap = BitmapFactory.decodeFile(imageList.get(0).filename);
-            imageview1.setImageBitmap(bitmap);
-            deleteImage1.setVisibility(View.VISIBLE);
-
-            bitmap = BitmapFactory.decodeFile(imageList.get(1).filename);
-            imageview2.setImageBitmap(bitmap);
-            deleteImage2.setVisibility(View.VISIBLE);
-
-            bitmap = BitmapFactory.decodeFile(imageList.get(2).filename);
-            imageview3.setImageBitmap(bitmap);
-            deleteImage3.setVisibility(View.VISIBLE);
+        if (size == 3) {
+            imageList.remove(2);
+            imageList.add(image);
+        } else {
+            imageList.add(size -1, image);
         }
+        adapter.replaceAll(imageList);
     }
 
     boolean hasProjectInfo (){

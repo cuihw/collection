@@ -125,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
         List<BNRoutePlanNode> list = new ArrayList<>();
         list.add(sNode);
         list.add(eNode);
+        Log.w(TAG,"sNode = " + sNode + ", eNode = " + eNode);
         BaiduNaviManagerFactory.getCommonSettingManager().setCarNum(this, "豫AT6662");
         BaiduNaviManagerFactory.getRoutePlanManager().routeplanToNavi(
                 list,

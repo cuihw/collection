@@ -23,6 +23,7 @@ import com.data.collection.data.greendao.DaoSession;
 import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.data.greendao.GatherPointDao;
 import com.data.collection.module.BaseBean;
+import com.data.collection.module.CollectionImage;
 import com.data.collection.module.ImageData;
 import com.data.collection.module.ImageUploadBean;
 import com.data.collection.module.PointData;
@@ -35,6 +36,7 @@ import com.data.collection.util.LsLog;
 import com.data.collection.util.ToastUtil;
 import com.data.collection.view.TitleView;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -42,8 +44,10 @@ import org.greenrobot.greendao.query.QueryBuilder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.File;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -235,9 +239,10 @@ public class CollectionListActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 GatherPoint item = adapter.getItem(position);
-                Bundle bundle = new Bundle();
-                bundle.putString("GatherPoint", new Gson().toJson(item));
-                ShowPointActivity.start(CollectionListActivity.this, bundle);
+                AddCollectionActivity.start(CollectionListActivity.this,item);
+//                Bundle bundle = new Bundle();
+//                bundle.putString("GatherPoint", new Gson().toJson(item));
+//                ShowPointActivity.start(CollectionListActivity.this, bundle);
             }
         });
     }
@@ -335,10 +340,8 @@ public class CollectionListActivity extends BaseActivity {
     }
 
     private void uploadLocalDataWithImage(GatherPoint point) {
-        String picPath1 = point.getPicPath1();
-        String picPath2 = point.getPicPath2();
-        String picPath3 = point.getPicPath3();
-        List<File> files = getFiles(picPath1, picPath2, picPath3);
+
+        List<File> files = getFiles(point);
 
         if (files.size() > 0) {
             // 1. 上传图片，2. 上传数据
@@ -346,21 +349,14 @@ public class CollectionListActivity extends BaseActivity {
                 @Override
                 public void onResponse(int status, ImageUploadBean bean) {
                     LsLog.w(TAG, "upload image result..");
-
                     if (status == 0) {
                         List<ImageData.FileMap> files1 = bean.getData().getFiles();
-                        String sss = new Gson().toJson(files1);
-                        LsLog.i(TAG, "image files = " + sss + "; result: " + bean.toJson());
-                        point.setImgs(sss);
+                        String imageData = new Gson().toJson(files1);
+                        LsLog.i(TAG, "image files = " + imageData);
+                        point.setImgs(imageData);
                         saveToDb(point);
-                    }
-                    if (status == HttpRequest.NET_ERROR) {
+                    } else if (status == HttpRequest.NET_ERROR) {
                         ToastUtil.showTextToast(CollectionListActivity.this, "网络错误, 无法上传");
-                    }
-                    if (bean == null) {
-                        LsLog.w(TAG, "upLoadImgs result: null" + bean);
-                    } else {
-                        LsLog.w(TAG, "upLoadImgs result: " + bean.toJson());
                     }
 
                     // 有图片的情况下，要等图片上传返回结果后再上传采集点信息。
@@ -373,6 +369,7 @@ public class CollectionListActivity extends BaseActivity {
         }
 
     }
+
 
     private void uploadLocalData(GatherPoint point) {
         Map<String, Object> param = new HashMap<>();
@@ -466,21 +463,19 @@ public class CollectionListActivity extends BaseActivity {
         LsLog.w(TAG, "insertToDb insertid = " + insert);
     }
 
-
-    private List<File> getFiles(String picPath1, String picPath2, String picPath3) {
+    private List<File> getFiles(GatherPoint point) {
         List<File> files = new ArrayList<>();
+        String imagesdata = point.getPicPath1();
+        if (!TextUtils.isEmpty(imagesdata)) {
+            Type type =new TypeToken<List<CollectionImage>>(){}.getType();
+            List<CollectionImage> imagelists = new Gson().fromJson(imagesdata, type);
 
-        File file1 = getFileByName(picPath1);
-        File file2 = getFileByName(picPath2);
-        File file3 = getFileByName(picPath3);
-        if (file1 != null) {
-            files.add(file1);
-        }
-        if (file2 != null) {
-            files.add(file2);
-        }
-        if (file3 != null) {
-            files.add(file3);
+            for (CollectionImage image: imagelists) {
+                File fileByName = getFileByName(image.filename);
+                if (fileByName != null) {
+                    files.add( fileByName);
+                }
+            }
         }
         return files;
     }

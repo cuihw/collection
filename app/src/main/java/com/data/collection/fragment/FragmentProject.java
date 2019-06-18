@@ -22,8 +22,10 @@ import com.data.collection.module.Attrs;
 import com.data.collection.module.CollectType;
 import com.data.collection.module.Options;
 import com.data.collection.module.Project;
+import com.data.collection.module.UserData;
 import com.data.collection.module.UserInfoBean;
 import com.data.collection.util.LsLog;
+import com.data.collection.util.ToastUtil;
 import com.data.collection.view.TitleView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -85,10 +87,28 @@ public class FragmentProject extends FragmentBase {
             projectName.setText("请联系管理员，设置项目内容");
             return;
         }
-        Project project = userInfoBean.getData().getProject();
+
+
+        UserData data = userInfoBean.getData();
+
+        if (data == null ) {
+            ToastUtil.showTextToast(getContext(), getString(R.string.no_project_data));
+            return;
+        }
+        Project project = data.getProject();
+        if (project == null ) {
+            ToastUtil.showTextToast(getContext(), getString(R.string.no_project_data));
+            return;
+        }
         projectName.setText("项目名称：" + project.getName());
 
-        adapter = new CommonAdapter<CollectType>(getContext(), R.layout.item_project_attr, project.getTypes()) {
+        List<CollectType> types = project.getTypes();
+        if (types == null || types.size() == 0) {
+            ToastUtil.showTextToast(getContext(), getString(R.string.no_project_data));
+            return;
+        }
+
+        adapter = new CommonAdapter<CollectType>(getContext(), R.layout.item_project_attr,types) {
             @Override
             public void onUpdate(BaseAdapterHelper helper, CollectType item, int position) {
                 helper.setText(R.id.type_name, item.getName());

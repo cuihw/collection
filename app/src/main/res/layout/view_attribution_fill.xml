@@ -30,7 +30,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_toRightOf="@+id/ckey"
-                android:background="@color/background1"
+                android:textColor="@color/font1"
                 android:singleLine="true"
                 android:hint="请填写属性信息" />
         </RelativeLayout>

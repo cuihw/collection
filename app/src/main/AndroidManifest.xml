@@ -71,11 +71,6 @@
             android:windowSoftInputMode="adjustPan|stateHidden"></activity>
 
         <activity
-            android:name=".activity.ShowPointActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan|stateHidden"></activity>
-
-        <activity
             android:name=".activity.CommonActivity"
             android:screenOrientation="portrait"></activity>
 

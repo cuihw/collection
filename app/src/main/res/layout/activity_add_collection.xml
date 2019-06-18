@@ -74,6 +74,7 @@
                         android:layout_height="wrap_content"
                         android:layout_centerHorizontal="true"
                         android:layout_marginRight="@dimen/item_padding"
+                        android:textColor="@color/font1"
                         android:hint="请输入采集点名称" />
 
                 </LinearLayout>
@@ -156,6 +157,7 @@
                         android:layout_toRightOf="@+id/comments_label"
                         android:background="@color/background1"
                         android:singleLine="true"
+                        android:textColor="@color/font1"
                         android:hint="请填写备注信息" />
                 </RelativeLayout>
             </LinearLayout>
@@ -186,84 +188,16 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/item_padding_small"
+            <com.data.collection.view.NoScrollGridView
+                android:id="@+id/grid_view"
                 android:background="@drawable/round_background_10dp"
-                android:padding="@dimen/item_padding_small">
+                android:padding="@dimen/item_padding"
+                android:layout_margin="@dimen/item_padding_small"
+                android:numColumns="3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            </com.data.collection.view.NoScrollGridView>
 
-                <RelativeLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1">
-
-                    <ImageView
-                        android:id="@+id/image1"
-                        android:layout_width="102dp"
-                        android:layout_height="88dp"
-                        android:layout_margin="@dimen/item_padding"
-                        android:background="@mipmap/add_img"
-                        android:scaleType="centerCrop"/>
-
-                    <ImageView
-                        android:id="@+id/delete_image1"
-                        android:layout_width="@dimen/point_flag_size"
-                        android:layout_height="@dimen/point_flag_size"
-                        android:layout_alignTop="@+id/image1"
-                        android:layout_alignRight="@+id/image1"
-                        android:src="@mipmap/icon_close" />
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:id="@+id/image_layout2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:visibility="invisible"
-                    android:layout_weight="1">
-
-                    <ImageView
-                        android:id="@+id/image2"
-                        android:layout_width="102dp"
-                        android:layout_height="88dp"
-                        android:layout_margin="@dimen/item_padding"
-                        android:background="@mipmap/add_img"
-                        android:scaleType="centerCrop" />
-                    <ImageView
-                        android:id="@+id/delete_image2"
-                        android:layout_width="@dimen/point_flag_size"
-                        android:layout_height="@dimen/point_flag_size"
-                        android:layout_alignTop="@+id/image2"
-                        android:layout_alignRight="@+id/image2"
-                        android:src="@mipmap/icon_close" />
-                </RelativeLayout>
-
-                <RelativeLayout
-
-                    android:id="@+id/image_layout3"
-                    android:visibility="invisible"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1">
-
-                    <ImageView
-                        android:id="@+id/image3"
-                        android:layout_width="102dp"
-                        android:layout_height="88dp"
-                        android:layout_margin="@dimen/item_padding"
-                        android:background="@mipmap/add_img"
-                        android:scaleType="centerCrop"
-                        />
-
-                    <ImageView
-                        android:id="@+id/delete_image3"
-                        android:layout_width="@dimen/point_flag_size"
-                        android:layout_height="@dimen/point_flag_size"
-                        android:layout_alignTop="@+id/image3"
-                        android:layout_alignRight="@+id/image3"
-                        android:src="@mipmap/icon_close" />
-                </RelativeLayout>
-            </LinearLayout>
             <View
                 android:layout_width="match_parent"
                 android:layout_height="200dp"/>

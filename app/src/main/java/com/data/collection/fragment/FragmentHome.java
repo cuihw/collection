@@ -91,7 +91,7 @@ public class FragmentHome extends FragmentBase {
     private boolean isFirstLoc = true;
 
     private MyLocationData locData;
-
+    FragmentManager manager;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -179,7 +179,7 @@ public class FragmentHome extends FragmentBase {
         mLocClient.registerLocationListener(myListener);
         LocationClientOption option = new LocationClientOption();
         option.setOpenGps(true); // 打开gps
-        option.setCoorType("bd09"); // 设置坐标类型
+        option.setCoorType("bd09ll"); // 设置坐标类型
         option.setScanSpan(10000);
         mLocClient.setLocOption(option);
         // mLocClient.start();
@@ -211,7 +211,7 @@ public class FragmentHome extends FragmentBase {
             }
         }
     };
-    FragmentManager manager;
+
     private void initMap() {
 
         MapStatus.Builder builder = new MapStatus.Builder();
@@ -224,7 +224,7 @@ public class FragmentHome extends FragmentBase {
         builder.overlook(-20).zoom(15);
         BaiduMapOptions bo = new BaiduMapOptions().mapStatus(builder.build())
                 .zoomControlsEnabled(false);
-        //if (mapFragment == null)
+
         mapFragment = SupportMapFragment.newInstance(bo);
 
         manager = getChildFragmentManager();
