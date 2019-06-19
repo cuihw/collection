@@ -5,11 +5,10 @@ import android.widget.Toast;
 
 import com.data.collection.activity.BaseActivity;
 import com.data.collection.activity.LoginActivity;
-import com.data.collection.data.UserTrace;
 import com.data.collection.data.CacheData;
+import com.data.collection.data.UserTrace;
 import com.data.collection.fragment.FragmentCheckRecord;
 import com.data.collection.fragment.FragmentHome;
-import com.data.collection.fragment.FragmentNavi;
 import com.data.collection.fragment.FragmentNavi2;
 import com.data.collection.fragment.FragmentSettings;
 import com.data.collection.service.UpLocationTask;

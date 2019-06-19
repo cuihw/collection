@@ -27,4 +27,5 @@
     <dimen name="photo_size">25dp</dimen>
     <dimen name="navi_icon">70dp</dimen>
     <dimen name="navi_icon_height">71dp</dimen>
+    <dimen name="type_icon">25dp</dimen>
 </resources>

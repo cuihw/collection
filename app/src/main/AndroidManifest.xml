@@ -71,6 +71,12 @@
             android:windowSoftInputMode="adjustPan|stateHidden"></activity>
 
         <activity
+            android:name=".activity.NaviCollectionListActivity"
+            android:screenOrientation="portrait"
+            ></activity>
+
+
+        <activity
             android:name=".activity.CommonActivity"
             android:screenOrientation="portrait"></activity>
 

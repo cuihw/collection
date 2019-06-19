@@ -23,15 +23,13 @@ import com.data.collection.data.greendao.DaoSession;
 import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.data.greendao.GatherPointDao;
 import com.data.collection.module.BaseBean;
+import com.data.collection.module.CollectType;
 import com.data.collection.module.CollectionImage;
 import com.data.collection.module.ImageData;
 import com.data.collection.module.ImageUploadBean;
 import com.data.collection.module.PointData;
 import com.data.collection.module.PointListBean;
-import com.data.collection.module.CollectType;
 import com.data.collection.module.PointListData;
-import com.data.collection.module.Project;
-import com.data.collection.module.UserData;
 import com.data.collection.module.UserInfoBean;
 import com.data.collection.network.HttpRequest;
 import com.data.collection.util.LsLog;
@@ -46,12 +44,10 @@ import org.greenrobot.greendao.query.QueryBuilder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.File;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -143,6 +139,18 @@ public class CollectionListActivity extends BaseActivity {
                         thisType = type;
                     }
                 }
+                helper.setText(R.id.report_tv, item.getReport());
+
+
+                ImageView imageView = helper.getView(R.id.icon_type);
+
+                if (thisType != null) {
+                    ImageLoader.getInstance().displayImage(thisType.getIcon(), imageView);
+                } else {
+                    imageView.setImageResource(R.mipmap.ic_popup_dialog_close);
+                }
+                helper.setText(R.id.location, "经度：" + item.getLongitude() + "， 维度：" + item.getLatitude());
+                helper.setText(R.id.time, "更新时间: " + item.getUpdated_at());
 
                 int showValue = View.VISIBLE;
                 if (isShowLocalData) {
@@ -150,47 +158,18 @@ public class CollectionListActivity extends BaseActivity {
                 } else {
                     showValue = View.GONE;
                 }
-
                 helper.setVisible(R.id.is_uploaded, showValue);
-
-                ImageView imageView = helper.getView(R.id.icon_type);
-
-                if (thisType != null) {
-                    ImageLoader.getInstance().displayImage(thisType.getIcon(), imageView);
-                    helper.setText(R.id.type_name, thisType.getName());
-                } else {
-                    imageView.setImageResource(R.mipmap.ic_popup_dialog_close);
-                    helper.setText(R.id.type_name, "没有类型");
-                }
-                helper.setText(R.id.location, "经度：" + item.getLongitude() + "， 维度：" + item.getLatitude());
-                helper.setText(R.id.time, "更新时间: " + item.getUpdated_at());
-                // upload_tv
-                TextView view = helper.getView(R.id.upload_tv);
                 if (item.getIsUploaded()) {
-                    view.setVisibility(View.INVISIBLE);
                     helper.setText(R.id.is_uploaded, "已上传");
                 } else {
                     hasLocalData = true; // 有本地数据；
-                    view.setVisibility(View.VISIBLE);
                     helper.setText(R.id.is_uploaded, "未上传");
                 }
-
-                helper.setOnClickListener(R.id.upload_tv, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        needUploadSize = 1;
-                        uploadLocalDataWithImage(item);
-                    }
-                });
             }
         };
         listView.setAdapter(adapter);
 
-        if (myCollectDataList == null || myCollectDataList.size() == 0) {
-            noDataTv.setVisibility(View.VISIBLE);
-        } else {
-            noDataTv.setVisibility(View.INVISIBLE);
-        }
+        showData(true);
     }
 
     private List<GatherPoint> getData(boolean isMyCollectionData) {
@@ -555,6 +534,13 @@ public class CollectionListActivity extends BaseActivity {
                 adapter.replaceAll(dataList);
             }
             actionSyncAll.setText("下载同步数据");
+        }
+        if (adapter.getCount() == 0) {
+            noDataTv.setVisibility(View.VISIBLE);
+            listView.setVisibility(View.INVISIBLE);
+        } else {
+            noDataTv.setVisibility(View.INVISIBLE);
+            listView.setVisibility(View.VISIBLE);
         }
     }
 

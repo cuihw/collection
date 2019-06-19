@@ -129,9 +129,9 @@ public class FragmentGpsInfo extends FragmentBase {
                         GpsSatellite gpsSatellite = iters.next();
                         //卫星的信噪比
                         float snr = gpsSatellite.getSnr();
-                        sb.append("第").append(count).append("颗").append("卫星的信噪比：").append(snr).append("\n");
-                        if (snr > 0.001) {
+                        if (snr > 0.01) {
                             showSatellite(gpsSatellite);
+                            sb.append("第").append(count).append("颗").append("卫星的信噪比：").append(snr).append("\n");
                         }
                     }
                     Log.e(TAG, sb.toString());

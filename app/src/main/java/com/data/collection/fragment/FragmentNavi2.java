@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import com.data.collection.R;
+import com.data.collection.activity.NaviCollectionListActivity;
 import com.data.collection.activity.NaviListActivity;
 import com.data.collection.util.LsLog;
 import com.tbruyelle.rxpermissions2.RxPermissions;
@@ -30,6 +31,12 @@ public class FragmentNavi2 extends FragmentBase {
     @BindView(R.id.navi_list_layout)
     RelativeLayout naviListLayout;
 
+    @BindView(R.id.localdata_list_layout)
+    RelativeLayout localdataListLayout;
+
+    @BindView(R.id.syncdata_list_layout)
+    RelativeLayout syncdataListLayout;
+
     private static final String[] authBaseArr = {
             Manifest.permission.WRITE_EXTERNAL_STORAGE,   // 写内存
             Manifest.permission.ACCESS_FINE_LOCATION          // 精准定位
@@ -41,7 +48,6 @@ public class FragmentNavi2 extends FragmentBase {
         LsLog.i(TAG, "onCreateView");
         view = inflater.inflate(R.layout.fragment_home_navi2, container, false);
         bindButterKnife();
-        initView();
         initListener();
         requestPermiss();
         return view;
@@ -61,12 +67,11 @@ public class FragmentNavi2 extends FragmentBase {
         }
     }
 
-    private void initView() {
-    }
 
     private void initListener() {
         naviListLayout.setOnClickListener(v->NaviListActivity.start(getContext()));
+        localdataListLayout.setOnClickListener(v-> NaviCollectionListActivity.start(getContext(),true));
+        syncdataListLayout.setOnClickListener(v->NaviCollectionListActivity.start(getContext(), false));
     }
-
 
 }

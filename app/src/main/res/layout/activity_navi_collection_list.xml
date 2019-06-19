@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:title="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background5"
+    >
+    <LinearLayout
+        android:layout_above="@+id/action_sync_all"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.data.collection.view.TitleView
+            android:id="@+id/title_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            title:TitleText="采集点列表"
+            title:IconLeft="@mipmap/top_back"
+            />
+        <ListView
+            android:layout_margin="@dimen/item_padding_small"
+            android:id="@+id/listview"
+            android:divider="@color/font1"
+            android:dividerHeight="1px"
+            android:layout_width="match_parent"
+            android:padding="@dimen/item_padding"
+            android:background="@drawable/round_background"
+            android:layout_height="wrap_content">
+        </ListView>
+        <TextView
+            android:id="@+id/no_data_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="没有数据，赶快去采集"
+            android:gravity="center"
+            android:layout_gravity="center"
+            />
+    </LinearLayout>
+</RelativeLayout>

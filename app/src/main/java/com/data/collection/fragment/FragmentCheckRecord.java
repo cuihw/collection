@@ -282,19 +282,9 @@ public class FragmentCheckRecord extends FragmentBase {
         }
     }
 
-//    private void initCheckPoint() {
-//        //构建Marker图标
-//        mMarkerBitmap = BitmapDescriptorFactory
-//                .fromResource(R.drawable.icon_gcoding);
-//
-//    }
-
-
-
     private void addMarker(LatLng point, GatherPoint gatherPoint) {
         Bundle bundle = new Bundle();
         bundle.putSerializable("GatherPoint", gatherPoint);
-
 
         mMarkerBitmap = getMarkerBitmap(gatherPoint);
 
