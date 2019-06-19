@@ -57,6 +57,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.greenrobot.greendao.query.QueryBuilder;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -73,6 +74,9 @@ import static android.content.Context.SENSOR_SERVICE;
  */
 public class FragmentCheckRecord extends FragmentBase {
     private static final String TAG = "FragmentCheckRecord";
+    private static final double DIFF = 0.0001;
+
+    private static final double RANGE = 0.01;
 
     @BindView(R.id.mapview)
     TextureMapView mMapView;
@@ -81,10 +85,11 @@ public class FragmentCheckRecord extends FragmentBase {
     @BindView(R.id.title_view)
     TitleView titleView;
 
-
     BaiduMap mBaiduMap;
     BitmapDescriptor mMarkerBitmap;
     private LocationClient mLocClient;
+
+    private Map<String, LatLng> markerMap = new HashMap<>();
 
     private SensorManager mSensorManager;
     private Double lastX = 0.0;
@@ -234,11 +239,10 @@ public class FragmentCheckRecord extends FragmentBase {
         double latitude2 = bound.northeast.latitude;
         double longitude1 = bound.southwest.longitude;
         double longitude2 = bound.northeast.longitude;
-        latitude1 = latitude1 - 1;
-        latitude2 = latitude2 + 1;
-
-        longitude1 = longitude1 -1;
-        longitude2 = longitude2 + 1;
+        latitude1 = latitude1 - RANGE;
+        latitude2 = latitude2 + RANGE;
+        longitude1 = longitude1 - RANGE;
+        longitude2 = longitude2 + RANGE;
 
         LsLog.w(TAG, "bounds:  latitude1 = " + latitude1 + ", latitude2 = " + latitude2
                 + ", longitude1 = " + longitude1 + ", longitude2 = " + longitude2
@@ -257,15 +261,25 @@ public class FragmentCheckRecord extends FragmentBase {
         dataList = qb.list(); // 查出当前对应的数据
         LsLog.w(TAG, "dataList size = " + dataList.size());
 
+        markerMap.clear();
         for (GatherPoint point : dataList) {
             double lat = Double.parseDouble(point.getLatitude());
-            double lng = Double.parseDouble(point.getLongitude());
-            LatLng llng = new LatLng(lat, lng);
+            double nextlng = Double.parseDouble(point.getLongitude());
+
+            LatLng latLng = markerMap.get(point.getLatitude() + nextlng);
+            while (latLng != null) {
+                nextlng = nextlng + DIFF;
+                String s = String.valueOf(nextlng);
+                latLng = markerMap.get(point.getLatitude() + s);
+            }
+            LatLng llng = new LatLng(lat, nextlng);
+
+            markerMap.put(point.getLatitude() + String.valueOf(nextlng) , llng);
 
             llng = PositionUtil.GpsToBaiduLatLng(llng);
+
             addMarker(llng, point);
         }
-
     }
 
 //    private void initCheckPoint() {
@@ -382,7 +396,6 @@ public class FragmentCheckRecord extends FragmentBase {
         mSensorManager.registerListener(sensorEventListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
                 SensorManager.SENSOR_DELAY_UI);
 
-        goToMyLocation();
     }
 
     @Override

@@ -49,6 +49,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.io.File;
 import java.lang.reflect.Type;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -148,9 +149,9 @@ public class AddCollectionActivity extends BaseActivity {
         }
         nameTv.setText(gatherPoint.getName());
         nameTv.setEnabled(false);
-        longitudeTv.setText("经度: \n" + gatherPoint.getLongitude());
-        laititudeTv.setText("纬度: \n" + gatherPoint.getLatitude());
-        altitudeTv.setText("高度: \n" + gatherPoint.getHeight());
+        longitudeTv.setText(gatherPoint.getLongitude());
+        laititudeTv.setText(gatherPoint.getLatitude());
+        altitudeTv.setText(gatherPoint.getHeight());
         timeTv.setText(gatherPoint.getCollected_at());
         commentsTv.setText(gatherPoint.getDesc());
 
@@ -207,8 +208,6 @@ public class AddCollectionActivity extends BaseActivity {
                 if (item.isUrlImage) {
                     ImageLoader.getInstance().displayImage(item.url, imageview);
                     delete.setVisibility(View.GONE);
-//                    Bitmap bitmap = ImageLoader.getInstance().loadImageSync(item.url);
-//                    imageview.setImageBitmap(bitmap);
                 } else if (TextUtils.isEmpty(item.filename)) {
                     imageview.setImageBitmap(null);
                     delete.setVisibility(View.GONE);
@@ -250,14 +249,18 @@ public class AddCollectionActivity extends BaseActivity {
 
     Location location;
     private void fillLongitudeAndLaititude() {
+
         location = LocationController.getInstance().getLocation();
         if (location == null) {
             ToastUtil.showTextToast(this, "Gps定位失败，请打开定位后再采集");
             return;
         }
-        longitudeTv.setText("经度: \n" + location.getLongitude());
-        laititudeTv.setText("纬度: \n" + location.getLatitude());
-        altitudeTv.setText("高度: \n" + location.getAltitude());
+        DecimalFormat df = new DecimalFormat("#.0000000");
+        //String str = df.format(d);
+
+        longitudeTv.setText(df.format(location.getLongitude()));
+        laititudeTv.setText(df.format(location.getLatitude()));
+        altitudeTv.setText(String.format("%.1f", location.getAltitude()));
 
         long time = System.currentTimeMillis();
         timeTv.setText(DateUtils.formatTime(time, DateUtils.fmtYYYYMMDDhhmmss));
@@ -379,12 +382,17 @@ public class AddCollectionActivity extends BaseActivity {
         gatherPoint.setType_id(selectedItem.getId());
         gatherPoint.setDesc(des);
         gatherPoint.setReport(CacheData.getUserName());
-        if (location != null) {
-            gatherPoint.setLongitude("" + location.getLongitude());
-            gatherPoint.setLatitude("" + location.getLatitude());
-            gatherPoint.setHeight("" + location.getAltitude());
-        } else {
+
+        String s1 = longitudeTv.getText().toString();
+        String s2 = laititudeTv.getText().toString();
+        String s3 = altitudeTv.getText().toString();
+        if (TextUtils.isEmpty(s1) || TextUtils.isEmpty(s2)) {
             ToastUtil.showTextToast(this, "定位失败，请打开GPS，等待定位");
+            return;
+        } else {
+            gatherPoint.setLongitude(s1);
+            gatherPoint.setLatitude(s2);
+            gatherPoint.setHeight(s3);
         }
 
         gatherPoint.setCollected_at(timeTv.getText().toString());

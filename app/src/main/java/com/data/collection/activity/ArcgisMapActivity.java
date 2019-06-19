@@ -73,9 +73,7 @@ public class ArcgisMapActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_arcgis_map);
-
         initView();
         initListener();
     }

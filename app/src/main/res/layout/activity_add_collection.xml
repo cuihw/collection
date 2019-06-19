@@ -94,31 +94,58 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     >
-                    <TextView
-                        android:id="@+id/longitude_tv"
+                    <LinearLayout
+                        android:layout_weight="3"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="@dimen/item_padding"
-                        android:layout_weight="3"
-                        android:lines="2"
-                        android:text="经度：\n114.564565645656456564565645656456" />
-                    <TextView
-                        android:id="@+id/laititude_tv"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="@dimen/item_padding"
-                        android:layout_weight="3"
-                        android:lines="2"
-                        android:text="纬度：\n44.56456" />
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="经度" />
+                        <TextView
+                            android:id="@+id/longitude_tv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:singleLine="true"
+                            android:text="114.564565645656456564565645656456" />
+                    </LinearLayout>
 
-                    <TextView
-                        android:id="@+id/altitude_tv"
+                    <LinearLayout
+                        android:layout_weight="3"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="@dimen/item_padding"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="纬度" />
+                        <TextView
+                            android:id="@+id/laititude_tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:singleLine="true"
+                            android:text="114.564565645656456564565645656456" />
+                    </LinearLayout>
+                    <LinearLayout
                         android:layout_weight="4"
-                        android:lines="2"
-                        android:text="高度：\n128m" />
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/item_padding"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="高度" />
+                        <TextView
+                            android:id="@+id/altitude_tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:singleLine="true"
+                            android:text="128m" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <View
