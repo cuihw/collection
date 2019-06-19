@@ -152,13 +152,13 @@ public class CollectionListActivity extends BaseActivity {
                 helper.setText(R.id.location, "经度：" + item.getLongitude() + "， 维度：" + item.getLatitude());
                 helper.setText(R.id.time, "更新时间: " + item.getUpdated_at());
 
-                int showValue = View.VISIBLE;
-                if (isShowLocalData) {
+                int showValue = View.GONE;
+                if (localButton.isChecked()) {
                     showValue = View.VISIBLE;
-                } else {
-                    showValue = View.GONE;
                 }
+
                 helper.setVisible(R.id.is_uploaded, showValue);
+
                 if (item.getIsUploaded()) {
                     helper.setText(R.id.is_uploaded, "已上传");
                 } else {
@@ -168,8 +168,7 @@ public class CollectionListActivity extends BaseActivity {
             }
         };
         listView.setAdapter(adapter);
-
-        showData(true);
+        showData();
     }
 
     private List<GatherPoint> getData(boolean isMyCollectionData) {
@@ -203,21 +202,11 @@ public class CollectionListActivity extends BaseActivity {
                 if (R.id.local_button == checkedId) {
                     myCollectDataList = getData(true);
                     // show local data;
-                    showData(true);
-                    if (myCollectDataList == null || myCollectDataList.size() == 0) {
-                        noDataTv.setVisibility(View.VISIBLE);
-                    } else {
-                        noDataTv.setVisibility(View.INVISIBLE);
-                    }
+                    showData();
                 } else {
                     dataList = getData(false);
                     // show synced data;
-                    showData(false);
-                    if (dataList == null || dataList.size() == 0) {
-                        noDataTv.setVisibility(View.VISIBLE);
-                    } else {
-                        noDataTv.setVisibility(View.INVISIBLE);
-                    }
+                    showData();
                 }
             }
         });
@@ -349,7 +338,7 @@ public class CollectionListActivity extends BaseActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                showData(false);
+                showData();
             }
         }, mills);
     }
@@ -519,12 +508,13 @@ public class CollectionListActivity extends BaseActivity {
         return null;
     }
 
-    boolean isShowLocalData = true;
-
-    private void showData(boolean isLocalData) {
-        isShowLocalData = isLocalData;
+    private void showData() {
         if (adapter == null) return;
-        if (isLocalData) {
+
+        boolean checked = localButton.isChecked();
+
+
+        if (checked) {
             if (myCollectDataList != null) {
                 adapter.replaceAll(myCollectDataList);
             }

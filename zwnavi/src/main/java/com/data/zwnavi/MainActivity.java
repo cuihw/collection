@@ -18,6 +18,8 @@ import com.baidu.navisdk.adapter.BNRoutePlanNode;
 import com.baidu.navisdk.adapter.BaiduNaviManagerFactory;
 import com.baidu.navisdk.adapter.IBNRoutePlanManager;
 import com.baidu.navisdk.adapter.IBaiduNaviManager;
+import com.data.navidata.NaviDataSS;
+import com.google.gson.Gson;
 import com.kaopiz.kprogresshud.KProgressHUD;
 
 import java.io.File;
@@ -38,6 +40,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int authBaseRequestCode = 1;
     private boolean hasInitSuccess = false;  // 百度导航初始化是否完成。
     NaviData naviData;
+
+    NaviDataSS naviDataSS;
+
     private static final String[] authBaseArr = {
             Manifest.permission.WRITE_EXTERNAL_STORAGE,   // 写内存
             Manifest.permission.ACCESS_FINE_LOCATION          // 精准定位
@@ -58,17 +63,21 @@ public class MainActivity extends AppCompatActivity {
         initDirs();
         initNavi();
 
-        //NaviData naviData = getIntent();113.746722,34.793354
         naviData = new NaviData();
         naviData.setLatitude("34.793354");
         naviData.setLongitude("113.746722");
         naviData.setName("测试站点");
 
-
         String naviDataString = getIntent().getStringExtra("naviData");
         Log.w(TAG,"naviDataString" + naviDataString);
         if (!TextUtils.isEmpty(naviDataString)) {
             naviData = NaviData.fromJson(naviDataString);
+        }
+
+        naviDataString = getIntent().getStringExtra("NaviDataSS");
+
+        if (!TextUtils.isEmpty(naviDataString)) {
+            naviDataSS = new Gson().fromJson(naviDataString, NaviDataSS.class);
         }
 
         if (hasInitSuccess) {
@@ -82,6 +91,46 @@ public class MainActivity extends AppCompatActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         Log.w(TAG,"onNewIntent");
+    }
+
+
+    private void calRoutePlanNode(NaviDataSS naviDataSS) {
+        if (!hasInitSuccess) {
+            Toast.makeText(getApplicationContext(), "还未初始化!", Toast
+                    .LENGTH_SHORT).show();
+            Log.w(TAG,"hasInitSuccess is false");
+            finish();
+        }
+        Location location = LocationController.getInstance().getLocation();
+        if (location == null) {
+            ToastUtil.showTextToast(this, "请打开GPS确定位置开始导航");
+            Log.w(TAG,"location is null");
+            finish();
+            return;
+        }
+
+        double latitude = location.getLatitude();
+        double longitude = location.getLongitude();
+
+        // 开始点 我的位置
+        BNRoutePlanNode sNode = new BNRoutePlanNode.Builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .name("我的位置")
+                .description("我的位置")
+                .coordinateType(BNRoutePlanNode.CoordinateType.WGS84)
+                .build();
+
+        // 目标点
+        BNRoutePlanNode eNode = new BNRoutePlanNode.Builder()
+                .latitude(naviDataSS.getEndNode().getLatitude())
+                .longitude(naviDataSS.getEndNode().getLongitude())
+                .name(naviDataSS.getEndNode().getName())
+                .description(naviDataSS.getEndNode().getName())
+                .coordinateType(BNRoutePlanNode.CoordinateType.WGS84)
+                .build();
+
+        routePlanToNavi(sNode, eNode, NORMAL);
     }
 
     private void calRoutePlanNode(NaviData naviData, final int coType) {
@@ -235,8 +284,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void beginNavi() {
         Log.i(TAG, "beginNavi");
-        calRoutePlanNode(naviData, BNRoutePlanNode.CoordinateType.WGS84);
+        if (naviDataSS != null) {
+            calRoutePlanNode(naviDataSS);
+        } else {
+            calRoutePlanNode(naviData, BNRoutePlanNode.CoordinateType.WGS84);
+        }
     }
+
 
     private void initTTS() {
         // 使用内置TTS

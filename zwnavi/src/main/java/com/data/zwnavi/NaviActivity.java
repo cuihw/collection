@@ -188,6 +188,7 @@ public class NaviActivity extends Activity {
                     if (actionType == 0) {
                         // 导航到达目的地 自动退出
                         Log.i(TAG, "notifyOtherAction actionType = " + actionType + ",导航到达目的地！");
+                        ToastUtil.showTextToast(NaviActivity.this, "导航到达目的地！");
                         mRouteGuideManager.forceQuitNaviWithoutDialog();
                     }
                 }

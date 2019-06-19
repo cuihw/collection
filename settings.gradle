@@ -1,1 +1,1 @@
-include ':app', ':zwnavi'
+include ':app', ':zwnavi', ':naviData'

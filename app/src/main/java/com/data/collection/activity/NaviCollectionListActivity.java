@@ -1,5 +1,6 @@
 package com.data.collection.activity;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -35,6 +36,8 @@ import com.data.collection.network.HttpRequest;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.ToastUtil;
 import com.data.collection.view.TitleView;
+import com.data.navidata.LocaltionData;
+import com.data.navidata.NaviDataSS;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.kaopiz.kprogresshud.KProgressHUD;
@@ -145,6 +148,19 @@ public class NaviCollectionListActivity extends BaseActivity {
 
     private void naviTo(GatherPoint item) {
         LsLog.w(TAG, "naviTo() = " + item.getName());
+        NaviDataSS naviDataSS = new NaviDataSS();
+        LocaltionData endNode  = new  LocaltionData();
+        endNode.setName(item.getName());
+        endNode.setLatitude(Double.parseDouble(item.getLatitude()));
+        endNode.setLongitude(Double.parseDouble(item.getLongitude()));
+        naviDataSS.setEndNode(endNode);
+
+        String activity = "com.data.zwnavi.MainActivity";
+        ComponentName component = new ComponentName("com.data.zwnavi", activity);
+        Intent intent = new Intent();
+        intent.setComponent(component);
+        intent.putExtra("NaviDataSS", new Gson().toJson(naviDataSS));
+        startActivity(intent);
     }
 
     private void showData() {
