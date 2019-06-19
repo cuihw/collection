@@ -30,6 +30,9 @@ public class NaviActivity extends Activity {
     private IBNRouteGuideManager mRouteGuideManager;
 
     private IBNaviListener.DayNightMode mMode = IBNaviListener.DayNightMode.DAY;
+    Intent intent;
+
+    boolean isArrivedFinish;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +57,11 @@ public class NaviActivity extends Activity {
                 (true);
 
         initTTSListener();
+        isArrivedFinish = false;
+
+        intent = new Intent();
+        intent.putExtra("data", "start");
+        setResult(RESULT_OK,  intent);//保存数据
     }
 
     private void initTTSListener() {
@@ -180,6 +188,12 @@ public class NaviActivity extends Activity {
                 @Override
                 public void onNaviGuideEnd() {
                     // 退出导航
+                    if (isArrivedFinish) {
+                        intent.putExtra("data", "finish.arrived");
+                    } else {
+                        intent.putExtra("data", "finish.quit");
+                    }
+                    setResult(RESULT_OK,  intent);//保存数据
                     finish();
                 }
 
@@ -188,7 +202,7 @@ public class NaviActivity extends Activity {
                     if (actionType == 0) {
                         // 导航到达目的地 自动退出
                         Log.i(TAG, "notifyOtherAction actionType = " + actionType + ",导航到达目的地！");
-                        ToastUtil.showTextToast(NaviActivity.this, "导航到达目的地！");
+                        isArrivedFinish = true;
                         mRouteGuideManager.forceQuitNaviWithoutDialog();
                     }
                 }

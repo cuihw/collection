@@ -29,7 +29,6 @@ import java.io.InputStream;
 
 public class BitmapUtil {
 
-
     private static final String TAG = "BitmapUtil";
 
     //将bitmap调整到指定大小

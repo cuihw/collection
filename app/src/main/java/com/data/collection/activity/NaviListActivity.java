@@ -1,8 +1,10 @@
 package com.data.collection.activity;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
@@ -22,6 +24,7 @@ import com.data.collection.data.CacheData;
 import com.data.collection.data.greendao.DaoSession;
 import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.data.greendao.GatherPointDao;
+import com.data.collection.listener.INaviItemClickListener;
 import com.data.collection.module.BaseBean;
 import com.data.collection.module.CollectType;
 import com.data.collection.module.ImageData;
@@ -36,6 +39,8 @@ import com.data.collection.network.HttpRequest;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.ToastUtil;
 import com.data.collection.view.TitleView;
+import com.data.navidata.LocaltionData;
+import com.data.navidata.NaviDataSS;
 import com.google.gson.Gson;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -58,6 +63,7 @@ import butterknife.BindView;
 public class NaviListActivity extends BaseActivity {
 
     private static final String TAG = "NaviListActivity";
+    private static final int START_NAVI = 1;
 
     KProgressHUD hud;
 
@@ -75,7 +81,7 @@ public class NaviListActivity extends BaseActivity {
 
     CommonAdapter<NaviData> parentAdapter;
 
-    CommonAdapter<NaviData> childAdapter;
+    MultipleLayoutAdapter childAdapter;
 
     public static void start(Context context) {
         Intent intent = new Intent(context, NaviListActivity.class);
@@ -88,12 +94,13 @@ public class NaviListActivity extends BaseActivity {
         setContentView(R.layout.activity_navi_point_list);
 
         getData();
-        initListener();
         initView();
 
         hud = KProgressHUD.create(this)
                 .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
                 .setCancellable(false);
+
+        initListener();
     }
 
     private void getData() {
@@ -121,7 +128,6 @@ public class NaviListActivity extends BaseActivity {
         childSiteData.clear();
         childSiteData.addAll(sites);
         childSiteData.addAll(children);
-
         childAdapter.replaceAll(childSiteData);
     }
 
@@ -162,12 +168,48 @@ public class NaviListActivity extends BaseActivity {
         };
         listviewParent.setAdapter(parentAdapter);
         childAdapter = new MultipleLayoutAdapter(this, childSiteData);
-
         listviewChild.setAdapter(childAdapter);
     }
 
     private void initListener() {
         titleView.getLefticon().setOnClickListener(v -> finish());
+        childAdapter.setListener(item->naviToPos(item));
+    }
+
+    private void naviToPos(NaviData item) {
+        NaviDataSS naviDataSS = new NaviDataSS();
+        LocaltionData endNode  = new  LocaltionData();
+        endNode.setName(item.getName());
+        endNode.setLatitude(Double.parseDouble(item.getLatitude()));
+        endNode.setLongitude(Double.parseDouble(item.getLongitude()));
+        naviDataSS.setEndNode(endNode);
+
+        String activity = "com.data.zwnavi.MainActivity";
+        ComponentName component = new ComponentName("com.data.zwnavi", activity);
+        Intent intent = new Intent();
+        intent.setComponent(component);
+        intent.putExtra("NaviDataSS", new Gson().toJson(naviDataSS));
+        startActivityForResult(intent, START_NAVI);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case START_NAVI:
+                    String data1 = data.getStringExtra("data");
+                    if (data1.equals("finish.quit")) { // 用户退出导航
+                        ToastUtil.showTextToast(this, "退出导航,");
+                    } else if (data1.equals("finish.arrived")){ // 用户到达目的地
+                        ToastUtil.showTextToast(this, "到达目的地");
+                    }
+                    break;
+            }
+        } else if (resultCode == RESULT_CANCELED){
+
+        }
+
+
     }
 
     private void hideBusy() {

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
@@ -63,6 +64,7 @@ import butterknife.BindView;
 public class NaviCollectionListActivity extends BaseActivity {
 
     private static final String TAG = "NaviCollectionListActivity";
+    private static final int START_NAVI = 1;
 
     KProgressHUD hud;
 
@@ -160,7 +162,24 @@ public class NaviCollectionListActivity extends BaseActivity {
         Intent intent = new Intent();
         intent.setComponent(component);
         intent.putExtra("NaviDataSS", new Gson().toJson(naviDataSS));
-        startActivity(intent);
+        startActivityForResult(intent, START_NAVI);
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case START_NAVI:
+                    String data1 = data.getStringExtra("data");
+                    if (data1.equals("finish.arrived")){ // 用户到达目的地
+                        ToastUtil.showTextToast(this, "到达目的地");
+                    }
+                    break;
+            }
+        } else if (resultCode == RESULT_CANCELED){
+
+        }
     }
 
     private void showData() {

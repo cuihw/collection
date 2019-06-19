@@ -4,18 +4,14 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 import android.view.View;
 
 import com.classic.adapter.BaseAdapterHelper;
 import com.classic.adapter.CommonAdapter;
 import com.data.collection.R;
-import com.data.collection.activity.NaviListActivity;
-import com.data.collection.activity.NaviToActivity;
-import com.data.collection.data.greendao.GatherPoint;
+import com.data.collection.listener.INaviItemClickListener;
 import com.data.collection.module.NaviData;
 import com.data.collection.util.LsLog;
-import com.data.collection.view.NoScrollListView;
 import com.data.navidata.LocaltionData;
 import com.data.navidata.NaviDataSS;
 import com.google.gson.Gson;
@@ -29,7 +25,11 @@ public class MultipleLayoutAdapter  extends CommonAdapter<NaviData> {
     Context mContext;
 
     private static final String TAG = "MultipleLayoutAdapter";
+
     List<NaviData> dataList;
+
+
+    INaviItemClickListener listener;
 
     @Override
     public void replaceAll(@NonNull List<NaviData> item) {
@@ -113,28 +113,10 @@ public class MultipleLayoutAdapter  extends CommonAdapter<NaviData> {
     }
 
     private void navito(NaviData subitem) {
-//        LsLog.w(TAG, "navito: " + subitem.toJson());
-////        NaviToActivity.start(mContext, subitem);
-//        String activity = "com.data.zwnavi.MainActivity";
-//        ComponentName component = new ComponentName("com.data.zwnavi", activity);
-//        Intent intent = new Intent();
-//        intent.setComponent(component);
-//        intent.putExtra("naviData", subitem.toJson());
-//        mContext.startActivity(intent);
         LsLog.w(TAG, "naviTo() = " + subitem.getName());
-        NaviDataSS naviDataSS = new NaviDataSS();
-        LocaltionData endNode  = new  LocaltionData();
-        endNode.setName(subitem.getName());
-        endNode.setLatitude(Double.parseDouble(subitem.getLatitude()));
-        endNode.setLongitude(Double.parseDouble(subitem.getLongitude()));
-        naviDataSS.setEndNode(endNode);
-
-        String activity = "com.data.zwnavi.MainActivity";
-        ComponentName component = new ComponentName("com.data.zwnavi", activity);
-        Intent intent = new Intent();
-        intent.setComponent(component);
-        intent.putExtra("NaviDataSS", new Gson().toJson(naviDataSS));
-        mContext.startActivity(intent);
+        if (listener != null) {
+            listener.naviTo(subitem);
+        }
     }
 
     @Override
@@ -149,4 +131,11 @@ public class MultipleLayoutAdapter  extends CommonAdapter<NaviData> {
         return layoutResId;
     }
 
+    public INaviItemClickListener getListener() {
+        return listener;
+    }
+
+    public void setListener(INaviItemClickListener listener) {
+        this.listener = listener;
+    }
 }

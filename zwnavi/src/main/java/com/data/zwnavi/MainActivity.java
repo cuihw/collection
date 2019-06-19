@@ -7,6 +7,7 @@ import android.location.Location;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     TextView messageTv;
+    private int NAVI_START = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -204,14 +206,21 @@ public class MainActivity extends AppCompatActivity {
                                 ToastUtil.showTextToast(MainActivity.this, "算路成功准备进入导航");
                                 Intent intent = new Intent(MainActivity.this,
                                         NaviActivity.class);
-                                startActivity(intent);
-                                finish();
+                                startActivityForResult(intent, NAVI_START);
                                 break;
                             default:
                                 break;
                         }
                     }
                 });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == NAVI_START) {
+            setResult(RESULT_OK,  data);
+            finish();
+        }
     }
 
     private boolean hasBasePhoneAuth() {
@@ -344,4 +353,13 @@ public class MainActivity extends AppCompatActivity {
         LocationController.getInstance().stopLocation();
         super.onDestroy();
     }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent();
+        intent.putExtra("data", "start.error");
+        setResult(RESULT_OK,intent);//保存数据
+        super.onBackPressed();
+    }
+
 }
