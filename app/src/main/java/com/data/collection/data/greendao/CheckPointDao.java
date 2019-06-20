@@ -57,6 +57,9 @@ public class CheckPointDao extends AbstractDao<CheckPoint, Long> {
                 "\"CHECK\" TEXT," + // 7: check
                 "\"IS_UPLOADED\" INTEGER NOT NULL ," + // 8: isUploaded
                 "\"PROJECT_ID\" TEXT);"); // 9: projectId
+        // Add Indexes
+        db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_CHECK_POINT_REPORTER_CHECK ON \"CHECK_POINT\"" +
+                " (\"REPORTER\" ASC,\"CHECK\" ASC);");
     }
 
     /** Drops the underlying database table. */

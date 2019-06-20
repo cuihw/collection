@@ -3,10 +3,11 @@ package com.data.collection.data.greendao;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Index;
 import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.Unique;
 
-@Entity
+@Entity(indexes = {@Index(value = "reporter, check", unique = true)})
 public class CheckPoint {
 
     private static final String TAG = "CheckPoint";
@@ -28,7 +29,7 @@ public class CheckPoint {
 
     private String reporter; // 上报人
 
-    private String  check; // 检查内容
+    private String check; // 检查内容
 
     private boolean isUploaded;
 
@@ -36,8 +37,8 @@ public class CheckPoint {
 
     @Generated(hash = 2107125328)
     public CheckPoint(Long id, String OnlineId, @NotNull Long pointid,
-            String collectOnlineId, String name, String time, String reporter,
-            String check, boolean isUploaded, String projectId) {
+                      String collectOnlineId, String name, String time, String reporter,
+                      String check, boolean isUploaded, String projectId) {
         this.id = id;
         this.OnlineId = OnlineId;
         this.pointid = pointid;
@@ -135,5 +136,4 @@ public class CheckPoint {
     }
 
 
-    
 }

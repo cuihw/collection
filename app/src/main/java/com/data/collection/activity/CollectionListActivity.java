@@ -101,12 +101,18 @@ public class CollectionListActivity extends BaseActivity {
         context.startActivity(intent);
     }
 
+    QueryBuilder<GatherPoint> myCollectDateQb;
+
+    QueryBuilder<GatherPoint> collectDateQb;
+    QueryBuilder<GatherPoint> localQb;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_collection_list);
         initListener();
 
+        initQueryBuilder();
         myCollectDataList = getData(true); // local data
         dataList = getData(false);
         initView();
@@ -114,6 +120,30 @@ public class CollectionListActivity extends BaseActivity {
         hud = KProgressHUD.create(this)
                 .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
                 .setCancellable(false);
+
+    }
+
+    private void initQueryBuilder() {
+        String userName = CacheData.getUserName();
+        if (TextUtils.isEmpty(userName)) {
+            ToastUtil.showTextToast(this, "用户名不正确，请稍后再试");
+            return;
+        }
+        LsLog.w(TAG, "get my collection data, my name is : " + userName);
+
+        DaoSession daoSession = App.getInstence().getDaoSession();
+        myCollectDateQb = daoSession.queryBuilder(GatherPoint.class)
+                .where(GatherPointDao.Properties.Report.eq(userName))
+                .orderDesc(GatherPointDao.Properties.Updated_at);
+
+        collectDateQb = daoSession.queryBuilder(GatherPoint.class)
+                    .where(GatherPointDao.Properties.IsUploaded.eq(true))
+                .orderDesc(GatherPointDao.Properties.Updated_at);
+
+        localQb = daoSession.queryBuilder(GatherPoint.class)
+                .where(GatherPointDao.Properties.IsUploaded.eq(false))
+                .orderAsc(GatherPointDao.Properties.Collected_at);
+
     }
 
     private void initView() {
@@ -140,7 +170,6 @@ public class CollectionListActivity extends BaseActivity {
                     }
                 }
                 helper.setText(R.id.report_tv, item.getReport());
-
 
                 ImageView imageView = helper.getView(R.id.icon_type);
 
@@ -172,26 +201,11 @@ public class CollectionListActivity extends BaseActivity {
     }
 
     private List<GatherPoint> getData(boolean isMyCollectionData) {
-
-        DaoSession daoSession = App.getInstence().getDaoSession();
-        QueryBuilder<GatherPoint> qb = daoSession.queryBuilder(GatherPoint.class)
-                .orderDesc(GatherPointDao.Properties.Collected_at)
-                .orderDesc(GatherPointDao.Properties.Updated_at);
-
         if (isMyCollectionData) { //
-            String userName = CacheData.getUserName();
-            if (TextUtils.isEmpty(userName)) {
-                ToastUtil.showTextToast(this, "用户名不正确，请稍后再试");
-                return null;
-            }
-            LsLog.w(TAG, "get my collection data, my name is : " + userName);
-            qb.where(GatherPointDao.Properties.Report.eq(userName));
+            return myCollectDateQb.list();
         } else {
-            qb.where(GatherPointDao.Properties.IsUploaded.eq(true));
+            return collectDateQb.list();
         }
-
-        List<GatherPoint> list = qb.list(); // 查出当前对应的数据
-        return list;
     }
 
     private void initListener() {
@@ -240,9 +254,9 @@ public class CollectionListActivity extends BaseActivity {
                     }
                 }, 1000 * 60);
             }
-
-            needUploadSize = myCollectDataList.size();
-            for (GatherPoint point : myCollectDataList) {
+            List<GatherPoint> list = localQb.list();
+            needUploadSize = list.size();
+            for (GatherPoint point : list) {
                 uploadLocalDataWithImage(point);
             }
         } else {
@@ -432,8 +446,7 @@ public class CollectionListActivity extends BaseActivity {
                                     point.setId(data.getString("id"));
                                     point.setIsUploaded(true);
                                     saveToDb(point); // 更新数据库
-                                    // 更新本地列表
-                                    // myCollectDataList.remove(point);
+
                                     dataList.add(point);
                                     adapter.replaceAll(myCollectDataList);
                                 }

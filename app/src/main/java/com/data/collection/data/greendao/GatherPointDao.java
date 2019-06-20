@@ -71,6 +71,9 @@ public class GatherPointDao extends AbstractDao<GatherPoint, Long> {
                 "\"PIC_PATH3\" TEXT," + // 14: picPath3
                 "\"IMGS\" TEXT," + // 15: imgs
                 "\"IS_UPLOADED\" INTEGER NOT NULL );"); // 16: isUploaded
+        // Add Indexes
+        db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_GATHER_POINT_REPORT_COLLECTED_AT ON \"GATHER_POINT\"" +
+                " (\"REPORT\" ASC,\"COLLECTED_AT\" ASC);");
     }
 
     /** Drops the underlying database table. */

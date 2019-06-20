@@ -8,6 +8,7 @@ import com.baidu.mapapi.model.LatLng;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Index;
 import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.Unique;
 
@@ -15,7 +16,7 @@ import java.io.Serializable;
 import java.util.Comparator;
 
 
-@Entity
+@Entity (indexes = {@Index(value = "report, collected_at", unique = true)})
 public class GatherPoint implements Serializable, Comparable<GatherPoint> {
     private static final long serialVersionUID = 1L;
 
