@@ -16,7 +16,7 @@
         jp:TabTextSize="@dimen/font5"
         jp:TabIconSize="25dp"
         jp:TabSelectColor="@color/font0"
-        jp:TabNormalColor="@color/tabfont"/>
+        jp:TabNormalColor="@color/background2"/>
     <FrameLayout
         android:id="@+id/container"
         android:layout_height="match_parent"
