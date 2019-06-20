@@ -136,7 +136,7 @@ public class FragmentSettings extends FragmentBase {
                 .orderDesc(MessageDataDao.Properties.Create_time);
 
         unreadCount = qb.count();// 查出当前未读
-
+        // TODO： 数量加黑
         unread_count.setText("未读消息：" + unreadCount);
     }
 

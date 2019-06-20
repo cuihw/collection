@@ -126,7 +126,8 @@ public class NaviCollectionListActivity extends BaseActivity {
                         thisType = type;
                     }
                 }
-                helper.setText(R.id.report_tv, item.getReport());
+//                helper.setText(R.id.report_tv, "采集人:" + item.getReport());
+                helper.setVisible(R.id.report_tv, View.GONE);
 
                 ImageView imageView = helper.getView(R.id.icon_type);
 
@@ -136,7 +137,7 @@ public class NaviCollectionListActivity extends BaseActivity {
                     imageView.setImageResource(R.mipmap.ic_popup_dialog_close);
                 }
                 helper.setText(R.id.location, "经度：" + item.getLongitude() + "， 维度：" + item.getLatitude());
-                helper.setText(R.id.time, "更新时间: " + item.getUpdated_at());
+                helper.setText(R.id.time, item.getUpdated_at());
                 helper.setVisible(R.id.is_uploaded, View.GONE);
                 ImageView naviIV = helper.getView(R.id.icon_navi);
                 naviIV.setVisibility(View.VISIBLE);

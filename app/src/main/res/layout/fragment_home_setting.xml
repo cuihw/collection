@@ -38,7 +38,7 @@
                 android:layout_gravity="center_vertical"
                 android:text="用户名：张三"
                 android:textSize="@dimen/font3"
-                android:textStyle="bold"
+                android:textColor="@color/black"
                 />
         </LinearLayout>
         <LinearLayout
@@ -60,7 +60,8 @@
                 android:layout_gravity="center_vertical"
                 android:layout_margin="@dimen/item_padding"
                 android:textSize="@dimen/font2"
-                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:paddingLeft="@dimen/item_padding"
                 android:text="消息中心"/>
 
 
@@ -72,7 +73,7 @@
                     android:id="@+id/unread_count"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="@dimen/font4"
+                    android:textSize="@dimen/font3"
                     android:layout_gravity="center_vertical"
                     android:layout_centerVertical="true"
                     android:text="未读消息3"
@@ -108,7 +109,8 @@
                 android:layout_gravity="center_vertical"
                 android:layout_margin="@dimen/item_padding"
                 android:textSize="@dimen/font2"
-                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:paddingLeft="@dimen/item_padding"
                 android:text="项目信息"/>
             <RelativeLayout
                 android:layout_gravity="center_vertical"
@@ -142,7 +144,8 @@
                 android:layout_gravity="center_vertical"
                 android:layout_margin="@dimen/item_padding"
                 android:textSize="@dimen/font2"
-                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:paddingLeft="@dimen/item_padding"
                 android:text="轨迹"/>
             <RelativeLayout
                 android:layout_gravity="center_vertical"
@@ -177,7 +180,8 @@
                 android:layout_gravity="center_vertical"
                 android:layout_margin="@dimen/item_padding"
                 android:textSize="@dimen/font2"
-                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:paddingLeft="@dimen/item_padding"
                 android:text="工具"/>
             <RelativeLayout
                 android:layout_gravity="center_vertical"
@@ -202,7 +206,7 @@
             android:padding="@dimen/item_padding_large"
             android:background="@drawable/round_background"
             android:textSize="@dimen/font2"
-            android:textStyle="bold"
+            android:textColor="@color/black"
             android:layout_margin="@dimen/item_padding_small"
             />
     </LinearLayout>

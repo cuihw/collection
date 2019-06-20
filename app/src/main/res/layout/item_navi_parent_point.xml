@@ -18,7 +18,7 @@
         android:paddingBottom="@dimen/item_padding_large"
         android:paddingTop="@dimen/item_padding_large"
         android:text="京沪线"
-        android:textColor="@color/font4"
+        android:textColor="@color/font3"
         android:textSize="@dimen/font3">
     </TextView>
 

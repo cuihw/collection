@@ -137,7 +137,7 @@ public class CollectionListActivity extends BaseActivity {
                 .orderDesc(GatherPointDao.Properties.Updated_at);
 
         collectDateQb = daoSession.queryBuilder(GatherPoint.class)
-                    .where(GatherPointDao.Properties.IsUploaded.eq(true))
+                .where(GatherPointDao.Properties.IsUploaded.eq(true))
                 .orderDesc(GatherPointDao.Properties.Updated_at);
 
         localQb = daoSession.queryBuilder(GatherPoint.class)
@@ -169,8 +169,7 @@ public class CollectionListActivity extends BaseActivity {
                         thisType = type;
                     }
                 }
-                helper.setText(R.id.report_tv, item.getReport());
-
+                helper.setText(R.id.report_tv, "采集人:" + item.getReport());
                 ImageView imageView = helper.getView(R.id.icon_type);
 
                 if (thisType != null) {
@@ -178,8 +177,8 @@ public class CollectionListActivity extends BaseActivity {
                 } else {
                     imageView.setImageResource(R.mipmap.ic_popup_dialog_close);
                 }
-                helper.setText(R.id.location, "经度：" + item.getLongitude() + "， 维度：" + item.getLatitude());
-                helper.setText(R.id.time, "更新时间: " + item.getUpdated_at());
+                helper.setText(R.id.location, "N:" + item.getLongitude() + "， E:" + item.getLatitude());
+                helper.setText(R.id.time, item.getUpdated_at());
 
                 int showValue = View.GONE;
                 if (localButton.isChecked()) {

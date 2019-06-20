@@ -1,8 +1,6 @@
 package com.data.collection.adapter;
 
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.view.View;
 
@@ -12,9 +10,6 @@ import com.data.collection.R;
 import com.data.collection.listener.INaviItemClickListener;
 import com.data.collection.module.NaviData;
 import com.data.collection.util.LsLog;
-import com.data.navidata.LocaltionData;
-import com.data.navidata.NaviDataSS;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +22,6 @@ public class MultipleLayoutAdapter  extends CommonAdapter<NaviData> {
     private static final String TAG = "MultipleLayoutAdapter";
 
     List<NaviData> dataList;
-
 
     INaviItemClickListener listener;
 
