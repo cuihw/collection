@@ -21,6 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="项目名称"
+        android:textColor="@color/font1"
         android:textSize="@dimen/font1"
         android:padding="@dimen/item_padding"
         android:layout_margin="@dimen/item_padding"

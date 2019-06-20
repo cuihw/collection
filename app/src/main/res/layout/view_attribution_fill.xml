@@ -22,6 +22,7 @@
                 android:layout_marginRight="@dimen/item_padding"
                 android:padding="@dimen/item_padding"
                 android:gravity="right"
+                android:textSize="@dimen/font4"
                 android:text="属性1" />
 
             <EditText

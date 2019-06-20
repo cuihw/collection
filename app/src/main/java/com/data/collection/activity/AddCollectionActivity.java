@@ -131,6 +131,7 @@ public class AddCollectionActivity extends BaseActivity {
         initView();
         initListener();
     }
+    //layout/view_attribution_fill2.xml
 
     private void showPoint(GatherPoint gatherPoint) {
         if (gatherPoint == null) return;

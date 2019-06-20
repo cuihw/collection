@@ -4,7 +4,7 @@
     <string name="navi">导航</string>
     <string name="record">检查记录</string>
     <string name="settings">设置</string>
-    <string name="title">title</string>
+    <string name="title">标题</string>
     <string name="exit_toast">再按一次退出应用</string>
 
     <string name="correct_coord">当前经纬度：%s</string>

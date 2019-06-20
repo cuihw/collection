@@ -47,6 +47,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/name"
+                        android:textSize="@dimen/font4"
                         android:text="请选择类型：" />
 
                     <Spinner
@@ -67,6 +68,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="采集点名称："
+                        android:textSize="@dimen/font4"
                         />
                     <EditText
                         android:id="@+id/name"
@@ -103,6 +105,7 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:textSize="@dimen/font4"
                             android:text="经度" />
                         <TextView
                             android:id="@+id/longitude_tv"
@@ -121,6 +124,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:textSize="@dimen/font4"
                             android:text="纬度" />
                         <TextView
                             android:id="@+id/laititude_tv"
@@ -138,6 +142,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:textSize="@dimen/font4"
                             android:text="高度" />
                         <TextView
                             android:id="@+id/altitude_tv"
@@ -162,6 +167,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textSize="@dimen/font4"
                         android:text="采集时间：" />
                     <TextView
                         android:id="@+id/time_tv"
@@ -183,6 +189,7 @@
                         android:id="@+id/comments_label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textSize="@dimen/font4"
                         android:padding="@dimen/item_padding"
                         android:text="备注:" />
 

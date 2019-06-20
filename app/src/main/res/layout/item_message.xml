@@ -30,6 +30,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_margin="@dimen/item_padding"
                 android:textSize="@dimen/font2"
+                android:textColor="@color/font1"
                 android:singleLine="true"
                 android:text="请再次确认采集点1的位置......"/>
             <TextView
@@ -39,6 +40,7 @@
                 android:layout_height="wrap_content"
                 android:text="请再次确认采集点1的位置"
                 android:layout_marginLeft="@dimen/item_padding"
+                android:textSize="@dimen/font3"
                 android:singleLine="true"
                 />
             <TextView
@@ -48,12 +50,8 @@
                 android:layout_height="wrap_content"
                 android:text="2019-05-59 12:32:25"
                 android:layout_alignParentRight="true"
-                android:layout_marginBottom="@dimen/item_padding"
-                android:layout_marginRight="@dimen/item_padding"
+                android:layout_margin="@dimen/item_padding"
                 />
         </RelativeLayout>
-
-
     </LinearLayout>
-
 </LinearLayout>

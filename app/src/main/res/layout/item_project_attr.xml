@@ -30,6 +30,7 @@
             android:id="@+id/type_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@color/font1"
             android:text="线杆"
             android:textSize="@dimen/font2" />
     </LinearLayout>

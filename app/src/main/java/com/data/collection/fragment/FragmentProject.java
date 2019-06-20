@@ -184,18 +184,16 @@ public class FragmentProject extends FragmentBase {
 
             ckvalues.setText(substring);
 
-        } else if (attr.getType().equals(Attrs.TYPE_TEXT)) {
+        } else {
             view = LayoutInflater.from(getContext()).inflate(R.layout.view_project_attris_fill, null);
             TextView ckname = view.findViewById(R.id.ckey_name);
             TextView ckvalues = view.findViewById(R.id.ckey_values);
             ckname.setText(attr.getLabel());
-            ckvalues.setText("填写文本属性");
-        } else if (attr.getType().equals(Attrs.TYPE_NUMBERIC)) {
-            view = LayoutInflater.from(getContext()).inflate(R.layout.view_project_attris_fill, null);
-            TextView ckname = view.findViewById(R.id.ckey_name);
-            TextView ckvalues = view.findViewById(R.id.ckey_values);
-            ckname.setText(attr.getLabel());
-            ckvalues.setText("填写数字属性");
+            if (attr.getType().equals(Attrs.TYPE_TEXT)) {
+                ckvalues.setText("填写文本属性");
+            } else if (attr.getType().equals(Attrs.TYPE_NUMBERIC)) {
+                ckvalues.setText("填写数字属性");
+            }
         }
         return view;
     }

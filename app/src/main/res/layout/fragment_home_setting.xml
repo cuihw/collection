@@ -38,6 +38,7 @@
                 android:layout_gravity="center_vertical"
                 android:text="用户名：张三"
                 android:textSize="@dimen/font3"
+                android:textStyle="bold"
                 />
         </LinearLayout>
         <LinearLayout
@@ -58,7 +59,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_margin="@dimen/item_padding"
-                android:textSize="@dimen/font3"
+                android:textSize="@dimen/font2"
+                android:textStyle="bold"
                 android:text="消息中心"/>
 
 
@@ -105,7 +107,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_margin="@dimen/item_padding"
-                android:textSize="@dimen/font3"
+                android:textSize="@dimen/font2"
+                android:textStyle="bold"
                 android:text="项目信息"/>
             <RelativeLayout
                 android:layout_gravity="center_vertical"
@@ -138,7 +141,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_margin="@dimen/item_padding"
-                android:textSize="@dimen/font3"
+                android:textSize="@dimen/font2"
+                android:textStyle="bold"
                 android:text="轨迹"/>
             <RelativeLayout
                 android:layout_gravity="center_vertical"
@@ -172,7 +176,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_margin="@dimen/item_padding"
-                android:textSize="@dimen/font3"
+                android:textSize="@dimen/font2"
+                android:textStyle="bold"
                 android:text="工具"/>
             <RelativeLayout
                 android:layout_gravity="center_vertical"
@@ -196,7 +201,8 @@
             android:layout_height="wrap_content"
             android:padding="@dimen/item_padding_large"
             android:background="@drawable/round_background"
-            android:textSize="@dimen/font3"
+            android:textSize="@dimen/font2"
+            android:textStyle="bold"
             android:layout_margin="@dimen/item_padding_small"
             />
     </LinearLayout>
