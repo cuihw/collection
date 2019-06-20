@@ -118,7 +118,6 @@ public class AddCollectionActivity extends BaseActivity {
 
     static GatherPoint gatherPoint;
 
-
     public static void start(Context context, GatherPoint gatherPoint){
         Intent intent = new Intent(context, AddCollectionActivity.class);
         AddCollectionActivity.gatherPoint = gatherPoint;

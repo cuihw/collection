@@ -510,9 +510,10 @@ public class CollectionListActivity extends BaseActivity {
 
     private void showData() {
         if (adapter == null) return;
-
-        boolean checked = localButton.isChecked();
-
+        boolean checked = true;
+        if (localButton != null) {
+            checked = localButton.isChecked();
+        }
 
         if (checked) {
             if (myCollectDataList != null) {

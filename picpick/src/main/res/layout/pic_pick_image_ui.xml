@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <com.data.collection.view.NoScrollGridView
+        android:id="@+id/grid_view"
+        android:background="@drawable/round_background_10dp"
+        android:padding="10dp"
+        android:numColumns="3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </com.data.collection.view.NoScrollGridView>
+</RelativeLayout>
