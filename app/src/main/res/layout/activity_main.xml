@@ -10,10 +10,10 @@
     <com.jpeng.jptabbar.JPTabBar
         android:id="@+id/tabbar"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="65dp"
         android:layout_alignParentBottom="true"
         android:background="@mipmap/top_background"
-        jp:TabTextSize="@dimen/font5"
+        jp:TabTextSize="@dimen/font4"
         jp:TabIconSize="25dp"
         jp:TabSelectColor="@color/font0"
         jp:TabNormalColor="@color/background2"/>

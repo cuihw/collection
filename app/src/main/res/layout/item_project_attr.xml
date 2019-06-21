@@ -22,8 +22,8 @@
             android:textSize="@dimen/font2" />
         <ImageView
             android:id="@+id/icon"
-            android:layout_width="@dimen/title_image"
-            android:layout_height="@dimen/title_image"
+            android:layout_width="@dimen/type_icon"
+            android:layout_height="@dimen/type_icon"
             android:src="@mipmap/tab_home_selected"
             />
         <TextView

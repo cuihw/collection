@@ -4,15 +4,12 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.classic.adapter.BaseAdapterHelper;
@@ -24,14 +21,7 @@ import com.data.collection.data.CacheData;
 import com.data.collection.data.greendao.DaoSession;
 import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.data.greendao.GatherPointDao;
-import com.data.collection.module.BaseBean;
 import com.data.collection.module.CollectType;
-import com.data.collection.module.CollectionImage;
-import com.data.collection.module.ImageData;
-import com.data.collection.module.ImageUploadBean;
-import com.data.collection.module.PointData;
-import com.data.collection.module.PointListBean;
-import com.data.collection.module.PointListData;
 import com.data.collection.module.UserInfoBean;
 import com.data.collection.network.HttpRequest;
 import com.data.collection.util.LsLog;
@@ -40,22 +30,12 @@ import com.data.collection.view.TitleView;
 import com.data.navidata.LocaltionData;
 import com.data.navidata.NaviDataSS;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.greenrobot.greendao.query.QueryBuilder;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.File;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import butterknife.BindView;
 

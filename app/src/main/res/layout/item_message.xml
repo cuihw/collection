@@ -32,6 +32,7 @@
                 android:textSize="@dimen/font2"
                 android:textColor="@color/font1"
                 android:singleLine="true"
+                android:layout_toLeftOf="@+id/messgage_date"
                 android:text="请再次确认采集点1的位置......"/>
             <TextView
                 android:id="@+id/messgage_body"
@@ -45,11 +46,11 @@
                 />
             <TextView
                 android:id="@+id/messgage_date"
-                android:layout_below="@+id/messgage_body"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="2019-05-59 12:32:25"
                 android:layout_alignParentRight="true"
+                android:paddingTop="2dp"
                 android:layout_margin="@dimen/item_padding"
                 />
         </RelativeLayout>

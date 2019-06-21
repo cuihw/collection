@@ -22,6 +22,7 @@
             android:padding="@dimen/item_padding"
             android:layout_centerVertical="true"
             android:layout_margin="@dimen/item_padding_small"
+            android:textStyle="bold"
             />
         <ImageView
             android:id="@+id/expandable_icon"

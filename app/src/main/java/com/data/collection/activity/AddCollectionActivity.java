@@ -135,17 +135,22 @@ public class AddCollectionActivity extends BaseActivity {
 
     private void showPoint(GatherPoint gatherPoint) {
         if (gatherPoint == null) return;
-        if (gatherPoint.getIsUploaded()) {
-            // 不让编辑
-            // 隐藏下面的功能按钮
-            bottomLayout.setVisibility(View.GONE);
-        }
+
         String type_id = gatherPoint.getType_id();
         CollectType collectType = CacheData.getTypeMaps().get(type_id);
         if (collectType != null) {
             typeSpinner.setSelection(collectType.getIndex());
+
         } else {
             LsLog.w(TAG, "collectType == null");
+            return;
+        }
+
+        if (gatherPoint.getIsUploaded()) {
+            // 不让编辑
+            // 隐藏下面的功能按钮
+            bottomLayout.setVisibility(View.GONE);
+            typeSpinner.setEnabled(false);
         }
         nameTv.setText(gatherPoint.getName());
         nameTv.setEnabled(false);
@@ -179,7 +184,6 @@ public class AddCollectionActivity extends BaseActivity {
                 imageList.clear();
                 imageList.addAll(list);
             }
-
         }
         adapter.replaceAll(imageList);
 
@@ -225,11 +229,10 @@ public class AddCollectionActivity extends BaseActivity {
         gridView.setAdapter(adapter);
 
         if (gatherPoint != null) {
+            titleView.getTitleTv().setText("采集点信息");
             showPoint(gatherPoint);
         }
     }
-
-
 
     private void deleteImage(int position) {
         imageList.remove(position);
@@ -241,6 +244,10 @@ public class AddCollectionActivity extends BaseActivity {
 
     private void addPicture(int position) {
         // 点击最后一个，是+ 号的才增加图片
+        if (gatherPoint.getIsUploaded()) {
+            ToastUtil.showTextToast(this, "本条数据已经上传，不能再修改图片数据");
+            return;
+        }
         int size = imageList.size();
         if (size - 1 == position) {
             initPermission(TAKE_PICTURE);

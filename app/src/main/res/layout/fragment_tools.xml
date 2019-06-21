@@ -39,7 +39,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_margin="@dimen/item_padding"
-                android:textSize="@dimen/font3"
+                android:textSize="@dimen/font2"
+                android:paddingLeft="@dimen/item_padding"
+                android:textColor="@color/black"
                 android:text="指南针"/>
             <RelativeLayout
                 android:layout_gravity="center_vertical"
@@ -73,7 +75,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_margin="@dimen/item_padding"
-                android:textSize="@dimen/font3"
+                android:textSize="@dimen/font2"
+                android:paddingLeft="@dimen/item_padding"
+                android:textColor="@color/black"
                 android:text="卫星"/>
             <RelativeLayout
                 android:layout_gravity="center_vertical"
@@ -107,7 +111,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_margin="@dimen/item_padding"
-                android:textSize="@dimen/font3"
+                android:textSize="@dimen/font2"
+                android:paddingLeft="@dimen/item_padding"
+                android:textColor="@color/black"
                 android:text="离线地图"/>
             <RelativeLayout
                 android:layout_gravity="center_vertical"
@@ -141,7 +147,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_margin="@dimen/item_padding"
-                android:textSize="@dimen/font3"
+                android:textSize="@dimen/font2"
+                android:paddingLeft="@dimen/item_padding"
+                android:textColor="@color/black"
                 android:text="坐标系转换"/>
             <RelativeLayout
                 android:layout_gravity="center_vertical"

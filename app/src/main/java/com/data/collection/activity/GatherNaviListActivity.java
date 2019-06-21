@@ -26,7 +26,6 @@ public class GatherNaviListActivity extends BaseActivity {
     @BindView(R.id.title_view)
     TitleView titleView;
 
-
     @BindView(R.id.listview_child)
     ListView listviewChild;
 
@@ -43,7 +42,6 @@ public class GatherNaviListActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navi_point_list);
 
-        getData();
         initListener();
         initView();
 
@@ -51,13 +49,6 @@ public class GatherNaviListActivity extends BaseActivity {
                 .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
                 .setCancellable(false);
     }
-
-    private void getData() {
-
-
-    }
-
-
 
     private void initView() {
         UserInfoBean userInfoBean = CacheData.getUserInfoBean();

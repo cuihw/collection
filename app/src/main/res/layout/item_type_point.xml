@@ -7,8 +7,8 @@
     android:orientation="horizontal">
     <ImageView
         android:id="@+id/icon"
-        android:layout_width="@dimen/button_margin"
-        android:layout_height="@dimen/button_margin"
+        android:layout_width="@dimen/type_icon"
+        android:layout_height="@dimen/type_icon"
         android:src="@mipmap/tab_home_selected"
         />
     <TextView
@@ -16,6 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="采集类型：线杆"
+        android:textColor="@color/black"
         android:padding="@dimen/item_padding"
         android:textSize="@dimen/font2" />
 </LinearLayout>

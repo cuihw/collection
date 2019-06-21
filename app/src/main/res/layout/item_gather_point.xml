@@ -16,8 +16,10 @@
         android:layout_below="@+id/icon_type"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="经度：114.45645123,经度：114.45645123"
-        android:layout_margin="@dimen/item_padding"
+        android:text="经度：114.4564511,经度：114.4564511"
+        android:layout_marginLeft="@dimen/item_padding"
+        android:layout_marginBottom="@dimen/item_padding"
+        android:textSize="@dimen/font3"
         />
     <TextView
         android:id="@+id/report_tv"
@@ -26,18 +28,9 @@
         android:text="上报人:abc"
         android:layout_alignTop="@+id/location"
         android:layout_alignParentRight="true"
-        android:paddingRight="@dimen/item_padding_largest"
+        android:paddingRight="@dimen/item_padding_large"
         />
 
-    <TextView
-        android:id="@+id/is_uploaded"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/report_tv"
-        android:layout_alignParentRight="true"
-        android:paddingRight="@dimen/item_padding_largest"
-        android:text="已上传"
-        android:textColor="@color/font0" />
 
     <LinearLayout
         android:id="@+id/name_layout"
@@ -50,13 +43,14 @@
         >
         <TextView
             android:id="@+id/name"
-            android:layout_width="wrap_content"
+            android:layout_width="120dp"
             android:layout_height="wrap_content"
-            android:text="采集名称"
+            android:text="采集名称采集名称采集名称"
             android:paddingTop="@dimen/item_padding"
             android:paddingBottom="@dimen/item_padding"
-            android:textSize="@dimen/font3"
+            android:textSize="@dimen/font2"
             android:textColor="@color/font1"
+            android:singleLine="true"
             android:layout_toRightOf="@+id/icon_type"
             />
         <TextView
@@ -68,6 +62,16 @@
             android:singleLine="true"
             android:layout_marginLeft="@dimen/item_padding"
             />
+
+        <TextView
+            android:id="@+id/is_uploaded"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/report_tv"
+            android:layout_alignParentRight="true"
+            android:paddingLeft="@dimen/item_padding"
+            android:text="已上传"
+            android:textColor="@color/font0" />
 
     </LinearLayout>
 
