@@ -15,6 +15,7 @@ import com.data.collection.listener.IListenerUserInfo;
 import com.data.collection.module.LoginBean;
 import com.data.collection.module.UserInfoBean;
 import com.data.collection.network.HttpRequest;
+import com.data.collection.util.CrashHandler;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.PreferencesUtils;
 import com.data.collection.util.Utils;
@@ -50,11 +51,12 @@ public class App extends Application {
         instence = this;
 
         initDaoSession();
-        ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(this));
 
+        ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(this));
         initBaiduSdk();
         initLogin();
         getUserInfoCache();
+        CrashHandler.getInstance().init(getApplicationContext());
     }
 
     private void initDaoSession() {

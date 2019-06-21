@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.data.collection.R;
 import com.data.collection.data.UserTrace;
 import com.data.collection.util.FileUtils;
+import com.data.collection.util.ToastUtil;
 import com.data.collection.view.TitleView;
 import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.geometry.SpatialReferences;
@@ -32,13 +33,15 @@ import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
 import com.esri.arcgisruntime.symbology.SimpleLineSymbol;
 import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
 
+import java.io.File;
+
 import butterknife.BindView;
 
 // 导航计算页面，这是一个中转页面
 // 导航跳到这个页面的时候，给出经纬度坐标地点，（初始化导航，初始化文件夹，初始化语音文件）然后计算路径
 // 路径计算完毕后，进入导航页面，开始导航。
 
-public class ArcgisMapActivity extends BaseActivity {
+public class ArcgisMapActivity extends BaseActivity implements Thread.UncaughtExceptionHandler {
 
     private static final String TAG = "ArcgisMapActivity";
 
@@ -125,13 +128,22 @@ public class ArcgisMapActivity extends BaseActivity {
         mMapView.setMap(map);
 
         String fileName = FileUtils.getFileDir() + "offline_map.tif";
-        Raster imageryRaster = new Raster(fileName);
-        RasterLayer rasterLayer =  new RasterLayer(imageryRaster);
+//        fileName = FileUtils.getFileDir() + "ssss.tif";
+//        String fileName = FileUtils.getFileDir() + "aaaa.tif";
+        File file = new File(fileName);
+        if (file.exists()) {
+            Raster imageryRaster = new Raster(fileName);
+            RasterLayer rasterLayer =  new RasterLayer(imageryRaster);
 
-        mMapView.getMap().setBasemap(new Basemap(rasterLayer));
+            mMapView.getMap().setBasemap(new Basemap(rasterLayer));
 
-        createGraphicsOverlay();
-        createPointGraphics();
+            createGraphicsOverlay();
+            createPointGraphics();
+        } else {
+            ToastUtil.showTextToast(this, "本地文件不存在");
+        }
+
+
     }
 
     private void createPointGraphics() {
@@ -142,15 +154,15 @@ public class ArcgisMapActivity extends BaseActivity {
         Graphic pointGraphic = new Graphic(point, pointSymbol);
         mGraphicsOverlay.getGraphics().add(pointGraphic);
 
-        PictureMarkerSymbol pointMarker ;// = getPictureMarkerSymbolFromUrl();
-        pointMarker= getPictureMarkerSymbolFromUrl(R.mipmap.launch_icon);
+//        PictureMarkerSymbol pointMarker ;// = getPictureMarkerSymbolFromUrl();
+//        pointMarker= getPictureMarkerSymbolFromUrl(R.mipmap.launch_icon);
+//
+//        point = new Point(113.7019350, 34.7967643, SpatialReferences.getWgs84());
+//        pointGraphic = new Graphic(point, pointMarker);
+//        mGraphicsOverlay.getGraphics().add(pointGraphic);
 
-        point = new Point(113.7019350, 34.7967643, SpatialReferences.getWgs84());
-        pointGraphic = new Graphic(point, pointMarker);
-        mGraphicsOverlay.getGraphics().add(pointGraphic);
-
-        mGraphicsOverlay.getSelectedGraphics();
-        mGraphicsOverlay.setPopupDefinition(new PopupDefinition());
+//        mGraphicsOverlay.getSelectedGraphics();
+//        mGraphicsOverlay.setPopupDefinition(new PopupDefinition());
     }
 
     private void createGraphicsOverlay() {
@@ -185,4 +197,10 @@ public class ArcgisMapActivity extends BaseActivity {
 
         if (mMapView != null)  mMapView.resume();
     }
+
+    @Override
+    public void uncaughtException(Thread t, Throwable e) {
+        e.printStackTrace();
+    }
+
 }
