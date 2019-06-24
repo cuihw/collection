@@ -83,7 +83,7 @@
         android:layout_marginBottom="@dimen/item_padding"
         android:layout_marginLeft="@dimen/item_padding_small"
         android:layout_marginRight="@dimen/item_padding_small"
-        android:padding="@dimen/item_padding"
+        android:padding="@dimen/item_padding_large"
         android:gravity="center"
         android:text="全部上传"
         android:textSize="@dimen/font2"

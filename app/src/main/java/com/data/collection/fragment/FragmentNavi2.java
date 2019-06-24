@@ -10,10 +10,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+import com.data.collection.Constants;
 import com.data.collection.R;
 import com.data.collection.activity.NaviCollectionListActivity;
 import com.data.collection.activity.NaviListActivity;
+import com.data.collection.data.CacheData;
 import com.data.collection.util.LsLog;
+import com.data.collection.util.ToastUtil;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import butterknife.BindView;
@@ -70,8 +73,20 @@ public class FragmentNavi2 extends FragmentBase {
 
     private void initListener() {
         naviListLayout.setOnClickListener(v->NaviListActivity.start(getContext()));
-        localdataListLayout.setOnClickListener(v-> NaviCollectionListActivity.start(getContext(),true));
-        syncdataListLayout.setOnClickListener(v->NaviCollectionListActivity.start(getContext(), false));
+        localdataListLayout.setOnClickListener(v-> {
+            if (CacheData.isLogin()) {
+                NaviCollectionListActivity.start(getContext(),true);
+            } else {
+                ToastUtil.showTextToast(getContext(), Constants.NO_PROJECT_INFO);
+            }
+        });
+        syncdataListLayout.setOnClickListener(v-> {
+            if (CacheData.isLogin()) {
+                NaviCollectionListActivity.start(getContext(), false);
+            } else {
+                ToastUtil.showTextToast(getContext(), Constants.NO_PROJECT_INFO);
+            }
+        });
     }
 
 }

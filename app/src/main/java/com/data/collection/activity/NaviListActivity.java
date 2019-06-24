@@ -5,36 +5,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.classic.adapter.BaseAdapterHelper;
 import com.classic.adapter.CommonAdapter;
-import com.data.collection.App;
 import com.data.collection.Constants;
 import com.data.collection.R;
 import com.data.collection.adapter.MultipleLayoutAdapter;
-import com.data.collection.data.CacheData;
-import com.data.collection.data.greendao.DaoSession;
-import com.data.collection.data.greendao.GatherPoint;
-import com.data.collection.data.greendao.GatherPointDao;
-import com.data.collection.listener.INaviItemClickListener;
-import com.data.collection.module.BaseBean;
-import com.data.collection.module.CollectType;
-import com.data.collection.module.ImageData;
-import com.data.collection.module.ImageUploadBean;
 import com.data.collection.module.NaviData;
 import com.data.collection.module.NaviListBean;
-import com.data.collection.module.PointData;
-import com.data.collection.module.PointListBean;
-import com.data.collection.module.PointListData;
-import com.data.collection.module.UserInfoBean;
 import com.data.collection.network.HttpRequest;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.ToastUtil;
@@ -43,18 +23,9 @@ import com.data.navidata.LocaltionData;
 import com.data.navidata.NaviDataSS;
 import com.google.gson.Gson;
 import com.kaopiz.kprogresshud.KProgressHUD;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
-import org.greenrobot.greendao.query.QueryBuilder;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import butterknife.BindView;
 
@@ -118,8 +89,12 @@ public class NaviListActivity extends BaseActivity {
     }
 
     private void handleData(NaviListBean bean) {
-        rootData = bean.getData();
-        parentAdapter.replaceAll(rootData);
+        if (bean.getCode().equals(Constants.SUCCEED)) {
+            rootData = bean.getData();
+            parentAdapter.replaceAll(rootData);
+        } else {
+            ToastUtil.showTextToast(this, bean.getMsg());
+        }
     }
 
     private void showChildList(NaviData item) {
@@ -132,11 +107,8 @@ public class NaviListActivity extends BaseActivity {
     }
 
     private void initView() {
-        UserInfoBean userInfoBean = CacheData.getUserInfoBean();
-        if (userInfoBean == null) {
-            ToastUtil.showTextToast(this, Constants.NO_PROJECT_INFO);
-            return;
-        }
+//        导航点导航，用户不用登录。
+
         parentAdapter = new CommonAdapter<NaviData>(this, R.layout.item_navi_parent_point, rootData) {
             @Override
             public void onUpdate(BaseAdapterHelper helper, NaviData item, int position) {
@@ -167,12 +139,16 @@ public class NaviListActivity extends BaseActivity {
             TextView oldViewHold;
         };
         listviewParent.setAdapter(parentAdapter);
+
+        LsLog.w(TAG, "new MultipleLayoutAdapter ");
         childAdapter = new MultipleLayoutAdapter(this, childSiteData);
         listviewChild.setAdapter(childAdapter);
     }
 
     private void initListener() {
         titleView.getLefticon().setOnClickListener(v -> finish());
+
+        LsLog.w(TAG, "initListener new setlistener ...");
         childAdapter.setListener(item->naviToPos(item));
     }
 

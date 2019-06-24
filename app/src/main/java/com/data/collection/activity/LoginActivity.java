@@ -1,5 +1,6 @@
 package com.data.collection.activity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,7 +10,9 @@ import android.widget.TextView;
 
 import com.data.collection.App;
 import com.data.collection.Constants;
+import com.data.collection.MainActivity;
 import com.data.collection.R;
+import com.data.collection.data.CacheData;
 import com.data.collection.module.LoginBean;
 import com.data.collection.network.HttpRequest;
 import com.data.collection.util.LsLog;
@@ -41,6 +44,10 @@ public class LoginActivity extends BaseActivity {
         Intent intent = new Intent(context, LoginActivity.class);
         context.startActivity(intent);
     }
+    public static void startForResult(Activity act, int code){
+        Intent intent = new Intent(act, LoginActivity.class);
+        act.startActivityForResult(intent, code);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +55,8 @@ public class LoginActivity extends BaseActivity {
         setContentView(R.layout.activity_login);
         initView();
         initListener();
+
+        setResult(RESULT_CANCELED, null);
     }
 
     private void initView() {
@@ -97,12 +106,14 @@ public class LoginActivity extends BaseActivity {
             loginBean.cacheData(this);
             ToastUtil.showTextToast(this, "登录成功!");
             App.getInstence().getUserInfo(null);
+
+            setResult(RESULT_OK, null);
+            finish();
         } else {
             loginBean.cacheData(this);
             ToastUtil.showTextToast(this, "登录失败!");
+            CacheData.clearProject();
+            setResult(RESULT_CANCELED, null);
         }
-        finish();
     }
-
-
 }

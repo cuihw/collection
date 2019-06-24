@@ -169,7 +169,7 @@ public class NaviCollectionListActivity extends BaseActivity {
         if (dataList != null && dataList.size() > 0) {
             adapter.replaceAll(dataList);
         } else {
-            adapter.replaceAll(null);
+            adapter.clear();
         }
 
         if (adapter.getCount() > 0) {

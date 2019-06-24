@@ -11,7 +11,6 @@ import org.greenrobot.greendao.internal.DaoConfig;
 import com.data.collection.data.greendao.CheckPoint;
 import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.data.greendao.MessageData;
-import com.data.collection.data.greendao.MessageRecord;
 import com.data.collection.data.greendao.PictureMap;
 import com.data.collection.data.greendao.Sample;
 import com.data.collection.data.greendao.TraceLocation;
@@ -19,7 +18,6 @@ import com.data.collection.data.greendao.TraceLocation;
 import com.data.collection.data.greendao.CheckPointDao;
 import com.data.collection.data.greendao.GatherPointDao;
 import com.data.collection.data.greendao.MessageDataDao;
-import com.data.collection.data.greendao.MessageRecordDao;
 import com.data.collection.data.greendao.PictureMapDao;
 import com.data.collection.data.greendao.SampleDao;
 import com.data.collection.data.greendao.TraceLocationDao;
@@ -36,7 +34,6 @@ public class DaoSession extends AbstractDaoSession {
     private final DaoConfig checkPointDaoConfig;
     private final DaoConfig gatherPointDaoConfig;
     private final DaoConfig messageDataDaoConfig;
-    private final DaoConfig messageRecordDaoConfig;
     private final DaoConfig pictureMapDaoConfig;
     private final DaoConfig sampleDaoConfig;
     private final DaoConfig traceLocationDaoConfig;
@@ -44,7 +41,6 @@ public class DaoSession extends AbstractDaoSession {
     private final CheckPointDao checkPointDao;
     private final GatherPointDao gatherPointDao;
     private final MessageDataDao messageDataDao;
-    private final MessageRecordDao messageRecordDao;
     private final PictureMapDao pictureMapDao;
     private final SampleDao sampleDao;
     private final TraceLocationDao traceLocationDao;
@@ -62,9 +58,6 @@ public class DaoSession extends AbstractDaoSession {
         messageDataDaoConfig = daoConfigMap.get(MessageDataDao.class).clone();
         messageDataDaoConfig.initIdentityScope(type);
 
-        messageRecordDaoConfig = daoConfigMap.get(MessageRecordDao.class).clone();
-        messageRecordDaoConfig.initIdentityScope(type);
-
         pictureMapDaoConfig = daoConfigMap.get(PictureMapDao.class).clone();
         pictureMapDaoConfig.initIdentityScope(type);
 
@@ -77,7 +70,6 @@ public class DaoSession extends AbstractDaoSession {
         checkPointDao = new CheckPointDao(checkPointDaoConfig, this);
         gatherPointDao = new GatherPointDao(gatherPointDaoConfig, this);
         messageDataDao = new MessageDataDao(messageDataDaoConfig, this);
-        messageRecordDao = new MessageRecordDao(messageRecordDaoConfig, this);
         pictureMapDao = new PictureMapDao(pictureMapDaoConfig, this);
         sampleDao = new SampleDao(sampleDaoConfig, this);
         traceLocationDao = new TraceLocationDao(traceLocationDaoConfig, this);
@@ -85,7 +77,6 @@ public class DaoSession extends AbstractDaoSession {
         registerDao(CheckPoint.class, checkPointDao);
         registerDao(GatherPoint.class, gatherPointDao);
         registerDao(MessageData.class, messageDataDao);
-        registerDao(MessageRecord.class, messageRecordDao);
         registerDao(PictureMap.class, pictureMapDao);
         registerDao(Sample.class, sampleDao);
         registerDao(TraceLocation.class, traceLocationDao);
@@ -95,7 +86,6 @@ public class DaoSession extends AbstractDaoSession {
         checkPointDaoConfig.clearIdentityScope();
         gatherPointDaoConfig.clearIdentityScope();
         messageDataDaoConfig.clearIdentityScope();
-        messageRecordDaoConfig.clearIdentityScope();
         pictureMapDaoConfig.clearIdentityScope();
         sampleDaoConfig.clearIdentityScope();
         traceLocationDaoConfig.clearIdentityScope();
@@ -111,10 +101,6 @@ public class DaoSession extends AbstractDaoSession {
 
     public MessageDataDao getMessageDataDao() {
         return messageDataDao;
-    }
-
-    public MessageRecordDao getMessageRecordDao() {
-        return messageRecordDao;
     }
 
     public PictureMapDao getPictureMapDao() {

@@ -36,8 +36,9 @@
     <color name="background2">#d1d1d1</color>
     <color name="background3">#bebebe</color>
     <color name="background4">#8d8d8d</color>
+    <!--内容页背景主色调-->
     <color name="background5">#6c777b</color>
-    <color name="background6">#3d4347</color>
+    <color name="background6">#313538</color>
 
     <color name="background7">#50FF8C00</color>
 

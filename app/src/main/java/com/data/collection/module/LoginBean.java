@@ -26,6 +26,5 @@ public class LoginBean extends Bean {
             CacheData.LOGIN_DATA = null;
             PreferencesUtils.putString(context, Constants.LOGIN, "");
         }
-
     }
 }

@@ -24,7 +24,6 @@ public class DaoMaster extends AbstractDaoMaster {
         CheckPointDao.createTable(db, ifNotExists);
         GatherPointDao.createTable(db, ifNotExists);
         MessageDataDao.createTable(db, ifNotExists);
-        MessageRecordDao.createTable(db, ifNotExists);
         PictureMapDao.createTable(db, ifNotExists);
         SampleDao.createTable(db, ifNotExists);
         TraceLocationDao.createTable(db, ifNotExists);
@@ -35,7 +34,6 @@ public class DaoMaster extends AbstractDaoMaster {
         CheckPointDao.dropTable(db, ifExists);
         GatherPointDao.dropTable(db, ifExists);
         MessageDataDao.dropTable(db, ifExists);
-        MessageRecordDao.dropTable(db, ifExists);
         PictureMapDao.dropTable(db, ifExists);
         SampleDao.dropTable(db, ifExists);
         TraceLocationDao.dropTable(db, ifExists);
@@ -60,7 +58,6 @@ public class DaoMaster extends AbstractDaoMaster {
         registerDaoClass(CheckPointDao.class);
         registerDaoClass(GatherPointDao.class);
         registerDaoClass(MessageDataDao.class);
-        registerDaoClass(MessageRecordDao.class);
         registerDaoClass(PictureMapDao.class);
         registerDaoClass(SampleDao.class);
         registerDaoClass(TraceLocationDao.class);

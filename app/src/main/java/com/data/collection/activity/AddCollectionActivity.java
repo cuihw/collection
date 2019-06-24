@@ -140,20 +140,13 @@ public class AddCollectionActivity extends BaseActivity {
         CollectType collectType = CacheData.getTypeMaps().get(type_id);
         if (collectType != null) {
             typeSpinner.setSelection(collectType.getIndex());
-
         } else {
             LsLog.w(TAG, "collectType == null");
             return;
         }
 
-        if (gatherPoint.getIsUploaded()) {
-            // 不让编辑
-            // 隐藏下面的功能按钮
-            bottomLayout.setVisibility(View.GONE);
-            typeSpinner.setEnabled(false);
-        }
+
         nameTv.setText(gatherPoint.getName());
-        nameTv.setEnabled(false);
         longitudeTv.setText(gatherPoint.getLongitude());
         laititudeTv.setText(gatherPoint.getLatitude());
         altitudeTv.setText(gatherPoint.getHeight());
@@ -162,9 +155,16 @@ public class AddCollectionActivity extends BaseActivity {
 
         createAttrsView(collectType.getIndex());
 
-        // attrsView.setGatherPoint(gatherPoint);
+        if (gatherPoint.getIsUploaded()) {
+            // 不让编辑
+            // 隐藏下面的功能按钮
+            bottomLayout.setVisibility(View.GONE);
+            typeSpinner.setEnabled(false);
+            nameTv.setEnabled(false);
+            commentsTv.setEnabled(false);
 
-        if (gatherPoint.getIsUploaded()) { // 加载网络图片
+
+            // 加载网络图片
             String imgs = gatherPoint.getImgs();
             if (!TextUtils.isEmpty(imgs)) {
                 Type type =new TypeToken<List<CollectionImage>>(){}.getType();
@@ -175,8 +175,8 @@ public class AddCollectionActivity extends BaseActivity {
                 imageList.clear();
                 imageList.addAll(list);
             }
-        } else { // 本地图片
-            // gatherPoint
+        } else {
+            // 本地图片
             String picPath1 = gatherPoint.getPicPath1();
             if (!TextUtils.isEmpty(picPath1)) {
                 Type type =new TypeToken<List<CollectionImage>>(){}.getType();
@@ -190,7 +190,6 @@ public class AddCollectionActivity extends BaseActivity {
         if (imageList.size() == 0) {
             gridView.setVisibility(View.GONE);
         }
-
     }
 
     private void initView() {

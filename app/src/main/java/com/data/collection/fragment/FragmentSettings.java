@@ -1,5 +1,6 @@
 package com.data.collection.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,10 +13,14 @@ import android.widget.TextView;
 
 import com.data.collection.App;
 import com.data.collection.Constants;
+import com.data.collection.MainActivity;
 import com.data.collection.R;
 import com.data.collection.activity.LoginActivity;
 import com.data.collection.data.CacheData;
+import com.data.collection.data.greendao.CheckPoint;
+import com.data.collection.data.greendao.CheckPointDao;
 import com.data.collection.data.greendao.DaoSession;
+import com.data.collection.data.greendao.GatherPointDao;
 import com.data.collection.data.greendao.MessageData;
 import com.data.collection.data.greendao.MessageDataDao;
 import com.data.collection.module.BaseBean;
@@ -92,10 +97,17 @@ public class FragmentSettings extends FragmentBase {
     private void clickLoginButton() {
         String text = loginButton.getText().toString();
         if (text.equals("登录")) { // 跳转到登录页面，
-            LoginActivity.start(getContext());
+//            LoginActivity.start(getContext());
+            LoginActivity.startForResult(getActivity(), MainActivity.LOGIN_REQUEST);
         } else { // 已经登录，退出登录
-            loginButton.setText("登录");
+            logOut();
         }
+    }
+
+    private void logOut() {
+        CacheData.clearProject();
+        username.setText("用户未登录");
+        loginButton.setText("登录");
     }
 
     private void initView() {
@@ -130,7 +142,7 @@ public class FragmentSettings extends FragmentBase {
     long unreadCount;
     private void getUnreadCountDB() {
         DaoSession daoSession =  App.getInstence().getDaoSession();
-        MessageDataDao messageDataDao = daoSession.getMessageDataDao();
+
         QueryBuilder<MessageData> qb = daoSession.queryBuilder(MessageData.class)
                 .where(MessageDataDao.Properties.Type.eq("0"))
                 .orderDesc(MessageDataDao.Properties.Create_time);
@@ -151,15 +163,19 @@ public class FragmentSettings extends FragmentBase {
             return;
         }
 
-        UserInfoBean userInfoBean = CacheData.getUserInfoBean();
-        if (userInfoBean == null) {
-            userInfoBean = App.getInstence().getUserInfoCache();
-        }
-        if (userInfoBean != null) {
+        if (CacheData.isValidProject()) {
+            UserInfoBean userInfoBean = CacheData.getUserInfoBean();
             String name = userInfoBean.getData().getUser().getName();
             username.setText("用户名： " + name);
         } else {
-            ToastUtil.showTextToast(getContext(),"用户信息出错，请打开网络重新登录，获取用户信息");
+            username.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    UserInfoBean userInfoBean = CacheData.getUserInfoBean();
+                    String name = userInfoBean.getData().getUser().getName();
+                    username.setText("用户名： " + name);
+                }
+            }, 1000);
         }
 
     }

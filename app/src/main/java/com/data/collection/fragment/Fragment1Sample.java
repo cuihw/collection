@@ -51,11 +51,7 @@ public class Fragment1Sample extends FragmentBase {
         return view;
     }
 
-
     private void initListener() {
         titleView.getLefticon().setOnClickListener(v->getActivity().finish());
     }
-
-
-
 }

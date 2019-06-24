@@ -176,8 +176,8 @@ public class AttributionView extends LinearLayout {
                     String label = ckeyview.getText().toString().trim();
                     if (label.startsWith(att.getLabel())) {
                         Spinner spinner = view.findViewById(R.id.spinner);
-                        int selectedItemPosition = spinner.getSelectedItemPosition() + 1; // 得到当前选项，选项值增加1
-                        att.setValue("" + selectedItemPosition);
+                        String s = spinner.getSelectedItem().toString();
+                        att.setValue(s);
                     }
                 }
             }

@@ -1,6 +1,9 @@
 package com.data.collection;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.widget.Toast;
 
 import com.data.collection.activity.BaseActivity;
@@ -23,6 +26,7 @@ import butterknife.BindView;
 public class MainActivity extends BaseActivity {
 
     private static final String TAG = "MainActivity";
+    public static final int LOGIN_REQUEST = 10;
     @BindView(R.id.tabbar)
     JPTabBar jpTabBar;
 
@@ -124,6 +128,17 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == LOGIN_REQUEST && resultCode == RESULT_OK) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                     tranToFragment(fragmentHome);
+                }
+            }, 1000);
 
+        }
+    }
 
 }

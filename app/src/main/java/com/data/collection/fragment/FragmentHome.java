@@ -36,10 +36,12 @@ import com.data.collection.R;
 import com.data.collection.activity.AddCollectionActivity;
 import com.data.collection.activity.ArcgisMapActivity;
 import com.data.collection.activity.CollectionListActivity;
+import com.data.collection.data.CacheData;
 import com.data.collection.data.UserTrace;
 import com.data.collection.util.LocationController;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.PositionUtil;
+import com.data.collection.util.ToastUtil;
 import com.data.collection.view.TitleView;
 
 import butterknife.BindView;
@@ -117,10 +119,20 @@ public class FragmentHome extends FragmentBase {
     private void initListener() {
         titleView.getRighticon().setOnClickListener(v->{
             // 显示采集列表。
-            CollectionListActivity.start(getContext());
+            if (CacheData.isLogin()) {
+                CollectionListActivity.start(getContext());
+            } else {
+                ToastUtil.showTextToast(getContext(), "请先登录系统，再进行操作");
+            }
         });
 
-        addPoint.setOnClickListener(v-> AddCollectionActivity.start(getContext(),null));
+        addPoint.setOnClickListener(v->{
+            if (CacheData.isLogin()) {
+                AddCollectionActivity.start(getContext(),null);
+            } else {
+                ToastUtil.showTextToast(getContext(), "请先登录系统，再进行操作");
+            }
+        });
         recodeTrace.setOnClickListener(v-> clickTraceButton());
         mapTypeTv.setOnClickListener(v->{
             if (mBaiduMap != null) {
@@ -153,6 +165,10 @@ public class FragmentHome extends FragmentBase {
             }
         } else {
             // 开始记录轨迹
+            if (!CacheData.isLogin()) {
+                ToastUtil.showTextToast(getContext(), "用户没有登录");
+                return;
+            }
             instance.start();
             recodeTrace.setText("停止\n记录");
             setFlickerAnimation(traceProcess);
@@ -241,7 +257,8 @@ public class FragmentHome extends FragmentBase {
     public void onResume() {
         super.onResume();
 
-        mSensorManager.registerListener(sensorEventListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
+        mSensorManager.registerListener(sensorEventListener,
+                mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
                 SensorManager.SENSOR_DELAY_UI);
     }
 
