@@ -46,6 +46,7 @@ public class CheckReportListActivitiy extends BaseActivity {
 
     @BindView(R.id.title_view)
     TitleView titleView;
+
     @BindView(R.id.no_data_tv)
     TextView no_data_tv;
 

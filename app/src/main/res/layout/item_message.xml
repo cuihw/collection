@@ -33,16 +33,17 @@
                 android:textColor="@color/font1"
                 android:singleLine="true"
                 android:layout_toLeftOf="@+id/messgage_date"
-                android:text="请再次确认采集点1的位置......"/>
+                android:text="消息标题消息标题消息标题消息标题......"/>
             <TextView
                 android:id="@+id/messgage_body"
                 android:layout_below="@+id/title_message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="请再次确认采集点1的位置"
+                android:text="消息内容消息内容消息内容消息内容消息内容消息内容"
                 android:layout_marginLeft="@dimen/item_padding"
                 android:textSize="@dimen/font3"
                 android:singleLine="true"
+                android:layout_marginBottom="@dimen/item_padding"
                 />
             <TextView
                 android:id="@+id/messgage_date"

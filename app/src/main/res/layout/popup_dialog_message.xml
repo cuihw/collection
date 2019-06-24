@@ -27,6 +27,21 @@
 
     </RelativeLayout>
     <TextView
+        android:id="@+id/common_dialog_message_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="17dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:gravity="left"
+        android:lineSpacingExtra="3dp"
+        android:maxLines="5"
+        android:minHeight="25dp"
+        android:textColor="#555555"
+        android:textSize="14dp"
+        tools:text="信息" />
+
+    <TextView
         android:id="@+id/message_from_time"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -37,24 +52,9 @@
         android:lineSpacingExtra="3dp"
         android:maxLines="5"
         android:minHeight="25dp"
-        android:textColor="@color/background4"
+        android:textColor="@color/background5"
         android:textSize="9dp"
-        tools:text="发件人: admin;    \n日期：2019-11-26 14:35:56" />
-    <TextView
-        android:id="@+id/common_dialog_message_tv"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="17dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:gravity="center"
-        android:lineSpacingExtra="3dp"
-        android:maxLines="5"
-        android:minHeight="25dp"
-        android:textColor="#555555"
-        android:textSize="14dp"
-        tools:text="信息" />
-
+        tools:text="发件人: admin;     日期：2019-11-26 14:35:56" />
     <TextView
         android:id="@+id/tv_desc2"
         android:layout_width="match_parent"

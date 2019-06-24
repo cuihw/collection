@@ -244,7 +244,7 @@ public class AddCollectionActivity extends BaseActivity {
 
     private void addPicture(int position) {
         // 点击最后一个，是+ 号的才增加图片
-        if (gatherPoint.getIsUploaded()) {
+        if (gatherPoint != null && gatherPoint.getIsUploaded()) {
             ToastUtil.showTextToast(this, "本条数据已经上传，不能再修改图片数据");
             return;
         }

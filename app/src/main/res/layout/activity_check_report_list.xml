@@ -15,7 +15,6 @@
         android:layout_height="wrap_content"
         title:IconLeft="@mipmap/top_back"
         title:TitleText="检查列表">
-
     </com.data.collection.view.TitleView>
 
     <LinearLayout
@@ -32,7 +31,8 @@
             android:layout_height="wrap_content"
             android:background="@drawable/round_top_background3"
             android:text="检查列表"
-            android:textSize="@dimen/font4"
+            android:textSize="@dimen/font3"
+            android:textColor="@color/black"
             android:padding="@dimen/item_padding"
             />
         <TextView
@@ -56,14 +56,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/round_background"
-        android:layout_marginLeft="@dimen/item_padding_large"
-        android:layout_marginRight="@dimen/item_padding_large"
+        android:layout_marginLeft="@dimen/item_padding"
+        android:layout_marginRight="@dimen/item_padding"
         android:text="同步数据"
         android:textSize="@dimen/font2"
+        android:textColor="@color/black"
         android:gravity="center"
-        android:padding="@dimen/item_padding"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="@dimen/item_padding_largest"
+        android:padding="@dimen/item_padding_large"
         />
 
 </RelativeLayout>

@@ -163,7 +163,7 @@ public class FragmentMessage extends FragmentBase {
                             setMessageRead(messageData);
                         }
                     });
-            String fromTime = "发件人:" + messageData.getPusher() + "\n时间" + messageData.getCreate_time();
+            String fromTime = "发件人:" + messageData.getPusher() + ";   时间:" + messageData.getCreate_time();
             dialog.show();
             dialog.setFromMsg(fromTime);
         }

@@ -86,7 +86,7 @@
         android:padding="@dimen/item_padding"
         android:gravity="center"
         android:text="全部上传"
-        android:textSize="@dimen/font3"
+        android:textSize="@dimen/font2"
         android:textColor="@color/font1"
         android:layout_alignParentBottom="true"
         />

@@ -79,8 +79,12 @@ public class App extends Application {
         UserInfoBean userInfoBean = null;
         if (!TextUtils.isEmpty(userInfoStr)) {
             LsLog.i(TAG, "userInfoStr = " + userInfoStr);
-            userInfoBean = UserInfoBean.formJson(userInfoStr, UserInfoBean.class);
-            CacheData.setUserInfoBean(userInfoBean);
+            try {
+                userInfoBean = UserInfoBean.formJson(userInfoStr, UserInfoBean.class);
+                CacheData.setUserInfoBean(userInfoBean);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         // 请求新的
         getUserInfo(null);
