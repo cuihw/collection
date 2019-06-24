@@ -102,6 +102,11 @@ public class FragmentProject extends FragmentBase {
             return;
         }
 
+        if (CacheData.isDMS()) {
+            degreeMinRadio.setChecked(true);
+        } else {
+            unit_format.check(R.id.jwd);
+        }
 
         UserData data = userInfoBean.getData();
 

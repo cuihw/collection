@@ -139,7 +139,6 @@ public class MainActivity extends BaseActivity {
                     jpTabBar.setSelectTab(0);
                 }
             }, 1000);
-
         }
     }
 
