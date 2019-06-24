@@ -430,7 +430,7 @@ public class FragmentCheckRecord extends FragmentBase {
 
         infoHolder.name_tv.setText(pointInfo.getName());
         infoHolder.type_tv.setText(type.getName());
-        infoHolder.point_tv.setText(pointInfo.getLatitude() + ",  " + pointInfo.getLongitude());
+        infoHolder.point_tv.setText(pointInfo.getFormatLatitude() + ",  " + pointInfo.getFormatLongitude());
 //
 //        infoHolder.type_icon.setImageDrawable(null);
         Bitmap bitmap = ImageLoader.getInstance().loadImageSync(type.getIcon());

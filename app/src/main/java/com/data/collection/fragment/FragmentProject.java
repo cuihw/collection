@@ -11,10 +11,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.classic.adapter.BaseAdapterHelper;
 import com.classic.adapter.CommonAdapter;
+import com.data.collection.Constants;
 import com.data.collection.R;
 import com.data.collection.activity.CommonActivity;
 import com.data.collection.data.CacheData;
@@ -24,6 +27,7 @@ import com.data.collection.module.Project;
 import com.data.collection.module.UserData;
 import com.data.collection.module.UserInfoBean;
 import com.data.collection.util.LsLog;
+import com.data.collection.util.PreferencesUtils;
 import com.data.collection.util.ToastUtil;
 import com.data.collection.view.TitleView;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -52,6 +56,12 @@ public class FragmentProject extends FragmentBase {
     @BindView(R.id.projectname)
     TextView projectName;
 
+    @BindView(R.id.unit_format)
+    RadioGroup unit_format;
+
+    @BindView(R.id.dfm)
+    RadioButton degreeMinRadio;
+
     CommonAdapter<CollectType> adapter;
 
     public static void start(Context context) {
@@ -72,6 +82,11 @@ public class FragmentProject extends FragmentBase {
         bindButterKnife();
         initListener();
         return view;
+    }
+
+    private void setDMS (boolean dms) {
+        PreferencesUtils.putBoolean(getContext(), Constants.DEGREE_MIN_SENCOND, dms);
+        CacheData.setDMS(dms);
     }
 
     @Override
@@ -152,6 +167,16 @@ public class FragmentProject extends FragmentBase {
 
     private void initListener() {
         titleView.getLefticon().setOnClickListener(v -> getActivity().finish());
+        unit_format.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                if (R.id.dfm == checkedId) {
+                    setDMS(degreeMinRadio.isChecked());
+                } else {
+                    setDMS(false);
+                }
+            }
+        });
     }
 
     private View getInfoView(Attrs attr) {

@@ -16,17 +16,63 @@
         >
     </com.data.collection.view.TitleView>
 
-    <TextView
-        android:id="@+id/projectname"
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="项目名称"
-        android:textColor="@color/font1"
-        android:textSize="@dimen/font1"
-        android:padding="@dimen/item_padding"
-        android:layout_margin="@dimen/item_padding"
+        android:orientation="vertical"
         android:background="@drawable/round_background"
-        />
+        android:layout_margin="@dimen/item_padding"
+        >
+        <TextView
+            android:id="@+id/projectname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="项目名称"
+            android:textColor="@color/font1"
+            android:textSize="@dimen/font1"
+            android:padding="@dimen/item_padding"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="@dimen/item_padding_small"
+            android:background="@drawable/round_background"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="选择经纬度单位："
+                android:textColor="@color/font1"
+                android:textSize="@dimen/font4"
+                />
+            <RadioGroup
+                android:id="@+id/unit_format"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+                <RadioButton
+                    android:id="@+id/dfm"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="度°分′ 秒″ ">
+                </RadioButton>
+
+                <RadioButton
+                    android:id="@+id/jwd"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="度"
+                    >
+                </RadioButton>
+            </RadioGroup>
+        </LinearLayout>
+    </LinearLayout>
+
     <ListView
         android:id="@+id/listview"
         android:layout_width="match_parent"
@@ -34,6 +80,5 @@
         android:divider="@null"
         android:dividerHeight="@dimen/item_padding"
         android:paddingLeft="@dimen/item_padding"
-        android:paddingRight="@dimen/item_padding">
-    </ListView>
+        android:paddingRight="@dimen/item_padding"></ListView>
 </LinearLayout>

@@ -48,7 +48,7 @@
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/name"
                         android:textSize="@dimen/font4"
-                        android:text="请选择类型：" />
+                        android:text="请选择对象：" />
 
                     <Spinner
                         android:id="@+id/type_spinner"

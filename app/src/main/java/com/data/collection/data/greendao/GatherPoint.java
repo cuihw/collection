@@ -4,6 +4,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 
 import com.baidu.mapapi.model.LatLng;
+import com.data.collection.data.CacheData;
+import com.data.collection.util.Utils;
 
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
@@ -37,8 +39,16 @@ public class GatherPoint implements Serializable, Comparable<GatherPoint> {
     @NotNull
     private String latitude;
 
+    public String getFormatLatitude(){
+        return CacheData.isDMS()? Utils.formatLL(latitude) : latitude;
+     }
+
     @NotNull
     private String longitude;
+
+    public String getFormatLongitude(){
+        return CacheData.isDMS()? Utils.formatLL(longitude) : longitude;
+    }
 
     @NotNull
     private String height;
@@ -243,6 +253,8 @@ public class GatherPoint implements Serializable, Comparable<GatherPoint> {
     public void setIsUploaded(boolean isUploaded) {
         this.isUploaded = isUploaded;
     }
+
+
 
 
 }

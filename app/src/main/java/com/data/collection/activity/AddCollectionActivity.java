@@ -29,6 +29,7 @@ import com.data.collection.Constants;
 import com.data.collection.R;
 import com.data.collection.adapter.PointTypeAdapter;
 import com.data.collection.data.CacheData;
+import com.data.collection.data.greendao.CheckPoint;
 import com.data.collection.data.greendao.DaoSession;
 import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.dialog.ButtomDialogView;
@@ -41,6 +42,7 @@ import com.data.collection.util.FileUtils;
 import com.data.collection.util.LocationController;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.ToastUtil;
+import com.data.collection.util.Utils;
 import com.data.collection.view.AttributionView;
 import com.data.collection.view.TitleView;
 import com.google.gson.Gson;
@@ -77,6 +79,13 @@ public class AddCollectionActivity extends BaseActivity {
     @BindView(R.id.longitude_tv)
     TextView longitudeTv;
 
+    String longitude;
+
+    @BindView(R.id.laititude_tv)
+    TextView laititudeTv;
+
+    String laititude;
+
     @BindView(R.id.type_spinner)
     Spinner typeSpinner;
 
@@ -96,8 +105,6 @@ public class AddCollectionActivity extends BaseActivity {
 
     List<CollectType> projectTypes;
 
-    @BindView(R.id.laititude_tv)
-    TextView laititudeTv;
     @BindView(R.id.time_tv)
     TextView timeTv;
     @BindView(R.id.altitude_tv)
@@ -115,6 +122,7 @@ public class AddCollectionActivity extends BaseActivity {
     LinearLayout bottomLayout;
 
     CommonAdapter<CollectionImage> adapter;
+
 
     static GatherPoint gatherPoint;
 
@@ -145,10 +153,19 @@ public class AddCollectionActivity extends BaseActivity {
             return;
         }
 
-
         nameTv.setText(gatherPoint.getName());
-        longitudeTv.setText(gatherPoint.getLongitude());
-        laititudeTv.setText(gatherPoint.getLatitude());
+
+        longitude = gatherPoint.getLongitude();
+        laititude = gatherPoint.getLatitude();
+        if (CacheData.isDMS()) {
+            longitudeTv.setText(Utils.formatLL(longitude));
+            laititudeTv.setText(Utils.formatLL(laititude));
+        } else {
+            longitudeTv.setText(longitude);
+            laititudeTv.setText(laititude);
+        }
+
+
         altitudeTv.setText(gatherPoint.getHeight());
         timeTv.setText(gatherPoint.getCollected_at());
         commentsTv.setText(gatherPoint.getDesc());
@@ -262,10 +279,18 @@ public class AddCollectionActivity extends BaseActivity {
             return;
         }
         DecimalFormat df = new DecimalFormat("#.0000000");
-        //String str = df.format(d);
 
-        longitudeTv.setText(df.format(location.getLongitude()));
-        laititudeTv.setText(df.format(location.getLatitude()));
+        longitude = df.format(location.getLongitude());
+        laititude = df.format(location.getLatitude());
+
+         if (CacheData.isDMS()) {
+             longitudeTv.setText(Utils.formatLL(longitude));
+             laititudeTv.setText(Utils.formatLL(laititude));
+         } else {
+             longitudeTv.setText(longitude);
+             laititudeTv.setText(laititude);
+         }
+
         altitudeTv.setText(String.format("%.1f", location.getAltitude()));
 
         long time = System.currentTimeMillis();
@@ -389,15 +414,13 @@ public class AddCollectionActivity extends BaseActivity {
         gatherPoint.setDesc(des);
         gatherPoint.setReport(CacheData.getUserName());
 
-        String s1 = longitudeTv.getText().toString();
-        String s2 = laititudeTv.getText().toString();
         String s3 = altitudeTv.getText().toString();
-        if (TextUtils.isEmpty(s1) || TextUtils.isEmpty(s2)) {
+        if (TextUtils.isEmpty(longitude) || TextUtils.isEmpty(laititude)) {
             ToastUtil.showTextToast(this, "定位失败，请打开GPS，等待定位");
             return;
         } else {
-            gatherPoint.setLongitude(s1);
-            gatherPoint.setLatitude(s2);
+            gatherPoint.setLongitude(longitude);
+            gatherPoint.setLatitude(laititude);
             gatherPoint.setHeight(s3);
         }
 

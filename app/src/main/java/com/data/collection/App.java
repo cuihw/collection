@@ -57,6 +57,12 @@ public class App extends Application {
         initLogin();
         getUserInfoCache();
         CrashHandler.getInstance().init(getApplicationContext());
+        getPersonalSettings();
+    }
+
+    private void getPersonalSettings() {
+        boolean dms = PreferencesUtils.getBoolean(this, Constants.DEGREE_MIN_SENCOND, true);
+        CacheData.setDMS(dms);
     }
 
     private void initDaoSession() {

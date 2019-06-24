@@ -175,7 +175,7 @@ public class CollectionListActivity extends BaseActivity {
                 } else {
                     imageView.setImageResource(R.mipmap.ic_popup_dialog_close);
                 }
-                helper.setText(R.id.location, "N:" + item.getLongitude() + "， E:" + item.getLatitude());
+                helper.setText(R.id.location, "N:" + item.getFormatLongitude() + "， E:" + item.getFormatLatitude());
                 helper.setText(R.id.time, item.getUpdated_at());
 
                 int showValue = View.GONE;

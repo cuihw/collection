@@ -26,6 +26,16 @@ public class CacheData {
     private static UserInfoBean userInfoBean;
     private static Map<String, CollectType> TypeMaps = new HashMap<>();
 
+    private static boolean DMS = true; // 经纬度单位，是否度分秒
+
+    public static boolean isDMS() {
+        return DMS;
+    }
+
+    public static void setDMS(boolean DMS) {
+        CacheData.DMS = DMS;
+    }
+
     public static Map<String, CollectType> getTypeMaps() {
         return TypeMaps;
     }
@@ -113,7 +123,6 @@ public class CacheData {
         DaoSession daoSession = App.getInstence().getDaoSession();
         CheckPointDao cpDao = daoSession.getCheckPointDao();
         cpDao.deleteAll();
-
         GatherPointDao gpDao = daoSession.getGatherPointDao();
         gpDao.deleteAll();
 

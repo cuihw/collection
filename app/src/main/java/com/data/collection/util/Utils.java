@@ -201,7 +201,7 @@ public class Utils {
     }
 
 
-    private boolean isNetworkAvailable(Context context) {
+    public static boolean isNetworkAvailable(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = connectivityManager.getActiveNetworkInfo();
         if (netInfo != null && netInfo.isConnected()) {
@@ -210,5 +210,29 @@ public class Utils {
         return false;
     }
 
+    //度°分′ 秒″
+    public static String formatLL(double d){
+        return formatLL(String.valueOf(d));
+    }
+    //转化为： 度°分′ 秒″
+    public static String formatLL(String d){
+        String[] array=d.split("[.]");
+        String degrees=array[0];//得到度
 
+        Double m=Double.parseDouble("0."+array[1])*60;
+        String[] array1=m.toString().split("[.]");
+        String minutes=array1[0];//得到分
+
+        Double s =Double.parseDouble("0."+array1[1]) * 60;
+//        String[] array2=s.toString().split("[.]");
+
+        String seconds  = formatSecond(s);
+        System.out.println(degrees+"  "+minutes+"  "+seconds);
+        return degrees+"°"+minutes+"′"+seconds+"″";
+    }
+
+    private static String formatSecond(Double s) {
+        String format = String.format("%1.2f", s);
+        return format;
+    }
 }
