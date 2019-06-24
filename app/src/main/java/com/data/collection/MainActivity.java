@@ -49,6 +49,7 @@ public class MainActivity extends BaseActivity {
 
     private long firstExitTime = 0L;// 用来保存第一次按返回键的时间
     private static final int EXIT_TIME = 2000;// 两次按返回键的间隔判断
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -134,7 +135,8 @@ public class MainActivity extends BaseActivity {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                     tranToFragment(fragmentHome);
+                    tranToFragment(fragmentHome);
+                    jpTabBar.setSelectTab(0);
                 }
             }, 1000);
 
