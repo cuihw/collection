@@ -94,8 +94,6 @@ public class CollectionListActivity extends BaseActivity {
 
     int needUploadSize = 0;
 
-    boolean hasLocalData = false;
-
     public static void start(Context context) {
         Intent intent = new Intent(context, CollectionListActivity.class);
         context.startActivity(intent);
@@ -190,7 +188,6 @@ public class CollectionListActivity extends BaseActivity {
                 if (item.getIsUploaded()) {
                     helper.setText(R.id.is_uploaded, "已上传");
                 } else {
-                    hasLocalData = true; // 有本地数据；
                     helper.setText(R.id.is_uploaded, "未上传");
                 }
             }
@@ -240,24 +237,25 @@ public class CollectionListActivity extends BaseActivity {
     private void uploadAllLocalData() {
         String label = actionSyncAll.getText().toString().trim();
         if (label.equals("全部上传")) {
-            if (!hasLocalData) {
-                ToastUtil.showTextToast(this, "我采集的数据已全部上传");
-                return;
-            }
-            if (!hud.isShowing()) {
-                hud.show();
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (hud.isShowing()) hud.dismiss();
-                    }
-                }, 1000 * 60);
-            }
             List<GatherPoint> list = localQb.list();
             needUploadSize = list.size();
-            for (GatherPoint point : list) {
-                uploadLocalDataWithImage(point);
+            if (needUploadSize > 0) {
+                for (GatherPoint point : list) {
+                    uploadLocalDataWithImage(point);
+                }
+                if (!hud.isShowing()) {
+                    hud.show();
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (hud.isShowing()) hud.dismiss();
+                        }
+                    }, 1000 * 60);
+                }
+            } else {
+                ToastUtil.showTextToast(this, "我采集的数据已全部上传");
             }
+
         } else {
             // 下载
             // TODO:开始下载  显示忙图标
@@ -522,6 +520,7 @@ public class CollectionListActivity extends BaseActivity {
 
     private void showData() {
         if (adapter == null) return;
+
         boolean checked = true;
         if (localButton != null) {
             checked = localButton.isChecked();

@@ -18,7 +18,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="    采集类型:  "
+            android:text="采集对象:  "
             android:textSize="@dimen/font2" />
         <ImageView
             android:id="@+id/icon"
