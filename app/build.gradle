@@ -3,6 +3,9 @@ apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 apply plugin: 'org.greenrobot.greendao' // apply plugin
 
+def releaseTime() {
+    "_" + new Date().format("yyMMdd_HHmmss")
+}
 android {
     compileSdkVersion 28
     defaultConfig {
@@ -20,6 +23,14 @@ android {
         }
     }
 
+    applicationVariants.all {variant ->
+        variant.outputs.each {
+            output -> if (!variant.buildType.isDebuggable()){
+                output.outputFileName = new File(output.outputFile.name.replace("app-release.apk",
+                        "collector-release_v${android.defaultConfig.versionName}${releaseTime()}.apk"))
+            }
+        }
+    }
 
     signingConfigs {
         release {
@@ -98,7 +109,10 @@ dependencies {
     // arcgisruntime
     implementation 'com.esri.arcgisruntime:arcgis-android:100.5.0'
 
+    //implementation 'com.esri.arcgis.android:arcgis-android:10.2.9'
+
     implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
     implementation 'com.android.support:support-annotations:28.0.0'
     implementation project(path: ':naviData')
+    implementation 'org.osmdroid:osmdroid-android:6.0.3'
 }

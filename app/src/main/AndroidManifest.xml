@@ -94,7 +94,7 @@
             android:screenOrientation="portrait"></activity>
 
         <activity
-            android:name=".activity.ArcgisMapActivity"
+            android:name=".activity.OfflineMapActivity"
             android:screenOrientation="portrait"></activity>
 
         <activity
@@ -123,6 +123,9 @@
             android:name="com.baidu.location.f"
             android:enabled="true"
             android:process=":remote"></service>
+
+        <meta-data android:name="MAPQUEST_MAPID" android:value="ANDROID" />
+        <meta-data android:name="MAPQUEST_ACCESS_TOKEN" android:value="pk.eyJ1IjoiY2hyaXNjdWljbiIsImEiOiJjanhkNGdtdXowYWZtM3ltbXVuaGwzZTc2In0.iD3nidfKrnjl8KtVaQfVRw" />
     </application>
 
 </manifest>

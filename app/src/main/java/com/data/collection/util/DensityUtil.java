@@ -12,6 +12,14 @@ public class DensityUtil {
         throw new UnsupportedOperationException("cannot be instantiated");
     }
 
+    public static int getDpi(Context context){
+        int dpi = 0;
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics dm = new DisplayMetrics();
+        wm.getDefaultDisplay().getMetrics(dm);
+        dpi = dm.densityDpi;
+        return dpi;
+    }
 
     public static Point gitScreenMetrics(Context context) {
         Point point = new Point();

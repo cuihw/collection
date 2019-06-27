@@ -15,11 +15,19 @@
         >
     </com.data.collection.view.TitleView>
 
+    <org.osmdroid.views.MapView
+        android:id="@+id/osmdroidMapView"
+        android:layout_below="@+id/title_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <com.esri.arcgisruntime.mapping.view.MapView
         android:id="@+id/arcgis_map"
         android:layout_below="@+id/title_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        >
     </com.esri.arcgisruntime.mapping.view.MapView>
 
     <TextView

@@ -60,7 +60,7 @@ public class BitmapUtil {
         return new File(filename);
     }
 
-    public static Bitmap trimBitmapFile(String filename){
+    public static Bitmap trimBitmapFile(String filename) {
         File file = new File(filename);
         if (file.exists()) {
             Bitmap bitmap = BitmapFactory.decodeFile(filename);
@@ -80,7 +80,7 @@ public class BitmapUtil {
             bmp.compress(Bitmap.CompressFormat.JPEG, 80, fos);
             fos.flush();
             // 通知系统相册刷新
-            if (context != null){
+            if (context != null) {
                 context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
                         Uri.fromFile(new File(file.getPath()))));
                 return 2;
@@ -291,7 +291,7 @@ public class BitmapUtil {
         return bitmap;
     }
 
-    public static void showInMedia(Context context, Bitmap bitmap, String filename){
+    public static void showInMedia(Context context, Bitmap bitmap, String filename) {
         MediaStore.Images.Media.insertImage(context.getContentResolver(),
                 bitmap, filename, null);
         Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
@@ -300,6 +300,13 @@ public class BitmapUtil {
         context.sendBroadcast(intent);
     }
 
+    public static Bitmap getBitmap(byte[] pInputBuffer) {
+        try {
+            return BitmapFactory.decodeByteArray(pInputBuffer, 0, pInputBuffer.length);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }
 
 

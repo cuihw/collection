@@ -172,7 +172,6 @@ public class FragmentOffline extends FragmentBase {
             cityAdapter.replaceAll(cityList);
         }
 
-
         if (parentCity.state == BaiduCity.DOWNLOADED) {
             localCityList.add(parentCity);
             localCityAdapter.replaceAll(localCityList);
@@ -190,20 +189,30 @@ public class FragmentOffline extends FragmentBase {
                 helper.setText(R.id.size, "离线包大小：" + size);
                 helper.setText(R.id.cityid, "城市编号：" + item.cityID);
                 Button download = helper.getView(R.id.download);
-                download.setOnClickListener(v-> startDownloadMap(item));
+                download.setOnClickListener(v->{
+                    download.setTextColor(getResources().getColor(R.color.font0));
+                    startDownloadMap(item);
+                });
                 BaiduCity item1 = allCityMaps.get(item.cityID);
-                if (item1.state == BaiduCity.DOWNLOADING) {
-                    download.setEnabled(false);
-                    download.setText("正在下载");
-                } else if (item1.state == BaiduCity.NORMAL) {
-                    download.setEnabled(true);
-                    download.setText("下载");
-                }else if (item1.state == BaiduCity.DOWNLOADED) {
-                    download.setEnabled(false);
-                    download.setText("下载完毕");
-                } else if (item1.state == BaiduCity.WAITING_DOWNLOADED) {
-                    download.setEnabled(false);
-                    download.setText("等待下载");
+                switch (item1.state) {
+                    case BaiduCity.DOWNLOADING:
+                        download.setEnabled(false);
+                        download.setText("正在下载");
+                        break;
+                    case BaiduCity.NORMAL:
+                        download.setEnabled(true);
+                        download.setText("下载");
+                        break;
+                    case BaiduCity.DOWNLOADED:
+                        download.setEnabled(false);
+                        download.setText("下载完毕");
+                        download.setTextColor(getResources().getColor(R.color.font0));
+                        break;
+                    case BaiduCity.WAITING_DOWNLOADED:
+                        download.setEnabled(false);
+                        download.setText("等待下载");
+                        break;
+
                 }
             }
         };

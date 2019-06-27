@@ -34,7 +34,7 @@ import com.baidu.mapapi.map.SupportMapFragment;
 import com.baidu.mapapi.model.LatLng;
 import com.data.collection.R;
 import com.data.collection.activity.AddCollectionActivity;
-import com.data.collection.activity.ArcgisMapActivity;
+import com.data.collection.activity.OfflineMapActivity;
 import com.data.collection.activity.CollectionListActivity;
 import com.data.collection.data.CacheData;
 import com.data.collection.data.UserTrace;
@@ -148,7 +148,7 @@ public class FragmentHome extends FragmentBase {
         });
 
         showArcgisMap.setOnClickListener(v->{
-            ArcgisMapActivity.start(getContext());
+            OfflineMapActivity.start(getContext());
         });
     }
 
@@ -229,7 +229,6 @@ public class FragmentHome extends FragmentBase {
     };
 
     private void initMap() {
-
         MapStatus.Builder builder = new MapStatus.Builder();
         Location location = LocationController.getInstance().getLocation();
         if (location != null) {
