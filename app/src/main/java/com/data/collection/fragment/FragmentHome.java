@@ -1,10 +1,12 @@
 package com.data.collection.fragment;
 
+import android.graphics.Bitmap;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -26,23 +28,42 @@ import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BaiduMapOptions;
+import com.baidu.mapapi.map.BitmapDescriptor;
+import com.baidu.mapapi.map.BitmapDescriptorFactory;
 import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
+import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.MyLocationData;
+import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.SupportMapFragment;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.model.LatLngBounds;
+import com.data.collection.App;
+import com.data.collection.Constants;
 import com.data.collection.R;
 import com.data.collection.activity.AddCollectionActivity;
 import com.data.collection.activity.OfflineMapActivity;
 import com.data.collection.activity.CollectionListActivity;
 import com.data.collection.data.CacheData;
 import com.data.collection.data.UserTrace;
+import com.data.collection.data.greendao.DaoSession;
+import com.data.collection.data.greendao.GatherPoint;
+import com.data.collection.data.greendao.GatherPointDao;
+import com.data.collection.module.CollectType;
 import com.data.collection.util.LocationController;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.PositionUtil;
 import com.data.collection.util.ToastUtil;
 import com.data.collection.view.TitleView;
+import com.nostra13.universalimageloader.core.ImageLoader;
+
+import org.greenrobot.greendao.query.QueryBuilder;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 
@@ -133,6 +154,8 @@ public class FragmentHome extends FragmentBase {
                 ToastUtil.showTextToast(getContext(), "请先登录系统，再进行操作");
             }
         });
+
+
         recodeTrace.setOnClickListener(v-> clickTraceButton());
         mapTypeTv.setOnClickListener(v->{
             if (mBaiduMap != null) {
@@ -247,8 +270,33 @@ public class FragmentHome extends FragmentBase {
 
         view.post(()->{
             mBaiduMap = mapFragment.getMapView().getMap();
-            LsLog.i(TAG, "mBaiduMap = " + mBaiduMap);
             initMyLocation();
+            initMapListener();
+        });
+    }
+
+    private void initMapListener() {
+
+        mBaiduMap.setOnMapStatusChangeListener(new BaiduMap.OnMapStatusChangeListener() {
+            @Override
+            public void onMapStatusChangeStart(MapStatus mapStatus) {
+                getInBoundsData(mapStatus.bound);
+            }
+
+            @Override
+            public void onMapStatusChangeStart(MapStatus mapStatus, int i) {
+
+            }
+
+            @Override
+            public void onMapStatusChange(MapStatus mapStatus) {
+
+            }
+
+            @Override
+            public void onMapStatusChangeFinish(MapStatus mapStatus) {
+
+            }
         });
     }
 
@@ -259,6 +307,10 @@ public class FragmentHome extends FragmentBase {
         mSensorManager.registerListener(sensorEventListener,
                 mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
                 SensorManager.SENSOR_DELAY_UI);
+
+        if (mBaiduMap != null) {
+            getInBoundsData(mBaiduMap.getMapStatus().bound);
+        }
     }
 
     SensorEventListener sensorEventListener = new SensorEventListener(){
@@ -307,4 +359,104 @@ public class FragmentHome extends FragmentBase {
         view.setAnimation(animation);
     }
 
+    private Map<String, LatLng> markerMap = new HashMap<>();
+
+    private void getInBoundsData(LatLngBounds bound) {
+
+        double latitude1 = bound.southwest.latitude;
+        double latitude2 = bound.northeast.latitude;
+        double longitude1 = bound.southwest.longitude;
+        double longitude2 = bound.northeast.longitude;
+        latitude1 = latitude1 - Constants.RANGE;
+        latitude2 = latitude2 + Constants.RANGE;
+        longitude1 = longitude1 - Constants.RANGE;
+        longitude2 = longitude2 + Constants.RANGE;
+
+        LsLog.w(TAG, "bounds:  latitude1 = " + latitude1 + ", latitude2 = " + latitude2
+                + ", longitude1 = " + longitude1 + ", longitude2 = " + longitude2
+        );
+
+        //public abstract class AsyncTask<Params, Progress, Result>
+        new AsyncTask<Double, Integer, List<OverlayOptions>>(){
+
+            @Override
+            protected List doInBackground(Double... doubles) {
+                List<OverlayOptions> options = new ArrayList<>();
+
+                DaoSession daoSession = App.getInstence().getDaoSession();
+                LsLog.w(TAG, "doubles size = " + doubles.length);
+
+                QueryBuilder<GatherPoint> qb = daoSession.queryBuilder(GatherPoint.class)
+                        .where(GatherPointDao.Properties.Latitude.gt("" + doubles[0]),
+                                GatherPointDao.Properties.Latitude.le("" + doubles[1]),
+                                GatherPointDao.Properties.Longitude.gt("" + doubles[2]),
+                                GatherPointDao.Properties.Longitude.le("" + doubles[3])
+                                )
+                        .orderDesc(GatherPointDao.Properties.Updated_at);
+                List<GatherPoint> dataList = qb.list(); // 查出当前对应的数据
+                LsLog.w(TAG, "dataList size = " + dataList.size());
+                markerMap.clear();
+
+                for (GatherPoint point : dataList) {
+                    double lat = Double.parseDouble(point.getLatitude());
+                    double nextlng = Double.parseDouble(point.getLongitude());
+
+                    LatLng latLng = markerMap.get(point.getLatitude() + nextlng);
+                    while (latLng != null) {
+                        nextlng = nextlng + Constants.DIFF;
+                        String s = String.valueOf(nextlng);
+                        latLng = markerMap.get(point.getLatitude() + s);
+                    }
+                    LatLng llng = new LatLng(lat, nextlng);
+
+                    markerMap.put(point.getLatitude() + String.valueOf(nextlng) , llng);
+
+                    llng = PositionUtil.GpsToBaiduLatLng(llng);
+
+                    options.add(getMarker(llng, point));
+                }
+                return options;
+            }
+
+            @Override
+            protected void onPostExecute(List<OverlayOptions> list) {
+                if (mBaiduMap != null)
+                    mBaiduMap.addOverlays(list);
+            }
+        }.execute(latitude1, latitude2, longitude1,longitude2);
+    }
+
+    BitmapDescriptor mMarkerBitmap;
+    private OverlayOptions getMarker(LatLng point, GatherPoint gatherPoint) {
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("GatherPoint", gatherPoint);
+
+        mMarkerBitmap = getMarkerBitmap(gatherPoint);
+
+        OverlayOptions option = new MarkerOptions()
+                .position(point) //必传参数
+                .icon(mMarkerBitmap) //必传参数
+                // 设置平贴地图，在地图中双指下拉查看效果
+                .flat(false)
+                .extraInfo(bundle)
+                .alpha(0.8f);
+        LsLog.w(TAG, "marker point = " + gatherPoint.getName());
+        return option;
+    }
+
+    private BitmapDescriptor getMarkerBitmap(GatherPoint gatherPoint) {
+        String type_id = gatherPoint.getType_id();
+        CollectType collectType = CacheData.getTypeMaps().get(type_id);
+        if (collectType != null) {
+            View view = LayoutInflater.from(getActivity()).inflate(R.layout.view_point_marker, null);
+            TextView name = view.findViewById(R.id.name_tv);
+            name.setText(gatherPoint.getName());
+            ImageView icon = view.findViewById(R.id.icon_iv);
+            Bitmap bitmap = ImageLoader.getInstance().loadImageSync(collectType.getIcon());
+            icon.setImageBitmap(bitmap);
+            return BitmapDescriptorFactory.fromView(view);
+        }
+
+        return BitmapDescriptorFactory.fromResource(R.drawable.icon_gcoding);
+    }
 }

@@ -2,8 +2,8 @@ package com.data.collection.activity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrixColorFilter;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
@@ -16,15 +16,17 @@ import android.widget.Toast;
 
 import com.data.collection.R;
 import com.data.collection.data.UserTrace;
-import com.data.collection.util.BitmapUtil;
 import com.data.collection.view.TitleView;
 
+import org.osmdroid.events.MapListener;
+import org.osmdroid.events.ScrollEvent;
+import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.tileprovider.IRegisterReceiver;
 import org.osmdroid.tileprovider.modules.ArchiveFileFactory;
-import org.osmdroid.tileprovider.modules.IArchiveFile;
 import org.osmdroid.tileprovider.modules.OfflineTileProvider;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.tileprovider.util.SimpleRegisterReceiver;
+import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.TilesOverlay;
@@ -32,7 +34,6 @@ import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import java.io.File;
-import java.util.Set;
 
 import butterknife.BindView;
 
@@ -61,7 +62,6 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
     @BindView(R.id.show_map_arcgis)
     TextView showArcgisMap;
 
-
     public static void start(Context context) {
         Intent intent = new Intent(context, OfflineMapActivity.class);
         context.startActivity(intent);
@@ -82,6 +82,20 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
         titleView.getRighticon().setOnClickListener(v -> CollectionListActivity.start(this));
         addPoint.setOnClickListener(v -> {
             AddCollectionActivity.start(this, null);
+        });
+
+        BoundingBox boundingBox = osmdroidMapView.getBoundingBox();
+        osmdroidMapView.addMapListener(new MapListener() {
+            @Override
+            public boolean onScroll(ScrollEvent event) {
+                return false;
+            }
+
+            @Override
+            public boolean onZoom(ZoomEvent event) {
+                osmdroidMapView.getBoundingBox();
+                return false;
+            }
         });
     }
 
@@ -118,8 +132,6 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
         view.setAnimation(animation);
     }
 
-
-
     private void initView() {
         if (osmdroidMapView.getOverlays().size()<=0) {
             osmdroidMapView.setTileSource(TileSourceFactory.OpenTopo);
@@ -127,6 +139,7 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
             osmdroidMapView.setDrawingCacheEnabled(true);
             osmdroidMapView.setMaxZoomLevel(19d);
             osmdroidMapView.setMinZoomLevel(0d);
+
             osmdroidMapView.getController().setZoom(12);
             // 113.6019350, 34.7967643
             osmdroidMapView.getController().setCenter(new GeoPoint(34.7967643, 113.6019350));
@@ -137,6 +150,16 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
         showMylocaltion();
     }
 
+    final static float[] negate ={
+            1.0f,0,0,0,0, //red
+            0,1.0f,0,0,0,//green
+            0,0,1.0f,0,0,//blue
+            0,0,0,0.5f,0 //alpha
+    };
+    /**
+     * provides a night mode like affect by inverting the map tile colors
+     */
+    public final static ColorFilter transparency = new ColorMatrixColorFilter(negate);
     public void mapViewOtherData(MapView mapView){
         String strFilepath = Environment.getExternalStorageDirectory().getPath() + "/zwsdk/zhengzhou.mbtiles";
 
@@ -156,22 +179,8 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
                     //mapView.setTileProvider(tileProvider);
                     TilesOverlay overlay = new TilesOverlay(tileProvider, this);
                     // overlay.setTransparency(0.5f);
-
-                    overlay.setLoadingBackgroundColor(getResources().getColor(R.color.transparent20));
+                    overlay.setColorFilter(transparency);
                     mapView.getOverlayManager().add(overlay);
-
-                    String source = "";
-                    IArchiveFile[] archives = tileProvider.getArchives();
-                    if (archives.length > 0) {
-                        Set<String> tileSources = archives[0].getTileSources();
-                        if (!tileSources.isEmpty()) {
-                            source = tileSources.iterator().next();
-
-                            //mapView.setTileSource(FileBasedTileSource.getSource(source));
-                        }
-                    }
-
-                    Toast.makeText(this,"Using " + exitFile.getAbsolutePath() + " "+ source, Toast.LENGTH_LONG).show();
                     mapView.invalidate();
                     return;
                 } catch (Exception ex) {
@@ -188,19 +197,14 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
 
         MyLocationNewOverlay mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(this),
                 osmdroidMapView);
-        Bitmap bitmap = BitmapUtil.scaleBitmap(BitmapFactory.decodeResource(getResources(), org.osmdroid.library.R.drawable.person), 0.5f) ;
-        Bitmap directionArrow = BitmapUtil.scaleBitmap(BitmapFactory.decodeResource(getResources(), org.osmdroid.library.R.drawable.direction_arrow), 0.5f) ;
-
-        mLocationOverlay.setDirectionArrow(bitmap,directionArrow);
-        osmdroidMapView.getOverlays().add(mLocationOverlay);
         mLocationOverlay.enableMyLocation();
+        osmdroidMapView.getOverlays().add(mLocationOverlay);
     }
 
     @Override
     protected void onPause() {
         if (mArcgisMapView != null) mArcgisMapView.pause();
         if (osmdroidMapView != null) osmdroidMapView.onPause();
-
         super.onPause();
     }
 

@@ -46,4 +46,8 @@ public class Constants {
 
     public static final int UPLOAD_TRACE_INTERVAL = 1000 * 60 * 5 ; //  上报地点间隔时间
     public static final String DEGREE_MIN_SENCOND = "DMS";
+
+    public static final double DIFF = 0.0001;
+
+    public static final double RANGE = 0.01;
 }

@@ -6,6 +6,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -39,6 +40,7 @@ import com.baidu.mapapi.map.TextureMapView;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.model.LatLngBounds;
 import com.data.collection.App;
+import com.data.collection.Constants;
 import com.data.collection.R;
 import com.data.collection.activity.AddCheckReportActivitiy;
 import com.data.collection.activity.CheckReportListActivitiy;
@@ -57,6 +59,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.greenrobot.greendao.query.QueryBuilder;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,9 +77,6 @@ import static android.content.Context.SENSOR_SERVICE;
  */
 public class FragmentCheckRecord extends FragmentBase {
     private static final String TAG = "FragmentCheckRecord";
-    private static final double DIFF = 0.0001;
-
-    private static final double RANGE = 0.01;
 
     @BindView(R.id.mapview)
     TextureMapView mMapView;
@@ -239,50 +239,67 @@ public class FragmentCheckRecord extends FragmentBase {
         double latitude2 = bound.northeast.latitude;
         double longitude1 = bound.southwest.longitude;
         double longitude2 = bound.northeast.longitude;
-        latitude1 = latitude1 - RANGE;
-        latitude2 = latitude2 + RANGE;
-        longitude1 = longitude1 - RANGE;
-        longitude2 = longitude2 + RANGE;
+        latitude1 = latitude1 - Constants.RANGE;
+        latitude2 = latitude2 + Constants.RANGE;
+        longitude1 = longitude1 - Constants.RANGE;
+        longitude2 = longitude2 + Constants.RANGE;
 
         LsLog.w(TAG, "bounds:  latitude1 = " + latitude1 + ", latitude2 = " + latitude2
                 + ", longitude1 = " + longitude1 + ", longitude2 = " + longitude2
         );
 
-        DaoSession daoSession = App.getInstence().getDaoSession();
+        //public abstract class AsyncTask<Params, Progress, Result>
+        new AsyncTask<Double, Integer, List<OverlayOptions>>(){
 
-        QueryBuilder<GatherPoint> qb = daoSession.queryBuilder(GatherPoint.class)
-                .where(GatherPointDao.Properties.Latitude.gt("" + latitude1),
-                        GatherPointDao.Properties.Latitude.le("" + latitude2),
-                        GatherPointDao.Properties.Longitude.gt("" + longitude1),
-                        GatherPointDao.Properties.Longitude.le("" + longitude2),
-                        GatherPointDao.Properties.IsUploaded.eq(true))
-                .orderDesc(GatherPointDao.Properties.Updated_at);
+            @Override
+            protected List doInBackground(Double... doubles) {
+                List<OverlayOptions> options = new ArrayList<>();
 
-        dataList = qb.list(); // 查出当前对应的数据
-        LsLog.w(TAG, "dataList size = " + dataList.size());
+                DaoSession daoSession = App.getInstence().getDaoSession();
+                LsLog.w(TAG, "doubles size = " + doubles.length);
 
-        markerMap.clear();
-        for (GatherPoint point : dataList) {
-            double lat = Double.parseDouble(point.getLatitude());
-            double nextlng = Double.parseDouble(point.getLongitude());
+                QueryBuilder<GatherPoint> qb = daoSession.queryBuilder(GatherPoint.class)
+                        .where(GatherPointDao.Properties.Latitude.gt("" + doubles[0]),
+                                GatherPointDao.Properties.Latitude.le("" + doubles[1]),
+                                GatherPointDao.Properties.Longitude.gt("" + doubles[2]),
+                                GatherPointDao.Properties.Longitude.le("" + doubles[3]),
+                                GatherPointDao.Properties.IsUploaded.eq(true))
+                        .orderDesc(GatherPointDao.Properties.Updated_at);
+                dataList = qb.list(); // 查出当前对应的数据
+                LsLog.w(TAG, "dataList size = " + dataList.size());
+                markerMap.clear();
 
-            LatLng latLng = markerMap.get(point.getLatitude() + nextlng);
-            while (latLng != null) {
-                nextlng = nextlng + DIFF;
-                String s = String.valueOf(nextlng);
-                latLng = markerMap.get(point.getLatitude() + s);
+                for (GatherPoint point : dataList) {
+                    double lat = Double.parseDouble(point.getLatitude());
+                    double nextlng = Double.parseDouble(point.getLongitude());
+
+                    LatLng latLng = markerMap.get(point.getLatitude() + nextlng);
+                    while (latLng != null) {
+                        nextlng = nextlng + Constants.DIFF;
+                        String s = String.valueOf(nextlng);
+                        latLng = markerMap.get(point.getLatitude() + s);
+                    }
+                    LatLng llng = new LatLng(lat, nextlng);
+
+                    markerMap.put(point.getLatitude() + String.valueOf(nextlng) , llng);
+
+                    llng = PositionUtil.GpsToBaiduLatLng(llng);
+
+                    options.add(getMarker(llng, point));
+                }
+                return options;
             }
-            LatLng llng = new LatLng(lat, nextlng);
 
-            markerMap.put(point.getLatitude() + String.valueOf(nextlng) , llng);
+            @Override
+            protected void onPostExecute(List<OverlayOptions> list) {
+                mBaiduMap.addOverlays(list);
+            }
+        }.execute(latitude1, latitude2, longitude1,longitude2);
 
-            llng = PositionUtil.GpsToBaiduLatLng(llng);
 
-            addMarker(llng, point);
-        }
+
     }
-
-    private void addMarker(LatLng point, GatherPoint gatherPoint) {
+    private OverlayOptions getMarker(LatLng point, GatherPoint gatherPoint) {
         Bundle bundle = new Bundle();
         bundle.putSerializable("GatherPoint", gatherPoint);
 
@@ -294,27 +311,32 @@ public class FragmentCheckRecord extends FragmentBase {
                 // 设置平贴地图，在地图中双指下拉查看效果
                 .flat(false)
                 .extraInfo(bundle)
-                .alpha(0.9f);
-
-        //在地图上添加Marker，并显示
-        mBaiduMap.addOverlay(option);
-        LsLog.w(TAG, "marker title = " + gatherPoint.getName());
+                .alpha(0.8f);
+        LsLog.w(TAG, "marker point = " + gatherPoint.getName());
+        return option;
     }
 
     private BitmapDescriptor getMarkerBitmap(GatherPoint gatherPoint) {
         String type_id = gatherPoint.getType_id();
         CollectType collectType = CacheData.getTypeMaps().get(type_id);
+
+        View view = LayoutInflater.from(getActivity()).inflate(R.layout.view_point_marker, null);
+        TextView name = view.findViewById(R.id.name_tv);
+        ImageView icon = view.findViewById(R.id.icon_iv);
+
         if (collectType != null) {
-            View view = LayoutInflater.from(getActivity()).inflate(R.layout.view_point_marker, null);
-            TextView name = view.findViewById(R.id.name_tv);
             name.setText(gatherPoint.getName());
-            ImageView icon = view.findViewById(R.id.icon_iv);
             Bitmap bitmap = ImageLoader.getInstance().loadImageSync(collectType.getIcon());
-            icon.setImageBitmap(bitmap);
+            if (bitmap == null) {
+                icon.setImageResource(R.drawable.icon_gcoding);
+            } else {
+                icon.setImageBitmap(bitmap);
+            }
             return BitmapDescriptorFactory.fromView(view);
         }
-
-        return BitmapDescriptorFactory.fromResource(R.drawable.icon_gcoding);
+        name.setText("未命名");
+        icon.setImageResource(R.drawable.icon_gcoding);
+        return BitmapDescriptorFactory.fromView(view);
     }
 
     private void initSensor() {
@@ -383,9 +405,13 @@ public class FragmentCheckRecord extends FragmentBase {
         // MapView的生命周期与Activity同步，当activity恢复时需调用MapView.onResume()
         super.onResume();
         mMapView.onResume();
-        mSensorManager.registerListener(sensorEventListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
+        mSensorManager.registerListener(sensorEventListener,
+                mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
                 SensorManager.SENSOR_DELAY_UI);
 
+        if (mBaiduMap != null) {
+            getInBoundsData(mBaiduMap.getMapStatus().bound);
+        }
     }
 
     @Override
