@@ -49,5 +49,5 @@ public class Constants {
 
     public static final double DIFF = 0.0001;
 
-    public static final double RANGE = 0.01;
+    public static final double RANGE = 0.1;
 }

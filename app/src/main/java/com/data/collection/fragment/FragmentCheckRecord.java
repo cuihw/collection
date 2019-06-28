@@ -16,14 +16,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
-
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
@@ -44,7 +42,6 @@ import com.data.collection.Constants;
 import com.data.collection.R;
 import com.data.collection.activity.AddCheckReportActivitiy;
 import com.data.collection.activity.CheckReportListActivitiy;
-import com.data.collection.activity.CollectionListActivity;
 import com.data.collection.data.CacheData;
 import com.data.collection.data.greendao.DaoSession;
 import com.data.collection.data.greendao.GatherPoint;
@@ -292,6 +289,7 @@ public class FragmentCheckRecord extends FragmentBase {
 
             @Override
             protected void onPostExecute(List<OverlayOptions> list) {
+                mBaiduMap.clear();
                 mBaiduMap.addOverlays(list);
             }
         }.execute(latitude1, latitude2, longitude1,longitude2);

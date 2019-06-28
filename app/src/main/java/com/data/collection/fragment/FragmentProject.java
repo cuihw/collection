@@ -17,10 +17,12 @@ import android.widget.TextView;
 
 import com.classic.adapter.BaseAdapterHelper;
 import com.classic.adapter.CommonAdapter;
+import com.data.collection.App;
 import com.data.collection.Constants;
 import com.data.collection.R;
 import com.data.collection.activity.CommonActivity;
 import com.data.collection.data.CacheData;
+import com.data.collection.listener.IListenerUserInfo;
 import com.data.collection.module.Attrs;
 import com.data.collection.module.CollectType;
 import com.data.collection.module.Project;
@@ -84,6 +86,17 @@ public class FragmentProject extends FragmentBase {
         return view;
     }
 
+    private void getProjectInfo() {
+        App.getInstence().getUserInfo(new IListenerUserInfo() {
+            @Override
+            public void onUserInfoChange(UserInfoBean userInfoBean) {
+                if (userInfoBean != null) {
+                    initView();
+                }
+            }
+        });
+    }
+
     private void setDMS (boolean dms) {
         PreferencesUtils.putBoolean(getContext(), Constants.DEGREE_MIN_SENCOND, dms);
         CacheData.setDMS(dms);
@@ -93,6 +106,7 @@ public class FragmentProject extends FragmentBase {
     public void onResume() {
         super.onResume();
         initView();
+        getProjectInfo();
     }
 
     private void initView() {

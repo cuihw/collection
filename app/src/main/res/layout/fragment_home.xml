@@ -89,4 +89,19 @@
         android:background="@null"
         android:src="@drawable/point_collect_selector"/>
 
+    <TextView
+        android:id="@+id/map_my_position"
+        android:layout_width="@dimen/home_button"
+        android:layout_height="@dimen/home_button"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="@dimen/item_padding"
+        android:layout_marginRight="@dimen/item_padding"
+        android:layout_marginBottom="@dimen/item_padding"
+        android:background="@drawable/button_selector"
+        android:clickable="true"
+        android:gravity="center"
+        android:text="我的\n位置"
+        android:textColor="@color/font6"
+        android:textSize="@dimen/font3" />
 </RelativeLayout>

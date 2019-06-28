@@ -30,8 +30,10 @@ import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BaiduMapOptions;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
+import com.baidu.mapapi.map.InfoWindow;
 import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
+import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.MyLocationData;
@@ -43,8 +45,8 @@ import com.data.collection.App;
 import com.data.collection.Constants;
 import com.data.collection.R;
 import com.data.collection.activity.AddCollectionActivity;
-import com.data.collection.activity.OfflineMapActivity;
 import com.data.collection.activity.CollectionListActivity;
+import com.data.collection.activity.OfflineMapActivity;
 import com.data.collection.data.CacheData;
 import com.data.collection.data.UserTrace;
 import com.data.collection.data.greendao.DaoSession;
@@ -115,6 +117,18 @@ public class FragmentHome extends FragmentBase {
 
     private MyLocationData locData;
     FragmentManager manager;
+
+
+    @BindView(R.id.map_my_position)
+    TextView myPosition;
+    private InfoWindow mInfoWindow;
+    private View infoView;
+
+    private void initView() {
+        // 初始化，没有开始记录
+        traceProcess.setVisibility(View.INVISIBLE);
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -129,12 +143,44 @@ public class FragmentHome extends FragmentBase {
 
         initView();
         initListener();
+
+        infoView = creatInfoView();
         return view;
     }
 
-    private void initView() {
-        // 初始化，没有开始记录
-        traceProcess.setVisibility(View.INVISIBLE);
+    private View creatInfoView() {
+        return LayoutInflater.from(getActivity()).inflate(R.layout.info_window, null);
+    }
+
+    private void clickTraceButton() {
+        UserTrace instance = UserTrace.getInstance();
+        if (instance.isInTrace()) {
+            // 停止记录轨迹
+            instance.stop();
+            recodeTrace.setText("记录\n轨迹");
+            traceProcess.clearAnimation();
+            traceProcess.setVisibility(View.INVISIBLE);
+            if (UserTrace.getInstance().isInTrace()) {
+                UserTrace.getInstance().stop();
+            }
+        } else {
+            // 开始记录轨迹
+            if (!CacheData.isLogin()) {
+                ToastUtil.showTextToast(getContext(), "用户没有登录");
+                return;
+            }
+            instance.start();
+            recodeTrace.setText("停止\n记录");
+            setFlickerAnimation(traceProcess);
+            traceProcess.setVisibility(View.VISIBLE);
+            if (!UserTrace.getInstance().isInTrace()) {
+                UserTrace.getInstance().start();
+            }
+        }
+    }
+
+    private void initSensor() {
+        mSensorManager = (SensorManager) getContext().getSystemService(SENSOR_SERVICE);//获取传感器管理服务
     }
 
     private void initListener() {
@@ -173,56 +219,9 @@ public class FragmentHome extends FragmentBase {
         showArcgisMap.setOnClickListener(v->{
             OfflineMapActivity.start(getContext());
         });
-    }
-
-    private void clickTraceButton() {
-        UserTrace instance = UserTrace.getInstance();
-        if (instance.isInTrace()) {
-            // 停止记录轨迹
-            instance.stop();
-            recodeTrace.setText("记录\n轨迹");
-            traceProcess.clearAnimation();
-            traceProcess.setVisibility(View.INVISIBLE);
-            if (UserTrace.getInstance().isInTrace()) {
-                UserTrace.getInstance().stop();
-            }
-        } else {
-            // 开始记录轨迹
-            if (!CacheData.isLogin()) {
-                ToastUtil.showTextToast(getContext(), "用户没有登录");
-                return;
-            }
-            instance.start();
-            recodeTrace.setText("停止\n记录");
-            setFlickerAnimation(traceProcess);
-            traceProcess.setVisibility(View.VISIBLE);
-            if (!UserTrace.getInstance().isInTrace()) {
-                UserTrace.getInstance().start();
-            }
-        }
-    }
-
-    private void initSensor() {
-        mSensorManager = (SensorManager) getContext().getSystemService(SENSOR_SERVICE);//获取传感器管理服务
-    }
-
-    private void initMyLocation() {
-        // 跟随
-        MyLocationConfiguration.LocationMode mCurrentMode = MyLocationConfiguration.LocationMode.FOLLOWING;
-
-        // 定位点，默认的定位点图标为null
-        mBaiduMap.setMyLocationConfigeration(new MyLocationConfiguration(
-                        mCurrentMode, true, null));
-        mBaiduMap.setMyLocationEnabled(true);
-        mLocClient = new LocationClient(getContext());
-        mLocClient.registerLocationListener(myListener);
-        LocationClientOption option = new LocationClientOption();
-        option.setOpenGps(true); // 打开gps
-        option.setCoorType("bd09ll"); // 设置坐标类型
-        option.setScanSpan(10000);
-        mLocClient.setLocOption(option);
-        // mLocClient.start();
-        mLocClient.start();
+        myPosition.setOnClickListener(v -> {
+            goToMyLocation();
+        });
     }
 
     private BDLocationListener myListener  = new BDLocationListener(){
@@ -275,7 +274,59 @@ public class FragmentHome extends FragmentBase {
         });
     }
 
+    private void goToMyLocation() {
+
+        MapStatus.Builder builder = new MapStatus.Builder();
+        Location location = LocationController.getInstance().getLocation();
+        if (location != null) {
+            LatLng p = PositionUtil.GpsToBaiduLatLng(new LatLng(location.getLatitude(), location.getLongitude()));
+            builder.target(p);
+        }
+
+        if (mBaiduMap == null) mBaiduMap = mapFragment.getMapView().getMap();
+
+        mBaiduMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
+    }
+
+    private void initMyLocation() {
+        // 不跟随
+        // MyLocationConfiguration.LocationMode mCurrentMode = MyLocationConfiguration.LocationMode.FOLLOWING;
+        MyLocationConfiguration.LocationMode mCurrentMode = MyLocationConfiguration.LocationMode.NORMAL;
+
+        // 定位点，默认的定位点图标为null
+        mBaiduMap.setMyLocationConfigeration(new MyLocationConfiguration(
+                mCurrentMode, true, null));
+        mBaiduMap.setMyLocationEnabled(true);
+        mLocClient = new LocationClient(getContext());
+        mLocClient.registerLocationListener(myListener);
+        LocationClientOption option = new LocationClientOption();
+        option.setOpenGps(true); // 打开gps
+        option.setCoorType("bd09ll"); // 设置坐标类型
+        option.setScanSpan(10000);
+        mLocClient.setLocOption(option);
+        // mLocClient.start();
+        mLocClient.start();
+    }
+
     private void initMapListener() {
+        if (mBaiduMap != null) {
+            getInBoundsData(mBaiduMap.getMapStatus().bound);
+        }
+
+        mBaiduMap.setOnMarkerClickListener(new BaiduMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                Bundle extraInfo = marker.getExtraInfo();
+                GatherPoint gatherPoint = (GatherPoint) extraInfo.getSerializable("GatherPoint");
+                LsLog.w(TAG, "setOnMarkerClickListener = " + gatherPoint.getName() + ", marker id = " + marker.getId());
+
+                mInfoWindow = createInfoWindow(infoView, gatherPoint);
+
+                if (mInfoWindow != null) mBaiduMap.showInfoWindow(mInfoWindow);
+
+                return false;
+            }
+        });
 
         mBaiduMap.setOnMapStatusChangeListener(new BaiduMap.OnMapStatusChangeListener() {
             @Override
@@ -420,8 +471,10 @@ public class FragmentHome extends FragmentBase {
 
             @Override
             protected void onPostExecute(List<OverlayOptions> list) {
-                if (mBaiduMap != null)
+                if (mBaiduMap != null) {
+                    mBaiduMap.clear();
                     mBaiduMap.addOverlays(list);
+                }
             }
         }.execute(latitude1, latitude2, longitude1,longitude2);
     }
@@ -459,4 +512,55 @@ public class FragmentHome extends FragmentBase {
 
         return BitmapDescriptorFactory.fromResource(R.drawable.icon_gcoding);
     }
+
+
+    private InfoWindow createInfoWindow(View view, GatherPoint pointInfo) {
+
+        if (pointInfo == null) {
+            ToastUtil.showTextToast(getContext(), "不是一个采集点");
+            return null;
+        }
+
+        final GatherPoint point = pointInfo;
+
+        Map<String, CollectType> typeMaps = CacheData.getTypeMaps();
+        CollectType type = typeMaps.get(point.getType_id());
+
+        if (type == null) {
+            ToastUtil.showTextToast(getContext(), "采集点类型错误");
+            return null;
+        }
+
+        FragmentCheckRecord.InfoWindowHolder infoHolder = null;
+        if (view.getTag() == null) {
+            infoHolder = new FragmentCheckRecord.InfoWindowHolder();
+            infoHolder.name_tv = view.findViewById(R.id.name_tv);
+            infoHolder.type_tv = view.findViewById(R.id.type_tv);
+            infoHolder.point_tv = view.findViewById(R.id.point_tv);
+            infoHolder.check_btn = view.findViewById(R.id.check_btn);
+            infoHolder.type_icon = view.findViewById(R.id.type_icon);
+            view.setTag(infoHolder);
+        }
+        infoHolder = (FragmentCheckRecord.InfoWindowHolder) view.getTag();
+
+        infoHolder.name_tv.setText(pointInfo.getName());
+        infoHolder.type_tv.setText(type.getName());
+        infoHolder.point_tv.setText(pointInfo.getFormatLatitude() + ",  " + pointInfo.getFormatLongitude());
+        infoHolder.check_btn.setText("查看");
+//        infoHolder.type_icon.setImageDrawable(null);
+        Bitmap bitmap = ImageLoader.getInstance().loadImageSync(type.getIcon());
+        infoHolder.type_icon.setImageBitmap(bitmap);
+//        ImageLoader.getInstance().displayImage(type.getIcon(), infoHolder.type_icon);
+
+        LatLng latLnt = pointInfo.getLatLnt();
+        latLnt = PositionUtil.GpsToBaiduLatLng(latLnt);
+
+        infoHolder.check_btn.setOnClickListener(v ->
+                AddCollectionActivity.start(getContext(), point));
+
+        mInfoWindow = new InfoWindow(view, latLnt, -50);
+
+        return mInfoWindow;
+    }
+
 }
