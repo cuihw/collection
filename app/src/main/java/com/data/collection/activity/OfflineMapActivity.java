@@ -2,10 +2,16 @@ package com.data.collection.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -15,8 +21,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.data.collection.R;
+import com.data.collection.data.DataUtils;
 import com.data.collection.data.UserTrace;
+import com.data.collection.data.greendao.GatherPoint;
+import com.data.collection.listener.IGatherDataListener;
+import com.data.collection.module.CollectType;
+import com.data.collection.util.BitmapUtil;
 import com.data.collection.view.TitleView;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
@@ -29,11 +41,15 @@ import org.osmdroid.tileprovider.util.SimpleRegisterReceiver;
 import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.Overlay;
+import org.osmdroid.views.overlay.OverlayManager;
 import org.osmdroid.views.overlay.TilesOverlay;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import java.io.File;
+import java.util.List;
 
 import butterknife.BindView;
 
@@ -84,7 +100,6 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
             AddCollectionActivity.start(this, null);
         });
 
-        BoundingBox boundingBox = osmdroidMapView.getBoundingBox();
         osmdroidMapView.addMapListener(new MapListener() {
             @Override
             public boolean onScroll(ScrollEvent event) {
@@ -93,11 +108,56 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
 
             @Override
             public boolean onZoom(ZoomEvent event) {
-                osmdroidMapView.getBoundingBox();
+                BoundingBox boundingBox = event.getSource().getBoundingBox();
+                DataUtils.asyncPointsByBounds(boundingBox, new IGatherDataListener() {
+                    @Override
+                    public void onListData(List<GatherPoint> list) {
+                        showListPoint(list);
+                    }
+                });
                 return false;
             }
         });
     }
+
+    private void showListPoint(List<GatherPoint> list) {
+        OverlayManager overlayManager = osmdroidMapView.getOverlayManager();
+
+        // 0 层
+        if (overlayManager.size() > 2) {
+            List<Overlay> overlays = overlayManager.subList(2, overlayManager.size()-1);
+            overlayManager.removeAll(overlays);
+        }
+
+        for (GatherPoint gp: list) {
+            Marker marker = getMarker(gp);
+            overlayManager.add(marker);
+        }
+        osmdroidMapView.invalidate();
+    }
+
+    private Marker getMarker(GatherPoint gp) {
+        Marker marker = new Marker(osmdroidMapView);
+        CollectType typeIconUrl = DataUtils.getTypeIconUrl(gp);
+        double latitude = Double.parseDouble(gp.getLatitude());
+        double longitude = Double.parseDouble(gp.getLongitude());
+        marker.setPosition(new GeoPoint(latitude,longitude));
+
+        View view = View.inflate(this,R.layout.view_point_marker, null);
+        TextView viewById = view.findViewById(R.id.name_tv);
+        viewById.setText(gp.getName());
+        if (typeIconUrl != null) {
+            Bitmap bitmap = ImageLoader.getInstance().loadImageSync(typeIconUrl.getIcon());
+            ImageView imageView = view.findViewById(R.id.icon_iv);
+            imageView.setImageBitmap(bitmap);
+        }
+        Bitmap bitmap = BitmapUtil.convertViewToBitmap(view);
+        Drawable drawable = new BitmapDrawable(bitmap);
+        marker.setTitle(gp.getName());
+
+        return marker;
+    }
+
 
     private void clickTraceButton() {
         UserTrace instance = UserTrace.getInstance();
@@ -150,16 +210,14 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
         showMylocaltion();
     }
 
-    final static float[] negate ={
+    final static float[] trans ={
             1.0f,0,0,0,0, //red
             0,1.0f,0,0,0,//green
             0,0,1.0f,0,0,//blue
-            0,0,0,0.5f,0 //alpha
+            0,0,0,0.8f,0 //alpha
     };
-    /**
-     * provides a night mode like affect by inverting the map tile colors
-     */
-    public final static ColorFilter transparency = new ColorMatrixColorFilter(negate);
+    public final static ColorFilter transparency = new ColorMatrixColorFilter(trans);
+
     public void mapViewOtherData(MapView mapView){
         String strFilepath = Environment.getExternalStorageDirectory().getPath() + "/zwsdk/zhengzhou.mbtiles";
 
@@ -180,13 +238,14 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
                     TilesOverlay overlay = new TilesOverlay(tileProvider, this);
                     // overlay.setTransparency(0.5f);
                     overlay.setColorFilter(transparency);
-                    mapView.getOverlayManager().add(overlay);
+                    // 加载在最底层的图像
+                    mapView.getOverlayManager().add(0, overlay);
                     mapView.invalidate();
                     return;
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
-                Toast.makeText(this,  " did not have any files I can open! Try using MOBAC", Toast.LENGTH_LONG).show();
+                Toast.makeText(this,  "did not have any files I can open", Toast.LENGTH_LONG).show();
             } else{
                 Toast.makeText(this, " dir not found!", Toast.LENGTH_LONG).show();
             }
@@ -198,7 +257,7 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
         MyLocationNewOverlay mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(this),
                 osmdroidMapView);
         mLocationOverlay.enableMyLocation();
-        osmdroidMapView.getOverlays().add(mLocationOverlay);
+        osmdroidMapView.getOverlays().add(1,mLocationOverlay);
     }
 
     @Override
@@ -222,6 +281,20 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
         super.onResume();
         if (mArcgisMapView != null) mArcgisMapView.resume();
         osmdroidMapView.onResume();
+
+        delayRun(1000);
+
+    }
+
+    private void delayRun(int i) {
+        new Handler().postDelayed(()->{
+            DataUtils.asyncPointsByBounds(osmdroidMapView.getBoundingBox(), new IGatherDataListener() {
+                @Override
+                public void onListData(List<GatherPoint> list) {
+                    showListPoint(list);
+                }
+            });
+        },i);
     }
 
     @Override

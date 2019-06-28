@@ -19,6 +19,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.View;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -306,6 +307,14 @@ public class BitmapUtil {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static Bitmap convertViewToBitmap(View view) {
+        view.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
+        view.buildDrawingCache();
+        return view.getDrawingCache();
     }
 }
 
