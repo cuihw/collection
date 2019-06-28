@@ -258,7 +258,7 @@ public class FragmentHome extends FragmentBase {
             builder.target(p);
         }
 
-        builder.overlook(-20).zoom(15);
+        builder.zoom(15);
         BaiduMapOptions bo = new BaiduMapOptions().mapStatus(builder.build())
                 .zoomControlsEnabled(false);
 

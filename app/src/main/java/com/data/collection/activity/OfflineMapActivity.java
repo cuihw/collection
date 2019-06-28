@@ -8,6 +8,7 @@ import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -20,6 +21,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.baidu.mapapi.model.LatLng;
+import com.data.collection.Constants;
 import com.data.collection.R;
 import com.data.collection.data.DataUtils;
 import com.data.collection.data.UserTrace;
@@ -27,9 +30,11 @@ import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.listener.IGatherDataListener;
 import com.data.collection.module.CollectType;
 import com.data.collection.util.BitmapUtil;
+import com.data.collection.util.LocationController;
 import com.data.collection.view.TitleView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
+import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
 import org.osmdroid.events.ZoomEvent;
@@ -49,7 +54,9 @@ import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 
@@ -68,6 +75,8 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
 
     @BindView(R.id.recode_trace)
     TextView recodeTrace;
+    @BindView(R.id.map_my_position)
+    TextView myPosition;
 
     @BindView(R.id.trace_process)
     TextView traceProcess;
@@ -118,6 +127,10 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
                 return false;
             }
         });
+        myPosition.setOnClickListener(v->{
+            Location location = LocationController.getInstance().getLocation();
+            osmdroidMapView.getController().animateTo(new GeoPoint(location.getLatitude(), location.getLongitude()));
+        });
     }
 
     private void showListPoint(List<GatherPoint> list) {
@@ -128,7 +141,7 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
             List<Overlay> overlays = overlayManager.subList(2, overlayManager.size()-1);
             overlayManager.removeAll(overlays);
         }
-
+        markerMap.clear();
         for (GatherPoint gp: list) {
             Marker marker = getMarker(gp);
             overlayManager.add(marker);
@@ -136,13 +149,21 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
         osmdroidMapView.invalidate();
     }
 
+    private Map<String, Marker> markerMap = new HashMap<>();
+
     private Marker getMarker(GatherPoint gp) {
         Marker marker = new Marker(osmdroidMapView);
         CollectType typeIconUrl = DataUtils.getTypeIconUrl(gp);
         double latitude = Double.parseDouble(gp.getLatitude());
-        double longitude = Double.parseDouble(gp.getLongitude());
-        marker.setPosition(new GeoPoint(latitude,longitude));
+        double nextlng = Double.parseDouble(gp.getLongitude());
+        Marker existMarker = markerMap.get(gp.getLatitude() + nextlng);
 
+        while (existMarker!= null) {
+            nextlng = nextlng + Constants.DIFF;
+            existMarker = markerMap.get(gp.getLatitude() + nextlng);
+        }
+
+        marker.setPosition(new GeoPoint(latitude,nextlng));
         View view = View.inflate(this,R.layout.view_point_marker, null);
         TextView viewById = view.findViewById(R.id.name_tv);
         viewById.setText(gp.getName());
@@ -154,7 +175,9 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
         Bitmap bitmap = BitmapUtil.convertViewToBitmap(view);
         Drawable drawable = new BitmapDrawable(bitmap);
         marker.setTitle(gp.getName());
-
+        marker.setAnchor(Marker.ANCHOR_RIGHT, Marker.ANCHOR_BOTTOM);
+        marker.setIcon(drawable);
+        markerMap.put(gp.getLatitude() + gp.getLongitude(), marker);
         return marker;
     }
 
@@ -200,7 +223,7 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
             osmdroidMapView.setMaxZoomLevel(19d);
             osmdroidMapView.setMinZoomLevel(0d);
 
-            osmdroidMapView.getController().setZoom(12);
+            osmdroidMapView.getController().setZoom(16);
             // 113.6019350, 34.7967643
             osmdroidMapView.getController().setCenter(new GeoPoint(34.7967643, 113.6019350));
             osmdroidMapView.setUseDataConnection(true);
@@ -258,6 +281,7 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
                 osmdroidMapView);
         mLocationOverlay.enableMyLocation();
         osmdroidMapView.getOverlays().add(1,mLocationOverlay);
+        osmdroidMapView.getController().animateTo(mLocationOverlay.getMyLocation());
     }
 
     @Override
