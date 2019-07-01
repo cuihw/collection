@@ -181,7 +181,7 @@ public class FragmentCheckRecord extends FragmentBase {
             @Override
             public void onMapClick(LatLng latLng) {
                 LsLog.w(TAG, "setOnMapClickListener = " + latLng);
-                hideInfoWindow();
+
             }
 
             @Override
@@ -196,11 +196,13 @@ public class FragmentCheckRecord extends FragmentBase {
                 Bundle extraInfo = marker.getExtraInfo();
                 GatherPoint gatherPoint = (GatherPoint)extraInfo.getSerializable("GatherPoint");
                 LsLog.w(TAG, "setOnMarkerClickListener = " + gatherPoint.getName() + ", marker id = " + marker.getId());
-
                 mInfoWindow = createInfoWindow(infoView, gatherPoint);
-
-                if (mInfoWindow != null) mBaiduMap.showInfoWindow(mInfoWindow);
-
+                if (mInfoWindow != null){
+                    mBaiduMap.showInfoWindow(mInfoWindow);
+                }
+                infoView.setOnClickListener(v->{
+                    hideInfoWindow();
+                });
                 return false;
             }
         });

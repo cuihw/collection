@@ -12,11 +12,13 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,6 +33,7 @@ import com.data.collection.listener.IGatherDataListener;
 import com.data.collection.module.CollectType;
 import com.data.collection.util.BitmapUtil;
 import com.data.collection.util.LocationController;
+import com.data.collection.util.ToastUtil;
 import com.data.collection.view.TitleView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -50,6 +53,7 @@ import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayManager;
 import org.osmdroid.views.overlay.TilesOverlay;
+import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
@@ -147,6 +151,10 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
             overlayManager.add(marker);
         }
         osmdroidMapView.invalidate();
+
+        osmdroidMapView.setOnClickListener(v->{
+            osmdroidMapView.getOverlayManager();
+        });
     }
 
     private Map<String, Marker> markerMap = new HashMap<>();
@@ -178,9 +186,33 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
         marker.setAnchor(Marker.ANCHOR_RIGHT, Marker.ANCHOR_BOTTOM);
         marker.setIcon(drawable);
         markerMap.put(gp.getLatitude() + gp.getLongitude(), marker);
+
+        setMarkerListener(marker, gp);
         return marker;
     }
 
+    private void setMarkerListener(Marker marker, final  GatherPoint gp) {
+        //layout/osmdroid_info_window.xml
+        MarkerInfoWindow makerInfoWindow = new MarkerInfoWindow(R.layout.osmdroid_info_window, osmdroidMapView);
+        View view = makerInfoWindow.getView();
+        view.setTag(gp);
+
+        Button checkBtn = view.findViewById(R.id.check_btn);
+        checkBtn.setOnClickListener(v->{
+            ToastUtil.showTextToast(this, "checkBtn.setOnClickListener button.");
+        });
+        marker.setInfoWindow(makerInfoWindow);
+        marker.setOnMarkerClickListener((Marker markerV, MapView mapView)-> {
+                ToastUtil.showTextToast(this, "check mapView.");
+                Log.w(TAG, "setOnMarkerClickListener marker");
+                if (markerV.isInfoWindowShown()) {
+                    markerV.closeInfoWindow();
+                } else {
+                    markerV.showInfoWindow();
+                }
+                return false;
+        });
+    }
 
     private void clickTraceButton() {
         UserTrace instance = UserTrace.getInstance();

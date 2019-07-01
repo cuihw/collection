@@ -33,6 +33,7 @@ import com.baidu.mapapi.map.BitmapDescriptorFactory;
 import com.baidu.mapapi.map.InfoWindow;
 import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
+import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationConfiguration;
@@ -319,11 +320,9 @@ public class FragmentHome extends FragmentBase {
                 Bundle extraInfo = marker.getExtraInfo();
                 GatherPoint gatherPoint = (GatherPoint) extraInfo.getSerializable("GatherPoint");
                 LsLog.w(TAG, "setOnMarkerClickListener = " + gatherPoint.getName() + ", marker id = " + marker.getId());
-
                 mInfoWindow = createInfoWindow(infoView, gatherPoint);
-
                 if (mInfoWindow != null) mBaiduMap.showInfoWindow(mInfoWindow);
-
+                infoView.setOnClickListener(v->hideInfoWindow());
                 return false;
             }
         });
@@ -349,6 +348,14 @@ public class FragmentHome extends FragmentBase {
 
             }
         });
+    }
+
+    private void hideInfoWindow() {
+        if (mInfoWindow != null) {
+            mBaiduMap.hideInfoWindow();
+            MapView mapView = mapFragment.getMapView();
+            if (mapView != null)mapView.postInvalidate();
+        }
     }
 
     @Override

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/item_padding"
+    android:layout_margin="@dimen/item_padding_largest"
+    android:background="@drawable/round_background_white"
+    >
+<!--ayout that must contain these ids: bubble_title,bubble_description,
+	 *                       bubble_subdescription, bubble_image-->
+    <TextView
+        android:id="@+id/bubble_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="采集点名称"
+        android:textSize="@dimen/font3"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/font0"
+        />
+    <LinearLayout
+        android:id="@+id/type_ll"
+        android:layout_below="@+id/bubble_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        >
+
+        <ImageView
+            android:id="@+id/bubble_image"
+            android:layout_width="@dimen/title_image"
+            android:layout_height="@dimen/title_image"
+            android:src="@mipmap/icon_tree"
+            />
+        <TextView
+            android:id="@+id/bubble_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/item_padding"
+            android:text="树木"
+            android:textSize="@dimen/font3"
+            android:textColor="@color/font1"
+            />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/bubble_subdescription"
+        android:layout_below="@+id/type_ll"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="116.334129, 39.968484"
+        android:textColor="@color/font1"
+        />
+    <Button
+        android:id="@+id/check_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/bubble_subdescription"
+        android:layout_toRightOf="@+id/bubble_subdescription"
+        android:layout_marginTop="-30dp"
+        android:layout_marginLeft="@dimen/button_margin"
+        android:text="查看"
+        />
+</RelativeLayout>
