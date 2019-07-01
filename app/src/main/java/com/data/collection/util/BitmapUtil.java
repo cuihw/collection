@@ -21,12 +21,12 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 
+import com.data.collection.R;
+
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 public class BitmapUtil {
 
@@ -315,6 +315,16 @@ public class BitmapUtil {
         view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
         view.buildDrawingCache();
         return view.getDrawingCache();
+    }
+
+    public static int getResid(String typeUrl) {
+        int resId = R.mipmap.tri_sharp;
+        if (typeUrl.contains("三角形.png")) {
+            resId = R.mipmap.tri_sharp;
+        } else if (typeUrl.contains("圆形.png")) {
+            resId = R.mipmap.circle;
+        }
+        return resId;
     }
 }
 
