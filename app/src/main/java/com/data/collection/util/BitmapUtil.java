@@ -323,6 +323,14 @@ public class BitmapUtil {
             resId = R.mipmap.tri_sharp;
         } else if (typeUrl.contains("圆形.png")) {
             resId = R.mipmap.circle;
+        } else if (typeUrl.contains("菱形.png")) {
+            resId = R.mipmap.four_sided;
+        } else if (typeUrl.contains("六边形.png")) {
+            resId = R.mipmap.six_sided;
+        } else if (typeUrl.contains("五边形.png")) {
+            resId = R.mipmap.five_sided;
+        } else if (typeUrl.contains("正方形.png")) {
+            resId = R.mipmap.rectanger;
         }
         return resId;
     }
