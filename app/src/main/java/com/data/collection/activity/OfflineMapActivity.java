@@ -2,8 +2,12 @@ package com.data.collection.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Environment;
@@ -30,6 +34,7 @@ import com.data.collection.util.LocationController;
 import com.data.collection.util.LsLog;
 import com.data.collection.view.MyOsmMarker;
 import com.data.collection.view.TitleView;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
@@ -63,8 +68,9 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
     @BindView(R.id.title_view)
     TitleView titleView;
 
-    @BindView(R.id.arcgis_map)
-    com.esri.arcgisruntime.mapping.view.MapView mArcgisMapView;
+    //@BindView(R.id.arcgis_map)
+    // com.esri.arcgisruntime.mapping.view.MapView
+     //MapView        mArcgisMapView;
 
     @BindView(R.id.osmdroidMapView)
     MapView osmdroidMapView;
@@ -195,26 +201,23 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
 
         Log.w(TAG, "getMarker = " + latitude + ", " + nextlng);
 
-//        View view = View.inflate(this, R.layout.view_point_marker, null);
-//        TextView viewById = view.findViewById(R.id.name_tv);
-//        viewById.setText(gp.getName());
+        View view = View.inflate(this, R.layout.view_point_marker, null);
+        TextView viewById = view.findViewById(R.id.name_tv);
+        viewById.setText(gp.getName());
         if (typeIconUrl != null) {
-            // Bitmap bitmap = ImageLoader.getInstance().loadImageSync(typeIconUrl.getIcon());
-//            ImageView imageView = view.findViewById(R.id.icon_iv);
-//            imageView.setImageBitmap(bitmap);
+             Bitmap bitmap = ImageLoader.getInstance().loadImageSync(typeIconUrl.getIcon());
+            ImageView imageView = view.findViewById(R.id.icon_iv);
+            imageView.setImageBitmap(bitmap);
         }
-//        Bitmap bitmap = BitmapUtil.convertViewToBitmap(view);
-//        Drawable drawable = new BitmapDrawable(bitmap);
-        // marker.setTitle(gp.getName());
-//        BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromView(view);
-
+        Bitmap bitmap = BitmapUtil.convertViewToBitmap(view);
+        BitmapDrawable drawable = new BitmapDrawable(getResources(), bitmap);
+        marker.setTitle(gp.getName());
         marker.setAnchor(Marker.ANCHOR_RIGHT, Marker.ANCHOR_BOTTOM);
-        // marker.setIcon(getResources().getDrawable(R.mipmap.icon_msg_unread));
-        int resId = BitmapUtil.getResid(typeIconUrl.getIcon());
+        marker.setIcon(drawable);
 
-        marker.setIcon(getResources().getDrawable(resId));
-//        Bitmap bitmap = bitmapDescriptor.getBitmap();
-//        marker.setIcon(new BitmapDrawable(bitmap));
+//        int resId = BitmapUtil.getResid(typeIconUrl.getIcon());
+//        marker.setIcon(getResources().getDrawable(resId));
+
         setMarkerListener(marker, gp);
         markerMap.put(gp.getLatitude() + nextlng, marker);
         return marker;
@@ -265,10 +268,9 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
         CollectType collectType = DataUtils.getTypeIconUrl(gp);
         if (collectType != null) {
             //
-            //Bitmap bitmap = ImageLoader.getInstance().loadImageSync(collectType.getIcon());
-            //Drawable drawable = new BitmapDrawable(BitmapUtil.scaleBitmap(bitmap, 3));
-            int resId = BitmapUtil.getResid(collectType.getIcon());
-            marker.setImage(getDrawable(resId));
+            Bitmap bitmap = ImageLoader.getInstance().loadImageSync(collectType.getIcon());
+            Drawable drawable = new BitmapDrawable(getResources(), BitmapUtil.scaleBitmap(bitmap,2));
+            marker.setImage(drawable);
             marker.setSnippet(collectType.getName());
         } else {
             marker.setSnippet("未知对象");
@@ -297,7 +299,7 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
 
     private void initView() {
         if (osmdroidMapView.getOverlays().size() <= 0) {
-            osmdroidMapView.setTileSource(TileSourceFactory.USGS_SAT);
+            osmdroidMapView.setTileSource(TileSourceFactory.OpenTopo);
             mapViewOtherData(osmdroidMapView);
             osmdroidMapView.setDrawingCacheEnabled(true);
             osmdroidMapView.setMaxZoomLevel(19d);
@@ -309,8 +311,8 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
             osmdroidMapView.setUseDataConnection(true);
             osmdroidMapView.setMultiTouchControls(true);// 触控放大缩小
             osmdroidMapView.getOverlayManager().getTilesOverlay().setEnabled(true);
+            showMylocaltion();
         }
-        showMylocaltion();
     }
     public final static ColorFilter transparency = new ColorMatrixColorFilter(trans);
 
@@ -327,9 +329,7 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
             if (ArchiveFileFactory.isFileExtensionRegistered(fileName)) {
                 try {
                     IRegisterReceiver registerReceiver = new SimpleRegisterReceiver(this);
-                    OfflineTileProvider tileProvider = new OfflineTileProvider(
-                            registerReceiver,
-                            new File[]{exitFile});
+                    OfflineTileProvider tileProvider = new OfflineTileProvider(registerReceiver,new File[]{exitFile});
                     //mapView.setTileProvider(tileProvider);
                     TilesOverlay overlay = new TilesOverlay(tileProvider, this);
                     // overlay.setTransparency(0.5f);
@@ -359,24 +359,24 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
 
     @Override
     protected void onPause() {
-        if (mArcgisMapView != null) mArcgisMapView.pause();
+        //if (mArcgisMapView != null) mArcgisMapView.pause();
         if (osmdroidMapView != null) osmdroidMapView.onPause();
         super.onPause();
     }
 
     @Override
     protected void onDestroy() {
-        if (mArcgisMapView != null) {
-            mArcgisMapView.dispose();
-            mArcgisMapView = null;
-        }
+        //if (mArcgisMapView != null) {
+            //mArcgisMapView.dispose();
+            //mArcgisMapView = null;
+       // }
         super.onDestroy();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (mArcgisMapView != null) mArcgisMapView.resume();
+        //if (mArcgisMapView != null) mArcgisMapView.resume();
         osmdroidMapView.onResume();
         delayRun(1000);
     }
