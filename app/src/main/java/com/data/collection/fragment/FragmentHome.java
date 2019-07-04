@@ -1,68 +1,73 @@
 package com.data.collection.fragment;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
+import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.baidu.location.BDLocation;
-import com.baidu.location.BDLocationListener;
-import com.baidu.location.LocationClient;
-import com.baidu.location.LocationClientOption;
-import com.baidu.mapapi.map.BaiduMap;
-import com.baidu.mapapi.map.BaiduMapOptions;
-import com.baidu.mapapi.map.BitmapDescriptor;
-import com.baidu.mapapi.map.BitmapDescriptorFactory;
-import com.baidu.mapapi.map.InfoWindow;
-import com.baidu.mapapi.map.MapStatus;
-import com.baidu.mapapi.map.MapStatusUpdateFactory;
-import com.baidu.mapapi.map.MapView;
-import com.baidu.mapapi.map.Marker;
-import com.baidu.mapapi.map.MarkerOptions;
-import com.baidu.mapapi.map.MyLocationConfiguration;
-import com.baidu.mapapi.map.MyLocationData;
-import com.baidu.mapapi.map.OverlayOptions;
-import com.baidu.mapapi.map.SupportMapFragment;
-import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.model.LatLngBounds;
-import com.data.collection.App;
 import com.data.collection.Constants;
 import com.data.collection.R;
+import com.data.collection.Tiles.GoogleTileSource;
 import com.data.collection.activity.AddCollectionActivity;
 import com.data.collection.activity.CollectionListActivity;
-import com.data.collection.activity.OfflineMapActivity;
 import com.data.collection.data.CacheData;
+import com.data.collection.data.DataUtils;
 import com.data.collection.data.UserTrace;
-import com.data.collection.data.greendao.DaoSession;
 import com.data.collection.data.greendao.GatherPoint;
-import com.data.collection.data.greendao.GatherPointDao;
+import com.data.collection.listener.IGatherDataListener;
 import com.data.collection.module.CollectType;
-import com.data.collection.util.LocationController;
+import com.data.collection.util.BitmapUtil;
+import com.data.collection.util.FileUtils;
 import com.data.collection.util.LsLog;
-import com.data.collection.util.PositionUtil;
 import com.data.collection.util.ToastUtil;
+import com.data.collection.view.MyOsmMarker;
 import com.data.collection.view.TitleView;
+import com.leon.lfilepickerlibrary.LFilePicker;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
-import org.greenrobot.greendao.query.QueryBuilder;
+import org.osmdroid.config.Configuration;
+import org.osmdroid.events.MapListener;
+import org.osmdroid.events.ScrollEvent;
+import org.osmdroid.events.ZoomEvent;
+import org.osmdroid.tileprovider.IRegisterReceiver;
+import org.osmdroid.tileprovider.modules.ArchiveFileFactory;
+import org.osmdroid.tileprovider.modules.OfflineTileProvider;
+import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase;
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.tileprovider.util.SimpleRegisterReceiver;
+import org.osmdroid.util.BoundingBox;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.OverlayManager;
+import org.osmdroid.views.overlay.TilesOverlay;
+import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
+import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -82,6 +87,8 @@ import static android.content.Context.SENSOR_SERVICE;
 public class FragmentHome extends FragmentBase {
     private static final String TAG = "FragmentHome";
 
+    int mapType = 1;
+
     @BindView(R.id.title_view)
     TitleView titleView;
 
@@ -100,35 +107,41 @@ public class FragmentHome extends FragmentBase {
     @BindView(R.id.show_map_arcgis)
     TextView showArcgisMap;
 
-    @BindView(R.id.baidu_container)
-    LinearLayout baiduMapContainer;
-
-    private SupportMapFragment mapFragment;
-    BaiduMap mBaiduMap;
-
-    private LocationClient mLocClient;
-
     private SensorManager mSensorManager;
     private Double lastX = 0.0;
     private int mCurrentDirection = 0;
-    private double mCurrentLat = 0.0;
-    private double mCurrentLon = 0.0;
-    private float mCurrentAccracy;
-    private boolean isFirstLoc = true;
 
-    private MyLocationData locData;
-    FragmentManager manager;
-
+    @BindView(R.id.mapview)
+    MapView mMapView;
 
     @BindView(R.id.map_my_position)
     TextView myPosition;
-    private InfoWindow mInfoWindow;
+
     private View infoView;
+    private boolean hasOfflineLay = false;
+
+    List<TilesOverlay> offlineLays = new ArrayList<>();
+    List<GatherPoint> showInMap = new ArrayList<>();
+    List<GatherPoint> newItemMarker = new ArrayList<>();
+    List<GatherPoint> toBeRemove = new ArrayList<>();
+    private Map<String, MyOsmMarker> markerMap = new HashMap<>();
+
+    OnlineTileSourceBase openTopoSource = TileSourceFactory.OpenTopo;
+
+    OnlineTileSourceBase googleTilesource = GoogleTileSource.GoogleRoads;
 
     private void initView() {
         // 初始化，没有开始记录
         traceProcess.setVisibility(View.INVISIBLE);
     }
+
+    final static float[] trans = {
+            1.0f, 0, 0, 0, 0, //red
+            0, 1.0f, 0, 0, 0,//green
+            0, 0, 1.0f, 0, 0,//blue
+            0, 0, 0, 0.8f, 0 //alpha
+    };
+    public final static ColorFilter transparency = new ColorMatrixColorFilter(trans);
 
     @Nullable
     @Override
@@ -185,7 +198,35 @@ public class FragmentHome extends FragmentBase {
     }
 
     private void initListener() {
-        titleView.getRighticon().setOnClickListener(v->{
+
+        mMapView.addMapListener(new MapListener() {
+            @Override
+            public boolean onScroll(ScrollEvent event) {
+                Log.w(TAG, "onScroll");
+                BoundingBox boundingBox = event.getSource().getBoundingBox();
+                DataUtils.asyncPointsByBounds(boundingBox, new IGatherDataListener() {
+                    @Override
+                    public void onListData(List<GatherPoint> list) {
+                        showListPoint(list, mMapView);
+                    }
+                });
+                return true;
+            }
+
+            @Override
+            public boolean onZoom(ZoomEvent event) {
+                Log.w(TAG, "onZoom");
+                BoundingBox boundingBox = event.getSource().getBoundingBox();
+                DataUtils.asyncPointsByBounds(boundingBox, new IGatherDataListener() {
+                    @Override
+                    public void onListData(List<GatherPoint> list) {
+                        showListPoint(list, mMapView);
+                    }
+                });
+                return true;
+            }
+        });
+        titleView.getRighticon().setOnClickListener(v -> {
             // 显示采集列表。
             if (CacheData.isLogin()) {
                 CollectionListActivity.start(getContext());
@@ -194,196 +235,112 @@ public class FragmentHome extends FragmentBase {
             }
         });
 
-        addPoint.setOnClickListener(v->{
+        addPoint.setOnClickListener(v -> {
             if (CacheData.isLogin()) {
-                AddCollectionActivity.start(getContext(),null);
+                AddCollectionActivity.start(getContext(), null);
             } else {
                 ToastUtil.showTextToast(getContext(), "请先登录系统，再进行操作");
             }
         });
 
+        recodeTrace.setOnClickListener(v -> clickTraceButton());
 
-        recodeTrace.setOnClickListener(v-> clickTraceButton());
-        mapTypeTv.setOnClickListener(v->{
-            if (mBaiduMap != null) {
-                int mapType = mBaiduMap.getMapType();
-                if (mapType == BaiduMap.MAP_TYPE_NORMAL) {
-                    mBaiduMap.setMapType(BaiduMap.MAP_TYPE_SATELLITE);
-                    mapTypeTv.setText("交通\n地图");
-                } else {
-                    mBaiduMap.setMapType(BaiduMap.MAP_TYPE_NORMAL);
-                    mapTypeTv.setText("卫星\n地图");
-                }
+        mapTypeTv.setOnClickListener(v -> {
+            if (mapType == 1) {
+                mapType = 2;
+                mapTypeTv.setText("交通\n地图");
+                mMapView.setTileSource(googleTilesource);
+            } else {
+                mapType = 1;
+                mapTypeTv.setText("卫星\n地图");
+                mMapView.setTileSource(openTopoSource);
             }
         });
 
-        showArcgisMap.setOnClickListener(v->{
-            OfflineMapActivity.start(getContext());
+        showArcgisMap.setOnClickListener(v -> {
+            if (hasOfflineLay ){
+                removeOffLineLay();
+                showArcgisMap.setText("离线\n底图");
+            } else {
+                String fileDir = FileUtils.getFileDir();
+                new LFilePicker().withActivity(getActivity())
+                        .withRequestCode(Constants.GET_FILE_PATH)
+                        .withStartPath(fileDir)
+                        //.withFileFilter(new String[]{".txt", ".png", ".docx"})
+                        .withFileFilter(new String[]{".mbtiles"})
+                        .withMutilyMode(false)
+                        .withTitle("打开离线文件")
+                        .start();
+            }
         });
+
         myPosition.setOnClickListener(v -> {
             goToMyLocation();
         });
     }
 
-    private BDLocationListener myListener  = new BDLocationListener(){
-        @Override
-        public void onReceiveLocation(BDLocation location) {
-            // map view 销毁后不在处理新接收的位置
-            if (location == null || isHidden()) {
-                return;
-            }
-            mCurrentLat = location.getLatitude();
-            mCurrentLon = location.getLongitude();
-            mCurrentAccracy = location.getRadius();
-            locData = new MyLocationData.Builder()
-                    .accuracy(location.getRadius())
-                    // 此处设置开发者获取到的方向信息，顺时针0-360
-                    .direction(mCurrentDirection).latitude(mCurrentLat)
-                    .longitude(mCurrentLon).build();
-            mBaiduMap.setMyLocationData(locData);
-            if (isFirstLoc) {
-                isFirstLoc = false;
-                LatLng ll = new LatLng(location.getLatitude(), location.getLongitude());
-                MapStatus.Builder builder = new MapStatus.Builder();
-                builder.target(ll).zoom(18.0f);
-                mBaiduMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
-            }
-        }
-    };
+    private void removeOffLineLay() {
+        hasOfflineLay = false;
+        TilesOverlay tilesOverlay = mMapView.getOverlayManager().getTilesOverlay();
+//        Log.w(TAG, "tilesOverlay = " + tilesOverlay.getBounds());
+        mMapView.getOverlayManager().removeAll(offlineLays);
+        offlineLays.clear();
+        mMapView.invalidate();
+    }
 
     private void initMap() {
-        MapStatus.Builder builder = new MapStatus.Builder();
-        Location location = LocationController.getInstance().getLocation();
-        if (location != null) {
-            LatLng p = PositionUtil.GpsToBaiduLatLng(new LatLng(location.getLatitude(), location.getLongitude()));
-            builder.target(p);
+        Configuration.getInstance().setAnimationSpeedDefault(500);
+        if (mMapView.getOverlays().size() <= 0) {
+            mMapView.setTileSource(TileSourceFactory.OpenTopo);
+            mMapView.setDrawingCacheEnabled(true);
+            mMapView.setMaxZoomLevel(19d);
+            mMapView.setMinZoomLevel(0d);
+            // mMapView.getZoomController().setVisibility(CustomZoomButtonsController.Visibility.NEVER);
+            mMapView.getController().setZoom(14);
+            // 113.6019350, 34.7967643
+            mMapView.getController().setCenter(new GeoPoint(34.7967643, 113.6019350));
+            mMapView.setUseDataConnection(true);
+            mMapView.setMultiTouchControls(true);// 触控放大缩小
+            mMapView.getOverlayManager().getTilesOverlay().setEnabled(true);
+            showMylocaltion();
         }
+    }
 
-        builder.zoom(15);
-        BaiduMapOptions bo = new BaiduMapOptions().mapStatus(builder.build())
-                .zoomControlsEnabled(false);
-
-        mapFragment = SupportMapFragment.newInstance(bo);
-
-        manager = getChildFragmentManager();
-        manager.beginTransaction().add(R.id.map_framelayout, mapFragment, "map_fragment").commit();
-
-        view.post(()->{
-            mBaiduMap = mapFragment.getMapView().getMap();
-            initMyLocation();
-            initMapListener();
-        });
+    MyLocationNewOverlay mLocationOverlay;
+    private void showMylocaltion() {
+        mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(getContext()), mMapView);
+        mLocationOverlay.enableMyLocation();
+        mMapView.getOverlays().add(mLocationOverlay);
+        goToMyLocation();
     }
 
     private void goToMyLocation() {
-
-        MapStatus.Builder builder = new MapStatus.Builder();
-        Location location = LocationController.getInstance().getLocation();
-        if (location != null) {
-            LatLng p = PositionUtil.GpsToBaiduLatLng(new LatLng(location.getLatitude(), location.getLongitude()));
-            builder.target(p);
-        }
-
-        if (mBaiduMap == null) mBaiduMap = mapFragment.getMapView().getMap();
-
-        mBaiduMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
-    }
-
-    private void initMyLocation() {
-        // 不跟随
-        // MyLocationConfiguration.LocationMode mCurrentMode = MyLocationConfiguration.LocationMode.FOLLOWING;
-        MyLocationConfiguration.LocationMode mCurrentMode = MyLocationConfiguration.LocationMode.NORMAL;
-
-        // 定位点，默认的定位点图标为null
-        mBaiduMap.setMyLocationConfigeration(new MyLocationConfiguration(
-                mCurrentMode, true, null));
-        mBaiduMap.setMyLocationEnabled(true);
-        mLocClient = new LocationClient(getContext());
-        mLocClient.registerLocationListener(myListener);
-        LocationClientOption option = new LocationClientOption();
-        option.setOpenGps(true); // 打开gps
-        option.setCoorType("bd09ll"); // 设置坐标类型
-        option.setScanSpan(10000);
-        mLocClient.setLocOption(option);
-        // mLocClient.start();
-        mLocClient.start();
-    }
-
-    private void initMapListener() {
-        if (mBaiduMap != null) {
-            getInBoundsData(mBaiduMap.getMapStatus().bound);
-        }
-
-        mBaiduMap.setOnMarkerClickListener(new BaiduMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                Bundle extraInfo = marker.getExtraInfo();
-                GatherPoint gatherPoint = (GatherPoint) extraInfo.getSerializable("GatherPoint");
-                LsLog.w(TAG, "setOnMarkerClickListener = " + gatherPoint.getName() + ", marker id = " + marker.getId());
-                mInfoWindow = createInfoWindow(infoView, gatherPoint);
-                if (mInfoWindow != null) mBaiduMap.showInfoWindow(mInfoWindow);
-                infoView.setOnClickListener(v->hideInfoWindow());
-                return false;
-            }
-        });
-
-        mBaiduMap.setOnMapStatusChangeListener(new BaiduMap.OnMapStatusChangeListener() {
-            @Override
-            public void onMapStatusChangeStart(MapStatus mapStatus) {
-                getInBoundsData(mapStatus.bound);
-            }
-
-            @Override
-            public void onMapStatusChangeStart(MapStatus mapStatus, int i) {
-
-            }
-
-            @Override
-            public void onMapStatusChange(MapStatus mapStatus) {
-
-            }
-
-            @Override
-            public void onMapStatusChangeFinish(MapStatus mapStatus) {
-
-            }
-        });
-    }
-
-    private void hideInfoWindow() {
-        if (mInfoWindow != null) {
-            mBaiduMap.hideInfoWindow();
-            MapView mapView = mapFragment.getMapView();
-            if (mapView != null)mapView.postInvalidate();
-        }
+        mMapView.getController().animateTo(mLocationOverlay.getMyLocation());
     }
 
     @Override
     public void onResume() {
         super.onResume();
-
         mSensorManager.registerListener(sensorEventListener,
                 mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
                 SensorManager.SENSOR_DELAY_UI);
-
-        if (mBaiduMap != null) {
-            getInBoundsData(mBaiduMap.getMapStatus().bound);
+        if (mMapView != null) {
+            mMapView.onResume();
         }
+        delayRun(1000);
+        // TODO: 查找边界，显示采集点信息
     }
 
-    SensorEventListener sensorEventListener = new SensorEventListener(){
+    SensorEventListener sensorEventListener = new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent event) {
-            if (mBaiduMap == null) return;
+            // The X axis is horizontal and points to the right,
+            // the Y axis is vertical and points up ,
+            // the Z axis points towards the outside of the front face of the screen.
+            // In this system, coordinates behind the screen have negative Z values.
             double x = event.values[SensorManager.DATA_X];
             if (Math.abs(x - lastX) > 1.0) {
                 mCurrentDirection = (int) x;
-                locData = new MyLocationData.Builder()
-                        .accuracy(mCurrentAccracy)
-                        // 此处设置开发者获取到的方向信息，顺时针0-360
-                        .direction(mCurrentDirection).latitude(mCurrentLat)
-                        .longitude(mCurrentLon).build();
-                mBaiduMap.setMyLocationData(locData);
             }
             lastX = x;
         }
@@ -393,17 +350,18 @@ public class FragmentHome extends FragmentBase {
 
         }
     };
+
     @Override
     public void onPause() {
         mSensorManager.unregisterListener(sensorEventListener);
-
+        if (mMapView!=null) {
+            mMapView.onPause();
+        }
         super.onPause();
     }
 
     @Override
     public void onDestroy() {
-        mLocClient.stop();
-        mBaiduMap.setMyLocationEnabled(false);
         super.onDestroy();
     }
 
@@ -416,8 +374,6 @@ public class FragmentHome extends FragmentBase {
         animation.setRepeatMode(Animation.REVERSE);
         view.setAnimation(animation);
     }
-
-    private Map<String, LatLng> markerMap = new HashMap<>();
 
     private void getInBoundsData(LatLngBounds bound) {
 
@@ -433,141 +389,178 @@ public class FragmentHome extends FragmentBase {
         LsLog.w(TAG, "bounds:  latitude1 = " + latitude1 + ", latitude2 = " + latitude2
                 + ", longitude1 = " + longitude1 + ", longitude2 = " + longitude2
         );
-
-        //public abstract class AsyncTask<Params, Progress, Result>
-        new AsyncTask<Double, Integer, List<OverlayOptions>>(){
-
-            @Override
-            protected List doInBackground(Double... doubles) {
-                List<OverlayOptions> options = new ArrayList<>();
-
-                DaoSession daoSession = App.getInstence().getDaoSession();
-                LsLog.w(TAG, "doubles size = " + doubles.length);
-
-                QueryBuilder<GatherPoint> qb = daoSession.queryBuilder(GatherPoint.class)
-                        .where(GatherPointDao.Properties.Latitude.gt("" + doubles[0]),
-                                GatherPointDao.Properties.Latitude.le("" + doubles[1]),
-                                GatherPointDao.Properties.Longitude.gt("" + doubles[2]),
-                                GatherPointDao.Properties.Longitude.le("" + doubles[3])
-                                )
-                        .orderDesc(GatherPointDao.Properties.Updated_at);
-                List<GatherPoint> dataList = qb.list(); // 查出当前对应的数据
-                LsLog.w(TAG, "dataList size = " + dataList.size());
-                markerMap.clear();
-
-                for (GatherPoint point : dataList) {
-                    double lat = Double.parseDouble(point.getLatitude());
-                    double nextlng = Double.parseDouble(point.getLongitude());
-
-                    LatLng latLng = markerMap.get(point.getLatitude() + nextlng);
-                    while (latLng != null) {
-                        nextlng = nextlng + Constants.DIFF;
-                        String s = String.valueOf(nextlng);
-                        latLng = markerMap.get(point.getLatitude() + s);
-                    }
-                    LatLng llng = new LatLng(lat, nextlng);
-
-                    markerMap.put(point.getLatitude() + String.valueOf(nextlng) , llng);
-
-                    llng = PositionUtil.GpsToBaiduLatLng(llng);
-
-                    options.add(getMarker(llng, point));
-                }
-                return options;
-            }
-
-            @Override
-            protected void onPostExecute(List<OverlayOptions> list) {
-                if (mBaiduMap != null) {
-                    mBaiduMap.clear();
-                    mBaiduMap.addOverlays(list);
-                }
-            }
-        }.execute(latitude1, latitude2, longitude1,longitude2);
     }
 
-    BitmapDescriptor mMarkerBitmap;
-    private OverlayOptions getMarker(LatLng point, GatherPoint gatherPoint) {
-        Bundle bundle = new Bundle();
-        bundle.putSerializable("GatherPoint", gatherPoint);
-
-        mMarkerBitmap = getMarkerBitmap(gatherPoint);
-
-        OverlayOptions option = new MarkerOptions()
-                .position(point) //必传参数
-                .icon(mMarkerBitmap) //必传参数
-                // 设置平贴地图，在地图中双指下拉查看效果
-                .flat(false)
-                .extraInfo(bundle)
-                .alpha(0.8f);
-        LsLog.w(TAG, "marker point = " + gatherPoint.getName());
-        return option;
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == Constants.GET_FILE_PATH) { // get off line map files.
+            //If it is a file selection mode, you need to get the path collection of all the files selected
+            //List<String> list = data.getStringArrayListExtra(Constant.RESULT_INFO);//Constant.RESULT_INFO == "paths"
+            List<String> list = data.getStringArrayListExtra("paths");
+            for (String file: list){
+                Log.w(TAG, "list get file name: " + file);
+                addTheMapLayer(file);
+            }
+            //If it is a folder selection mode, you need to get the folder path of your choice
+            String path = data.getStringExtra("path");
+            Log.w(TAG, "get file name: " + path);
+        }
     }
 
-    private BitmapDescriptor getMarkerBitmap(GatherPoint gatherPoint) {
-        String type_id = gatherPoint.getType_id();
-        CollectType collectType = CacheData.getTypeMaps().get(type_id);
+    private void addTheMapLayer(String file) {
+
+        File exitFile = new File(file);
+        String fileName = file;
+
+        if (exitFile.exists()) {
+            fileName = fileName.substring(fileName.lastIndexOf(".") + 1);
+            if (fileName.length() == 0)
+                return;
+            if (ArchiveFileFactory.isFileExtensionRegistered(fileName)) {
+                try {
+                    IRegisterReceiver registerReceiver = new SimpleRegisterReceiver(getContext());
+                    OfflineTileProvider tileProvider = new OfflineTileProvider(registerReceiver,new File[]{exitFile});
+                    //mapView.setTileProvider(tileProvider);
+                    TilesOverlay overlay = new TilesOverlay(tileProvider, getContext());
+                    // overlay.setTransparency(0.5f);
+                    overlay.setColorFilter(transparency);
+                    // 加载在最底层的图像
+                    OverlayManager overlayManager = mMapView.getOverlayManager();
+                    overlayManager.add(0, overlay);
+                    setOfflineLay(overlay);
+                    return;
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                //Toast.makeText(getContext(), "did not have any files I can open", Toast.LENGTH_LONG).show();
+            } else {
+                //Toast.makeText(getContext(), " dir not found!", Toast.LENGTH_LONG).show();
+            }
+        }
+
+    }
+
+    private void setOfflineLay(TilesOverlay overlay) {
+        hasOfflineLay = true;
+        offlineLays.add(overlay);
+        showArcgisMap.setText("删除\n底图");
+        mMapView.invalidate();
+    }
+
+    private void delayRun(int i) {
+        new Handler().postDelayed(() -> {
+            DataUtils.asyncPointsByBounds(mMapView.getBoundingBox(), new IGatherDataListener() {
+                @Override
+                public void onListData(List<GatherPoint> list) {
+                    showListPoint(list, mMapView);
+                }
+            });
+        }, i);
+    }
+
+    private synchronized void showListPoint(List<GatherPoint> list, MapView mapView) {
+        // if (BuildConfig.DEBUG) return;
+        newItemMarker.clear();
+        for (GatherPoint gp: list) {
+            if (!showInMap.contains(gp)) {
+                newItemMarker.add(gp);
+                LsLog.w(TAG, "new gp to show: " + gp.getName());
+            } else {
+                LsLog.w(TAG, "already showing: " + gp.getName());
+            }
+        }
+        LsLog.w(TAG, "newItemMarker size : " + newItemMarker.size());
+        if (newItemMarker.size() == 0) return;
+
+        // 加上新元素。
+        showInMap.addAll(newItemMarker);
+
+        Log.w(TAG, "showListPoint");
+        for (GatherPoint gp : newItemMarker) {
+            MyOsmMarker marker = createMarker(gp, mapView);
+            mapView.getOverlays().add(marker);
+        }
+        mapView.invalidate();
+    }
+
+
+    private MyOsmMarker createMarker(GatherPoint gp, MapView mapView) {
+        Log.w(TAG, "createMarker");
+        CollectType typeIconUrl = DataUtils.getTypeIconUrl(gp);
+        double latitude = Double.parseDouble(gp.getLatitude());
+        double nextlng = Double.parseDouble(gp.getLongitude());
+
+        MyOsmMarker existMarker = markerMap.get(gp.getLatitude() + nextlng);
+
+        while (existMarker != null) {
+            if (existMarker.getGatherPoint().getName().equals(gp.getName())) return existMarker;
+            nextlng = nextlng + Constants.DIFF2;
+            existMarker = markerMap.get(gp.getLatitude() + nextlng);
+        }
+
+        MyOsmMarker marker = new MyOsmMarker(mapView);
+        marker.setGatherPoint(gp);
+        marker.setPosition(new GeoPoint(latitude, nextlng));
+
+        Log.w(TAG, "createMarker = " + latitude + ", " + nextlng);
+
+        View view = View.inflate(getContext(), R.layout.view_point_marker, null);
+        TextView viewById = view.findViewById(R.id.name_tv);
+        viewById.setText(gp.getName());
+        if (typeIconUrl != null) {
+            Bitmap bitmap = ImageLoader.getInstance().loadImageSync(typeIconUrl.getIcon());
+            ImageView imageView = view.findViewById(R.id.icon_iv);
+            imageView.setImageBitmap(bitmap);
+        }
+        Bitmap bitmap = BitmapUtil.convertViewToBitmap(view);
+        BitmapDrawable drawable = new BitmapDrawable(getResources(), bitmap);
+        marker.setTitle(gp.getName());
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
+        marker.setIcon(drawable);
+        setMarkerListener(marker, gp, mapView);
+        markerMap.put(gp.getLatitude() + nextlng, marker);
+        return marker;
+    }
+
+    private void setMarkerListener(Marker marker, final GatherPoint gp, MapView mapView) {
+        //layout/osmdroid_info_window.xml
+        Log.w(TAG, "setMarkerListener");
+        MarkerInfoWindow makerInfoWindow = new MarkerInfoWindow(R.layout.osmdroid_info_window, mapView);
+        View view = makerInfoWindow.getView();
+        view.setTag(gp);
+
+        marker.setInfoWindow(makerInfoWindow);
+        marker.setTitle(gp.getName());
+        CollectType collectType = DataUtils.getTypeIconUrl(gp);
         if (collectType != null) {
-            View view = LayoutInflater.from(getActivity()).inflate(R.layout.view_point_marker, null);
-            TextView name = view.findViewById(R.id.name_tv);
-            name.setText(gatherPoint.getName());
-            ImageView icon = view.findViewById(R.id.icon_iv);
+            //
             Bitmap bitmap = ImageLoader.getInstance().loadImageSync(collectType.getIcon());
-            icon.setImageBitmap(bitmap);
-            return BitmapDescriptorFactory.fromView(view);
+            Drawable drawable = new BitmapDrawable(getResources(), BitmapUtil.scaleBitmap(bitmap,2));
+            marker.setImage(drawable);
+            marker.setSnippet(collectType.getName());
+        } else {
+            marker.setSnippet("未知对象");
         }
 
-        return BitmapDescriptorFactory.fromResource(R.drawable.icon_gcoding);
-    }
+        marker.setSubDescription(gp.getLatitude() + ", " + gp.getLongitude());
 
-
-    private InfoWindow createInfoWindow(View view, GatherPoint pointInfo) {
-
-        if (pointInfo == null) {
-            ToastUtil.showTextToast(getContext(), "不是一个采集点");
-            return null;
-        }
-
-        final GatherPoint point = pointInfo;
-
-        Map<String, CollectType> typeMaps = CacheData.getTypeMaps();
-        CollectType type = typeMaps.get(point.getType_id());
-
-        if (type == null) {
-            ToastUtil.showTextToast(getContext(), "采集点类型错误");
-            return null;
-        }
-
-        FragmentCheckRecord.InfoWindowHolder infoHolder = null;
-        if (view.getTag() == null) {
-            infoHolder = new FragmentCheckRecord.InfoWindowHolder();
-            infoHolder.name_tv = view.findViewById(R.id.name_tv);
-            infoHolder.type_tv = view.findViewById(R.id.type_tv);
-            infoHolder.point_tv = view.findViewById(R.id.point_tv);
-            infoHolder.check_btn = view.findViewById(R.id.check_btn);
-            infoHolder.type_icon = view.findViewById(R.id.type_icon);
-            view.setTag(infoHolder);
-        }
-        infoHolder = (FragmentCheckRecord.InfoWindowHolder) view.getTag();
-
-        infoHolder.name_tv.setText(pointInfo.getName());
-        infoHolder.type_tv.setText(type.getName());
-        infoHolder.point_tv.setText(pointInfo.getFormatLatitude() + ",  " + pointInfo.getFormatLongitude());
-        infoHolder.check_btn.setText("查看");
-//        infoHolder.type_icon.setImageDrawable(null);
-        Bitmap bitmap = ImageLoader.getInstance().loadImageSync(type.getIcon());
-        infoHolder.type_icon.setImageBitmap(bitmap);
-//        ImageLoader.getInstance().displayImage(type.getIcon(), infoHolder.type_icon);
-
-        LatLng latLnt = pointInfo.getLatLnt();
-        latLnt = PositionUtil.GpsToBaiduLatLng(latLnt);
-
-        infoHolder.check_btn.setOnClickListener(v ->
-                AddCollectionActivity.start(getContext(), point));
-
-        mInfoWindow = new InfoWindow(view, latLnt, -50);
-
-        return mInfoWindow;
+        marker.setOnMarkerClickListener((Marker markerV, MapView mapView1) -> {
+            Log.w(TAG, "setOnMarkerClickListener marker");
+            if (markerV.isInfoWindowShown()) {
+                markerV.closeInfoWindow();
+            } else {
+                mapView1.getController().animateTo(markerV.getPosition());
+                markerV.showInfoWindow();
+            }
+            mapView1.postInvalidate();
+            return true;
+        });
+        Button checkBtn = view.findViewById(R.id.check_btn);
+        checkBtn.setOnClickListener(v -> {
+            Log.w(TAG, "checkBtn.setOnClickListener button.");
+            marker.closeInfoWindow();
+            AddCollectionActivity.start(getContext(), gp);
+        });
     }
 
 }

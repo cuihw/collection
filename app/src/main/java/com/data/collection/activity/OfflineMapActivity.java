@@ -97,6 +97,7 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
     };
     List<GatherPoint> showInMap = new ArrayList<>();
     List<GatherPoint> newItemMarker = new ArrayList<>();
+    List<GatherPoint> toBeRemove = new ArrayList<>();
 
     public static void start(Context context) {
         Intent intent = new Intent(context, OfflineMapActivity.class);
@@ -111,7 +112,6 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
         initListener();
     }
 
-    List<GatherPoint> toBeRemove = new ArrayList<>();
     private Map<String, MyOsmMarker> markerMap = new HashMap<>();
 
     private void initListener() {
@@ -349,7 +349,6 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
     }
 
     private void showMylocaltion() {
-
         MyLocationNewOverlay mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(this),
                 osmdroidMapView);
         mLocationOverlay.enableMyLocation();

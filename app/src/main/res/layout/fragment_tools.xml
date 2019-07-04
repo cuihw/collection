@@ -94,6 +94,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:visibility="gone"
             android:id="@+id/offline_map"
             android:layout_margin="@dimen/item_padding_small"
             android:layout_width="match_parent"
@@ -130,6 +131,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:visibility="gone"
             android:id="@+id/position_transform"
             android:layout_margin="@dimen/item_padding_small"
             android:layout_width="match_parent"

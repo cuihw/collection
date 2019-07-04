@@ -139,6 +139,8 @@ public class MainActivity extends BaseActivity {
                     jpTabBar.setSelectTab(0);
                 }
             }, 1000);
+        } else if (requestCode == Constants.GET_FILE_PATH && resultCode == RESULT_OK){
+            fragmentHome.onActivityResult(requestCode, resultCode,data);
         }
     }
 

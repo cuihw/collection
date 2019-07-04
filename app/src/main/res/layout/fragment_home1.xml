@@ -14,11 +14,17 @@
         >
     </com.data.collection.view.TitleView>
     <!-- open map -->
-    <org.osmdroid.views.MapView
-        android:id="@+id/mapview"
+    <LinearLayout
+        android:id="@+id/baidu_container"
         android:layout_below="@+id/title_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <FrameLayout
+            android:id="@+id/map_framelayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/recode_trace"

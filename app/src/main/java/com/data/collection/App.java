@@ -1,6 +1,7 @@
 package com.data.collection;
 
 import android.app.Application;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -23,6 +24,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import org.greenrobot.greendao.database.Database;
+import org.osmdroid.config.Configuration;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,7 +55,7 @@ public class App extends Application {
         initDaoSession();
 
         ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(this));
-        initBaiduSdk();
+        initMapsdk();
         initLogin();
         getUserInfoCache();
         CrashHandler.getInstance().init(getApplicationContext());
@@ -119,7 +121,7 @@ public class App extends Application {
         }
     }
 
-    private void initBaiduSdk() {
+    private void initMapsdk() {
         // 在使用 SDK 各组间之前初始化 context 信息，传入 ApplicationContext
         SDKInitializer.initialize(getApplicationContext());
         // 自4.3.0起，百度地图SDK所有接口均支持百度坐标和国测局坐标，用此方法设置您使用的坐标类型.
@@ -127,6 +129,8 @@ public class App extends Application {
         SDKInitializer.setCoordType(CoordType.BD09LL);
 
         UserTrace.getInstance().init(this);
+
+        Configuration.getInstance().setAnimationSpeedDefault(500);
     }
 
     private void showSignInfo() {

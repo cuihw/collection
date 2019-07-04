@@ -52,4 +52,7 @@ public class Constants {
     public static final double DIFF2 = 0.0005;
 
     public static final double RANGE = 0.1;
+
+
+    public static final int GET_FILE_PATH = 1000;
 }
