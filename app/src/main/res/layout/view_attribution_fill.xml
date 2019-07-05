@@ -34,7 +34,7 @@
                 android:textColor="@color/font1"
                 android:background="@color/transparent100"
                 android:singleLine="true"
-                android:hint="请填写属性信息" />
+                android:hint="（必填）请填写属性信息" />
         </RelativeLayout>
 
         <View

@@ -8,9 +8,9 @@ import org.osmdroid.views.overlay.Marker;
 public class MyOsmMarker extends Marker {
 
     GatherPoint gatherPoint;
-
-    public MyOsmMarker(MapView mapView) {
+    public MyOsmMarker(GatherPoint gatherPoint, MapView mapView) {
         super(mapView);
+        this.gatherPoint = gatherPoint;
     }
 
     public GatherPoint getGatherPoint() {

@@ -195,8 +195,7 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
             existMarker = markerMap.get(gp.getLatitude() + nextlng);
         }
 
-        MyOsmMarker marker = new MyOsmMarker(osmdroidMapView);
-        marker.setGatherPoint(gp);
+        MyOsmMarker marker = new MyOsmMarker(gp, osmdroidMapView);
         marker.setPosition(new GeoPoint(latitude, nextlng));
 
         Log.w(TAG, "getMarker = " + latitude + ", " + nextlng);

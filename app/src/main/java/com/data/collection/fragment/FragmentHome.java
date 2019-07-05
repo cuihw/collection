@@ -567,8 +567,7 @@ public class FragmentHome extends FragmentBase {
             existMarker = markerMap.get(gp.getLatitude() + nextlng);
         }
 
-        MyOsmMarker marker = new MyOsmMarker(mapView);
-        marker.setGatherPoint(gp);
+        MyOsmMarker marker = new MyOsmMarker(gp, mapView);
 
         //GeoPoint point = DataUtils.adjustPoint(new GeoPoint(latitude, nextlng), mapType);
         marker.setPosition(new GeoPoint(latitude, nextlng));

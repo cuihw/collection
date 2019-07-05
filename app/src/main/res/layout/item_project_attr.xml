@@ -3,14 +3,16 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/item_padding"
-    android:paddingBottom="@dimen/item_padding"
     android:background="@drawable/round_background"
     android:orientation="vertical">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/round_top_background2"
-        android:padding="@dimen/item_padding"
+        android:background="@drawable/round_background"
+        android:paddingLeft="@dimen/item_padding"
+        android:paddingRight="@dimen/item_padding"
+        android:paddingTop="@dimen/item_padding_large"
+        android:paddingBottom="@dimen/item_padding_large"
         android:layout_gravity="center"
         android:gravity="center_vertical"
         android:orientation="horizontal">
@@ -28,11 +30,27 @@
             />
         <TextView
             android:id="@+id/type_name"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/font1"
             android:text="线杆"
             android:textSize="@dimen/font2" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:paddingRight="@dimen/item_padding"
+            >
+            <ImageView
+                android:id="@+id/expandable_icon"
+                android:layout_width="@dimen/title_image"
+                android:layout_height="@dimen/title_image"
+                android:src="@mipmap/icon_arrow_right"
+                android:padding="@dimen/item_padding_small"
+                android:layout_alignParentRight="true"
+                />
+        </RelativeLayout>
     </LinearLayout>
     <LinearLayout
         android:id="@+id/rootview"

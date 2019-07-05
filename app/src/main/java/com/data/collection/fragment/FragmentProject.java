@@ -147,38 +147,51 @@ public class FragmentProject extends FragmentBase {
                 helper.setText(R.id.type_name, item.getName());
                 ImageView iconview = helper.getView(R.id.icon);
                 ImageLoader.getInstance().displayImage(item.getIcon(), iconview);
-                List<Attrs> attrs = item.getAttrs();
 
-                final List<View> listView = new ArrayList<>();
-                for (Attrs attr : attrs) {
-                    View infoView = getInfoView(attr);
-                    if (infoView != null) {
-                        if (attr.getType().equals(Attrs.TYPE_OPTION)) {
-                            listView.add(0, infoView);
-                        } else {
-                            listView.add(infoView);
-                        }
+                helper.setOnClickListener(R.id.expandable_icon, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        item.setSelected(!item.isSelected());
+                        adapter.notifyDataSetChanged();
                     }
-                }
+                });
                 LinearLayout rootview = helper.getView(R.id.rootview);
                 rootview.removeAllViews();
 
-                if (listView.size() > 0) {
-                    LsLog.w(TAG, "listView.size() = " + listView.size());
-                    View view = listView.get(0);
-                    View top = view.findViewById(R.id.divider_top);
-                    top.setVisibility(View.GONE);
-                    view = listView.get(listView.size() - 1);
+                if (item.isSelected()) {
+                    helper.setImageResource(R.id.expandable_icon, R.mipmap.icon_arrow_down);
+                    List<Attrs> attrs = item.getAttrs();
+                    final List<View> listView = new ArrayList<>();
+                    for (Attrs attr : attrs) {
+                        View infoView = getInfoView(attr);
+                        if (infoView != null) {
+                            if (attr.getType().equals(Attrs.TYPE_OPTION)) {
+                                listView.add(0, infoView);
+                            } else {
+                                listView.add(infoView);
+                            }
+                        }
+                    }
+                    if (listView.size() > 0) {
+                        LsLog.w(TAG, "listView.size() = " + listView.size());
+                        View view = listView.get(0);
+                        View top = view.findViewById(R.id.divider_top);
+                        top.setVisibility(View.GONE);
+                        view = listView.get(listView.size() - 1);
 
-                    View bottom = view.findViewById(R.id.divider_bottom);
-                    bottom.setVisibility(View.GONE);
-                    for (View viewc : listView) {
-                        rootview.addView(viewc);
+                        View bottom = view.findViewById(R.id.divider_bottom);
+                        bottom.setVisibility(View.GONE);
+                        for (View viewc : listView) {
+                            rootview.addView(viewc);
+                        }
+                    } else {
+                        View viewChild = LayoutInflater.from(getContext()).inflate(R.layout.view_project_attris_empty, null);
+                        rootview.addView(viewChild);
                     }
                 } else {
-                    View viewChild = LayoutInflater.from(getContext()).inflate(R.layout.view_project_attris_empty, null);
-                    rootview.addView(viewChild);
+                    helper.setImageResource(R.id.expandable_icon, R.mipmap.icon_arrow_right);
                 }
+
             }
         };
         listview.setAdapter(adapter);

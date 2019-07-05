@@ -17,6 +17,7 @@ import com.data.collection.util.LsLog;
 import com.data.collection.util.PositionUtil;
 import com.data.collection.util.ToastUtil;
 
+import org.geotools.gce.geotiff.GeoTiffReader;
 import org.greenrobot.greendao.query.QueryBuilder;
 import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
@@ -31,8 +32,6 @@ public class DataUtils {
     BoundingBox boundingBox;
 
     final static double RANGE = 0.01;
-
-
 
 
     public static void asyncPointsByBounds(BoundingBox boundingBox,
@@ -118,7 +117,10 @@ public class DataUtils {
     }
 
     public static void loadTif(GroundOverlay2 go, String filepath) {
-        GeoTiffReader read = new GeoTiffReader(filepath);
+//        GeoTiffReader reader = new GeoTiffReader(filepath);
+
+
+
     }
 
     static public class Adjust{

@@ -77,7 +77,7 @@
                         android:layout_centerHorizontal="true"
                         android:layout_marginRight="@dimen/item_padding"
                         android:textColor="@color/font1"
-                        android:hint="请输入采集点名称" />
+                        android:hint="（必填）请输入采集点名称" />
 
                 </LinearLayout>
 
