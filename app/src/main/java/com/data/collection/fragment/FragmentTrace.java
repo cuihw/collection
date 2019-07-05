@@ -27,6 +27,7 @@ import com.baidu.mapapi.map.Polyline;
 import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.map.SupportMapFragment;
 import com.baidu.mapapi.model.LatLng;
+import com.data.collection.Constants;
 import com.data.collection.R;
 import com.data.collection.activity.CommonActivity;
 import com.data.collection.data.UserTrace;
@@ -42,7 +43,9 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 
@@ -68,6 +71,8 @@ public class FragmentTrace extends FragmentBase {
     // 纹理折线，点击时获取折线上点数及width.
     Polyline mTexturePolyline ;
     private BitmapDescriptor mBlueTexture;
+
+    List<TraceLocation> traceList;
 
     public static void start(Context context){
         Bundle bundle = new Bundle();
@@ -133,8 +138,7 @@ public class FragmentTrace extends FragmentBase {
     };
 
     private void initView() {
-        // 默认当天时间
-        datetimeLayout.setOnClickListener(v->showDatePicker());
+
 
         dateView.setText(DateUtils.formatDate(Calendar.getInstance(),DateUtils.fmtYYYYMMDD));
     }
@@ -151,7 +155,7 @@ public class FragmentTrace extends FragmentBase {
         }
         showTrace(list);
     }
-
+    Map<String, LatLng> traceMap= new HashMap<>();
     private void showTrace(List<TraceLocation> list) {
         if (list == null || list.size() == 0) {
             ToastUtil.showTextToast(getContext(), "当前没有轨迹数据");
@@ -159,11 +163,13 @@ public class FragmentTrace extends FragmentBase {
         }
         TraceLocation startLocation = list.get(0);
         double la = Double.parseDouble(startLocation.getLatitude());
-
         double lo = Double.parseDouble(startLocation.getLongitude());
         // 把地图定位到开始点为中心
         LatLng ll = new LatLng(la, lo);
+        traceMap.put(getKey(startLocation.getLatitude(),lo),ll);
+
         ll = PositionUtil.GpsToBaiduLatLng(ll);
+
         MapStatus.Builder builder = new MapStatus.Builder();
         builder.target(ll).zoom(18.0f);
         mBaiduMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
@@ -174,24 +180,40 @@ public class FragmentTrace extends FragmentBase {
             LsLog.w(TAG, "trace point:" + new Gson().toJson(point));
 
             double latitude = Double.parseDouble(point.getLatitude());
-            double longitude = Double.parseDouble(point.getLongitude());
+            double nextlong = Double.parseDouble(point.getLongitude());
+
+            LatLng latLng1 = traceMap.get(getKey(point.getLatitude(), nextlong));
+
+            while (latLng1 != null) {
+                nextlong += Constants.DIFF;
+                latLng1 = traceMap.get(getKey(point.getLatitude(), nextlong));
+            }
+            traceMap.put(getKey(point.getLatitude(), nextlong), new LatLng(latitude, nextlong));
+
+            LsLog.w(TAG, "traceMap.put = " + getKey(point.getLatitude(), nextlong));
             // 坐标转换到百度09 BD09LL
-            LatLng latLng = PositionUtil.GpsToBaiduLatLng(new LatLng(latitude, longitude));
+            LatLng latLng = PositionUtil.GpsToBaiduLatLng(new LatLng(latitude, nextlong));
             points.add(latLng);
         }
 
         if (points.size() < 3) { //points count can not less than 2
             points.add(points.get(0));
-            ToastUtil.showTextToast(getContext(), "Trace pionts count less than 2.");
+            ToastUtil.showTextToast(getContext(), "轨迹点小于两个点");
         }
 
-        OverlayOptions ooPolyline11 = new PolylineOptions()
+        ooPolyline11 = new PolylineOptions()
                 .width(40)
                 .points(points)
                 .customTexture(mBlueTexture);
         mTexturePolyline = (Polyline) mBaiduMap.addOverlay(ooPolyline11);
+
     }
 
+    private String getKey(String latitude, double nextlong) {
+        return latitude + "|" + nextlong;
+    }
+
+    OverlayOptions ooPolyline11;
     private void showDatePicker() {
         DatePickerDialog datePicker = new DatePickerDialog(new ContextThemeWrapper(getActivity(),
                 android.R.style.Theme_Holo_Light_Dialog_NoActionBar),
@@ -220,6 +242,7 @@ public class FragmentTrace extends FragmentBase {
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 1);
         long time = calendar.getTimeInMillis()/1000;
+
         UserTrace.getInstance().getHistoryTrace(time, traceListener);
     }
 
@@ -229,6 +252,8 @@ public class FragmentTrace extends FragmentBase {
         titleView.getLefticon().setOnClickListener(v->{
             getActivity().finish();
         });
+        // 默认当天时间
+        datetimeLayout.setOnClickListener(v->showDatePicker());
     }
 
 

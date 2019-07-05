@@ -167,5 +167,42 @@
             </RelativeLayout>
         </LinearLayout>
 
+
+        <LinearLayout
+            android:id="@+id/measure_area_layout"
+            android:layout_margin="@dimen/item_padding_small"
+            android:layout_width="match_parent"
+            android:background="@drawable/round_background"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:layout_width="@dimen/icon_size_settings"
+                android:layout_height="@dimen/icon_size_settings"
+                android:background="@drawable/left_round"
+                android:src="@mipmap/measure_tools"
+                android:padding="@dimen/item_padding"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="@dimen/item_padding"
+                android:textSize="@dimen/font2"
+                android:paddingLeft="@dimen/item_padding"
+                android:textColor="@color/black"
+                android:text="测量工具"/>
+            <RelativeLayout
+                android:layout_gravity="center_vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:layout_alignParentRight="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/icon_arrow_right"
+                    android:padding="@dimen/item_padding"
+                    />
+            </RelativeLayout>
+        </LinearLayout>
+        <!---->
     </LinearLayout>
 </RelativeLayout>

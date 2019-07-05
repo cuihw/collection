@@ -1,1 +1,1 @@
-include ':app', ':zwnavi', ':naviData', ':picpick'
+include ':app', ':zwnavi', ':naviData', ':picpick', ':arcgistool'

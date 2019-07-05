@@ -7,6 +7,7 @@ import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.model.LatLng;
 import com.data.collection.App;
 import com.data.collection.Constants;
+import com.data.collection.activity.AddCollectionActivity;
 import com.data.collection.data.greendao.DaoSession;
 import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.data.greendao.GatherPointDao;
@@ -18,6 +19,8 @@ import com.data.collection.util.ToastUtil;
 
 import org.greenrobot.greendao.query.QueryBuilder;
 import org.osmdroid.util.BoundingBox;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.overlay.GroundOverlay2;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +31,8 @@ public class DataUtils {
     BoundingBox boundingBox;
 
     final static double RANGE = 0.01;
+
+
 
 
     public static void asyncPointsByBounds(BoundingBox boundingBox,
@@ -88,4 +93,40 @@ public class DataUtils {
         return type;
     }
 
+
+    public static Adjust GOOGLE_ADJUST = new Adjust();
+
+    public static GeoPoint adjustPoint(GeoPoint geoPoint, int mapType) {
+        switch (mapType) {
+            case Constants.GOOGLE_MAP_SOURCE:
+                geoPoint.setLatitude(geoPoint.getLatitude() + GOOGLE_ADJUST.adjustLat);
+                geoPoint.setLongitude(geoPoint.getLongitude() + GOOGLE_ADJUST.adjustlng);
+                break;
+            case Constants.OPEN_TOPO_SOURCE:
+                break;
+        }
+        return geoPoint;
+    }
+
+    static public Adjust getGoogleAdjust(){
+        return GOOGLE_ADJUST;
+    }
+
+    public static void setGoogleAdjust(Adjust googleAdjust) {
+        if (googleAdjust == null) {LsLog.w(TAG, "adjust is null"); return;}
+        GOOGLE_ADJUST = googleAdjust;
+    }
+
+    public static void loadTif(GroundOverlay2 go, String filepath) {
+        GeoTiffReader read = new GeoTiffReader(filepath);
+    }
+
+    static public class Adjust{
+        /*
+    //shanghai
+    var xOffset= -0.001889737;
+    var yOffset= 0.004844069;*/
+        public double adjustLat = - 0.0005;
+        public double adjustlng = + 0.0063;
+    }
 }

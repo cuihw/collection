@@ -131,6 +131,7 @@ public class App extends Application {
         UserTrace.getInstance().init(this);
 
         Configuration.getInstance().setAnimationSpeedDefault(500);
+        Configuration.getInstance().setUserAgentValue(BuildConfig.APPLICATION_ID);
     }
 
     private void showSignInfo() {

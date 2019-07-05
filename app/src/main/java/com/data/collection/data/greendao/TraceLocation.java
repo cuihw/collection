@@ -1,5 +1,7 @@
 package com.data.collection.data.greendao;
 
+import com.google.gson.Gson;
+
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.NotNull;
@@ -20,6 +22,11 @@ public class TraceLocation {
     private String time;
 
     private boolean isUpload;
+
+    @Override
+    public String toString() {
+        return new Gson().toJson(this);
+    }
 
     @Generated(hash = 1992950212)
     public TraceLocation(Long id, @NotNull String longitude,

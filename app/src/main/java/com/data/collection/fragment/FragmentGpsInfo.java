@@ -28,8 +28,8 @@ import com.data.collection.R;
 import com.data.collection.activity.CommonActivity;
 import com.data.collection.util.LsLog;
 import com.data.collection.view.TitleView;
-import com.esri.core.geometry.Point;
-//import com.esri.arcgisruntime.geometry.Point;
+import com.esri.arcgisruntime.geometry.Point;
+
 
 import java.util.Iterator;
 

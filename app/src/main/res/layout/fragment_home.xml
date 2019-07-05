@@ -50,7 +50,7 @@
         android:layout_height="@dimen/home_button"
         android:layout_above="@+id/recode_trace"
         android:layout_marginBottom="@dimen/item_padding"
-        android:text="卫星\n地图"
+        android:text="选择\n地图"
         android:textSize="@dimen/font4"
         android:textColor="@color/font6"
         android:gravity="center"

@@ -8,6 +8,8 @@ import org.osmdroid.tileprovider.tilesource.XYTileSource;
 import org.osmdroid.util.MapTileIndex;
 
 public class GoogleTileSource extends TileSourceFactory {
+
+    private static final String TAG = "GoogleTileSource";
     //谷歌卫星混合
     public static final OnlineTileSourceBase GoogleHybrid = new XYTileSource("Google-Hybrid",
             0, 19, 512, ".png", new String[]{
@@ -18,7 +20,7 @@ public class GoogleTileSource extends TileSourceFactory {
     }) {
         @Override
         public String getTileURLString(long pMapTileIndex) {
-            Log.d("url", getBaseUrl() + "/vt/lyrs=y&scale=2&hl=zh-CN&gl=CN&src=app&x="
+            Log.w("url", getBaseUrl() + "/vt/lyrs=y&scale=2&hl=zh-CN&gl=CN&src=app&x="
                     + MapTileIndex.getX(pMapTileIndex) + "&y=" + MapTileIndex.getY(pMapTileIndex) + "&z=" + MapTileIndex.getZoom(pMapTileIndex));
             return getBaseUrl() + "/vt/lyrs=y&scale=2&hl=zh-CN&gl=CN&src=app&x=" + MapTileIndex.getX(pMapTileIndex) + "&y=" + MapTileIndex.getY(pMapTileIndex) + "&z=" + MapTileIndex.getZoom(pMapTileIndex);
         }
@@ -35,9 +37,8 @@ public class GoogleTileSource extends TileSourceFactory {
     }) {
         @Override
         public String getTileURLString(long pMapTileIndex) {
-
+            Log.w(TAG, "url = " + getBaseUrl() + "/vt/lyrs=s&scale=2&hl=zh-CN&gl=CN&src=app&x=" + MapTileIndex.getX(pMapTileIndex) + "&y=" + MapTileIndex.getY(pMapTileIndex) + "&z=" + MapTileIndex.getZoom(pMapTileIndex));
             return getBaseUrl() + "/vt/lyrs=s&scale=2&hl=zh-CN&gl=CN&src=app&x=" + MapTileIndex.getX(pMapTileIndex) + "&y=" + MapTileIndex.getY(pMapTileIndex) + "&z=" + MapTileIndex.getZoom(pMapTileIndex);
-
         }
     };
     //谷歌地图
@@ -112,20 +113,44 @@ public class GoogleTileSource extends TileSourceFactory {
         }
     };
 
-    //影像标注 _W是墨卡托投影  _c是国家2000的坐标系
-    public static final OnlineTileSourceBase tianDiTuCiaTileSource = new XYTileSource("TianDiTuCia", 1, 18, 768, ".png",
-            new String[]{"http://t1.tianditu.com/DataServer?T=cia_w",
-                    "http://t2.tianditu.com/DataServer?T=cia_w",
-                    "http://t3.tianditu.com/DataServer?T=cia_w",
-                    "http://t4.tianditu.com/DataServer?T=cia_w",
-                    "http://t5.tianditu.com/DataServer?T=cia_w",
-                    "http://t6.tianditu.com/DataServer?T=cia_w"}) {
+    // https://a.tile.openstreetmap.org/9/420/193.png
+    public static final OnlineTileSourceBase openstreetmap = new XYTileSource("openmapstreet",1, 20, 256, ".png",
+            new String[]{"https://a.tile.openstreetmap.org"}){
         @Override
         public String getTileURLString(final long pMapTileIndex) {
-            Log.d("url", getBaseUrl() + "&X=" + MapTileIndex.getX(pMapTileIndex) + "&Y=" + MapTileIndex.getY(pMapTileIndex)
-                    + "&L=" + MapTileIndex.getZoom(pMapTileIndex));
-            return getBaseUrl() + "&X=" + MapTileIndex.getX(pMapTileIndex) + "&Y=" + MapTileIndex.getY(pMapTileIndex)
-                    + "&L=" + MapTileIndex.getZoom(pMapTileIndex);
+
+            Log.w(TAG, getBaseUrl() + "/" + MapTileIndex.getZoom(pMapTileIndex) + "/" + MapTileIndex.getX(pMapTileIndex)
+                    + "/" + MapTileIndex.getY(pMapTileIndex)+ ".png");
+            return getBaseUrl() + "/" + MapTileIndex.getZoom(pMapTileIndex) + "/" + MapTileIndex.getX(pMapTileIndex)
+                    + "/" + MapTileIndex.getY(pMapTileIndex)+ ".png";
+        }
+    };
+
+    //影像标注 _W是墨卡托投影  _c是国家2000的坐标系
+    public static final OnlineTileSourceBase tianDiTuCiaTileSource = new XYTileSource("TianDiTuCia",
+            //1, 18, 768, ".png",
+            1, 20, 256, ".png",
+            new String[]{"http://t0.tianditu.gov.cn/img_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles"}) {
+            String key = "&tk=b269d6e6de3bc4c49fe9a2ba6900b1e5";
+
+//        new String[]{"http://t1.tianditu.com/DataServer?T=cia_w?tk=b269d6e6de3bc4c49fe9a2ba6900b1e5",
+//                "http://t2.tianditu.com/DataServer?T=cia_w?tk=b269d6e6de3bc4c49fe9a2ba6900b1e5",
+//                "http://t3.tianditu.com/DataServer?T=cia_w?tk=b269d6e6de3bc4c49fe9a2ba6900b1e5",
+//                "http://t4.tianditu.com/DataServer?T=cia_w?tk=b269d6e6de3bc4c49fe9a2ba6900b1e5",
+//                "http://t5.tianditu.com/DataServer?T=cia_w?tk=b269d6e6de3bc4c49fe9a2ba6900b1e5",
+//                "http://t6.tianditu.com/DataServer?T=cia_w?tk=b269d6e6de3bc4c49fe9a2ba6900b1e5"}) {
+        // http://t0.tianditu.gov.cn/img_w/wmts?tk=b269d6e6de3bc4c49fe9a2ba6900b1e5
+
+        // http://t0.tianditu.gov.cn/img_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&tk=您的密钥&
+        // TILEMATRIX={z}&TILEROW={x}&TILECOL={y}
+        // http://t5.tianditu.gov.cn/img_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&tk=b269d6e6de3bc4c49fe9a2ba6900b1e5&TILEROW={836}&TILECOL={405}&TILEMATRIX={10}
+        @Override
+        public String getTileURLString(final long pMapTileIndex) {
+
+            Log.w(TAG, getBaseUrl() + "&TILEROW={" + MapTileIndex.getX(pMapTileIndex) + "}&TILECOL={" + MapTileIndex.getY(pMapTileIndex)
+                    + "}&TILEMATRIX={" + MapTileIndex.getZoom(pMapTileIndex)+ "}" + key);
+            return getBaseUrl() + "&TILEROW={" + MapTileIndex.getX(pMapTileIndex) + "}&TILECOL={" + MapTileIndex.getY(pMapTileIndex)
+                    + "}&TILEMATRIX={" + MapTileIndex.getZoom(pMapTileIndex)+ "}" + key;
         }
     };
 

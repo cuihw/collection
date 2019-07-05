@@ -2,10 +2,13 @@ package com.data.collection.data;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
+import android.util.Log;
 
 import com.data.collection.App;
 import com.data.collection.Constants;
 import com.data.collection.data.greendao.DaoSession;
+import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.data.greendao.TraceLocation;
 import com.data.collection.data.greendao.TraceLocationDao;
 import com.data.collection.listener.ITraceListener;
@@ -82,20 +85,35 @@ public class UserTrace {
 
         long endTime = calendar.getTimeInMillis()/1000 ;
 
-        try {
-            DaoSession daoSession = App.getInstence().getDaoSession();
+        new AsyncTask<Long, Integer, List<TraceLocation>>(){
 
-            QueryBuilder<TraceLocation> qb = daoSession.queryBuilder(TraceLocation.class)
-                    .where(TraceLocationDao.Properties.Time.gt(startTime+ ""),
-                            TraceLocationDao.Properties.Time.le(endTime+ ""))
-                    .orderAsc(TraceLocationDao.Properties.Time);
+            @Override
+            protected List<TraceLocation> doInBackground(Long... longs) {
+                try {
+                    DaoSession daoSession = App.getInstence().getDaoSession();
 
-            List<TraceLocation> list = qb.list();
-            traceListener.onTraceList(list);
+                    QueryBuilder<TraceLocation> qb = daoSession.queryBuilder(TraceLocation.class)
+                            .where(TraceLocationDao.Properties.Time.gt(longs[0]+ ""),
+                                    TraceLocationDao.Properties.Time.le(longs[1]+ ""))
+                            .orderAsc(TraceLocationDao.Properties.Time);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+                    List<TraceLocation> list = qb.list();
+                    for (TraceLocation tl: list)
+                        Log.w(TAG, "list " + list.indexOf(tl) + " = " + tl.toString());
+
+                    return list;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(List<TraceLocation> traceLocations) {
+                traceListener.onTraceList(traceLocations);
+            }
+        }.execute(startTime, endTime);
+
     }
 
     public void getDataFromServer(Context context, long startTime, ITraceListener traceListener) {

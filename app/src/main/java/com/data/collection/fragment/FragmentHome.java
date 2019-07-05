@@ -1,7 +1,9 @@
 package com.data.collection.fragment;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.BitmapDrawable;
@@ -15,8 +17,10 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
@@ -25,8 +29,9 @@ import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.baidu.mapapi.model.LatLngBounds;
+import com.baidu.mapapi.map.GroundOverlay;
 import com.data.collection.Constants;
 import com.data.collection.R;
 import com.data.collection.Tiles.GoogleTileSource;
@@ -48,6 +53,7 @@ import com.leon.lfilepickerlibrary.LFilePicker;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.osmdroid.config.Configuration;
+import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
 import org.osmdroid.events.ZoomEvent;
@@ -60,6 +66,8 @@ import org.osmdroid.tileprovider.util.SimpleRegisterReceiver;
 import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.GroundOverlay2;
+import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.OverlayManager;
 import org.osmdroid.views.overlay.TilesOverlay;
@@ -87,7 +95,7 @@ import static android.content.Context.SENSOR_SERVICE;
 public class FragmentHome extends FragmentBase {
     private static final String TAG = "FragmentHome";
 
-    int mapType = 1;
+    int mapType = Constants.OPEN_TOPO_SOURCE;
 
     @BindView(R.id.title_view)
     TitleView titleView;
@@ -125,15 +133,19 @@ public class FragmentHome extends FragmentBase {
     List<GatherPoint> newItemMarker = new ArrayList<>();
     List<GatherPoint> toBeRemove = new ArrayList<>();
     private Map<String, MyOsmMarker> markerMap = new HashMap<>();
+    OnlineTileSourceBase openTopoSource = TileSourceFactory.OpenTopo; //Open Street 拓扑图
+    OnlineTileSourceBase googleHybridTilesource = GoogleTileSource.GoogleHybrid; // 谷歌卫星混合
+    OnlineTileSourceBase googleTilesource = GoogleTileSource.GoogleSat; // 谷歌卫星
+    OnlineTileSourceBase openstreetmap = GoogleTileSource.openstreetmap; // Open Street 交通图
+    OnlineTileSourceBase autoNaviVector = GoogleTileSource.AutoNaviVector; // 高德地图
+    OnlineTileSourceBase tiandituTilesource = GoogleTileSource.tianDiTuCiaTileSource; //天地图
+    String[] items = new String[]{"Open Street 拓扑图", "谷歌卫星混合", "谷歌卫星",
+            "Open Street 交通图", "高德地图", "天地图"};
+    //List<String> items = Arrays.asList(new String[]{"Open Street 拓扑图", "谷歌卫星混合", "谷歌卫星", "Open Street 交通图", "高德地图", "天地图"});
 
-    OnlineTileSourceBase openTopoSource = TileSourceFactory.OpenTopo;
+    List<GatherPoint> showlist;
 
-    OnlineTileSourceBase googleTilesource = GoogleTileSource.GoogleRoads;
-
-    private void initView() {
-        // 初始化，没有开始记录
-        traceProcess.setVisibility(View.INVISIBLE);
-    }
+    MyLocationNewOverlay mLocationOverlay;
 
     final static float[] trans = {
             1.0f, 0, 0, 0, 0, //red
@@ -164,6 +176,15 @@ public class FragmentHome extends FragmentBase {
 
     private View creatInfoView() {
         return LayoutInflater.from(getActivity()).inflate(R.layout.info_window, null);
+    }
+
+    private void initView() {
+        // 初始化，没有开始记录
+        traceProcess.setVisibility(View.INVISIBLE);
+
+        GroundOverlay2 go = new GroundOverlay2();
+        String filepath = null;
+        DataUtils.loadTif(go,filepath);
     }
 
     private void clickTraceButton() {
@@ -197,9 +218,35 @@ public class FragmentHome extends FragmentBase {
         mSensorManager = (SensorManager) getContext().getSystemService(SENSOR_SERVICE);//获取传感器管理服务
     }
 
+    private void setMapViewListener(){
+        mMapView.getOverlayManager().getTilesOverlay();
+    }
+
     private void initListener() {
 
+        mMapView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return false;
+            }
+        });
+
+        mMapView.getOverlays().add(new MapEventsOverlay(new MapEventsReceiver(){
+            @Override
+            public boolean singleTapConfirmedHelper(GeoPoint p) {
+                Log.w(TAG, "singleTapConfirmedHelper GeoPoint = " + p.getLatitude() + ", " + p.getLongitude());
+                return false;
+            }
+
+            @Override
+            public boolean longPressHelper(GeoPoint p) {
+                Log.w(TAG, "longPressHelper GeoPoint = " + p.getLatitude() + ", " + p.getLongitude());
+                return false;
+            }
+        }));
+
         mMapView.addMapListener(new MapListener() {
+
             @Override
             public boolean onScroll(ScrollEvent event) {
                 Log.w(TAG, "onScroll");
@@ -246,15 +293,7 @@ public class FragmentHome extends FragmentBase {
         recodeTrace.setOnClickListener(v -> clickTraceButton());
 
         mapTypeTv.setOnClickListener(v -> {
-            if (mapType == 1) {
-                mapType = 2;
-                mapTypeTv.setText("交通\n地图");
-                mMapView.setTileSource(googleTilesource);
-            } else {
-                mapType = 1;
-                mapTypeTv.setText("卫星\n地图");
-                mMapView.setTileSource(openTopoSource);
-            }
+            showChioceDialog();
         });
 
         showArcgisMap.setOnClickListener(v -> {
@@ -277,6 +316,49 @@ public class FragmentHome extends FragmentBase {
         myPosition.setOnClickListener(v -> {
             goToMyLocation();
         });
+    }
+
+    /*  OnlineTileSourceBase openTopoSource = TileSourceFactory.OpenTopo; //Open Street 拓扑图
+        OnlineTileSourceBase googleHybridTilesource = GoogleTileSource.GoogleHybrid; // 谷歌卫星混合
+        OnlineTileSourceBase googleTilesource = GoogleTileSource.GoogleSat; // 谷歌卫星
+        OnlineTileSourceBase openstreetmap = GoogleTileSource.openstreetmap; // Open Street 交通图
+        OnlineTileSourceBase autoNaviVector = GoogleTileSource.AutoNaviVector; // 高德地图
+        OnlineTileSourceBase tiandituTilesource = GoogleTileSource.tianDiTuCiaTileSource; //天地图
+    public static final int OPEN_TOPO_SOURCE = 1;
+    public static final int GOOGLE_MAP_SOURCE = 2;
+    public static final int GOOGLE_TILE_SOURCE = 3;
+    public static final int OPEN_STREET_SOURCE  = 4;
+    public static final int GAODE_SOURCE  = 5;
+    public static final int TIANDITU_SOURCE  = 6;
+    */
+    private void setMapType(int mapType) {
+        switch (mapType) {
+            case Constants.OPEN_TOPO_SOURCE:
+                mMapView.setTileSource(openTopoSource);
+                break;
+            case Constants.GOOGLE_MAP_SOURCE:
+                mMapView.setTileSource(googleHybridTilesource);
+                break;
+            case Constants.GOOGLE_TILE_SOURCE:
+                mMapView.setTileSource(googleTilesource);
+                break;
+            case Constants.OPEN_STREET_SOURCE:
+                mMapView.setTileSource(openstreetmap);
+                break;
+            case Constants.GAODE_SOURCE:
+                mMapView.setTileSource(autoNaviVector);
+                break;
+            case Constants.TIANDITU_SOURCE:
+                mMapView.setTileSource(tiandituTilesource);
+                break;
+        }
+    }
+
+    private void refreshMarker(){
+        if (showlist == null) return ;
+        mMapView.getOverlayManager().removeAll(showInMap);
+        showInMap.clear();
+        showListPoint(showlist, mMapView);
     }
 
     private void removeOffLineLay() {
@@ -302,12 +384,11 @@ public class FragmentHome extends FragmentBase {
             mMapView.setUseDataConnection(true);
             mMapView.setMultiTouchControls(true);// 触控放大缩小
             mMapView.getOverlayManager().getTilesOverlay().setEnabled(true);
-            showMylocaltion();
+            initMylocaltion();
         }
     }
 
-    MyLocationNewOverlay mLocationOverlay;
-    private void showMylocaltion() {
+    private void initMylocaltion() {
         mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(getContext()), mMapView);
         mLocationOverlay.enableMyLocation();
         mMapView.getOverlays().add(mLocationOverlay);
@@ -315,6 +396,7 @@ public class FragmentHome extends FragmentBase {
     }
 
     private void goToMyLocation() {
+        mLocationOverlay.enableFollowLocation();
         mMapView.getController().animateTo(mLocationOverlay.getMyLocation());
     }
 
@@ -375,22 +457,6 @@ public class FragmentHome extends FragmentBase {
         view.setAnimation(animation);
     }
 
-    private void getInBoundsData(LatLngBounds bound) {
-
-        double latitude1 = bound.southwest.latitude;
-        double latitude2 = bound.northeast.latitude;
-        double longitude1 = bound.southwest.longitude;
-        double longitude2 = bound.northeast.longitude;
-        latitude1 = latitude1 - Constants.RANGE;
-        latitude2 = latitude2 + Constants.RANGE;
-        longitude1 = longitude1 - Constants.RANGE;
-        longitude2 = longitude2 + Constants.RANGE;
-
-        LsLog.w(TAG, "bounds:  latitude1 = " + latitude1 + ", latitude2 = " + latitude2
-                + ", longitude1 = " + longitude1 + ", longitude2 = " + longitude2
-        );
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == Constants.GET_FILE_PATH) { // get off line map files.
@@ -422,11 +488,12 @@ public class FragmentHome extends FragmentBase {
                     OfflineTileProvider tileProvider = new OfflineTileProvider(registerReceiver,new File[]{exitFile});
                     //mapView.setTileProvider(tileProvider);
                     TilesOverlay overlay = new TilesOverlay(tileProvider, getContext());
-                    // overlay.setTransparency(0.5f);
+                    //overlay.setTransparency(0.5f);
                     overlay.setColorFilter(transparency);
+                    overlay.setLoadingBackgroundColor(Color.TRANSPARENT);
                     // 加载在最底层的图像
                     OverlayManager overlayManager = mMapView.getOverlayManager();
-                    overlayManager.add(0, overlay);
+                    overlayManager.add(0,overlay);
                     setOfflineLay(overlay);
                     return;
                 } catch (Exception ex) {
@@ -460,6 +527,7 @@ public class FragmentHome extends FragmentBase {
 
     private synchronized void showListPoint(List<GatherPoint> list, MapView mapView) {
         // if (BuildConfig.DEBUG) return;
+        showlist = list;
         newItemMarker.clear();
         for (GatherPoint gp: list) {
             if (!showInMap.contains(gp)) {
@@ -500,6 +568,8 @@ public class FragmentHome extends FragmentBase {
 
         MyOsmMarker marker = new MyOsmMarker(mapView);
         marker.setGatherPoint(gp);
+
+        //GeoPoint point = DataUtils.adjustPoint(new GeoPoint(latitude, nextlng), mapType);
         marker.setPosition(new GeoPoint(latitude, nextlng));
 
         Log.w(TAG, "createMarker = " + latitude + ", " + nextlng);
@@ -562,5 +632,32 @@ public class FragmentHome extends FragmentBase {
             AddCollectionActivity.start(getContext(), gp);
         });
     }
+    public void showChioceDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext()) ;
+        builder.setTitle("选择地图:");
 
+
+        builder.setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                setMapType(which + 1);
+                dialog.dismiss();
+            }
+        });
+
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                setMapType(which + 1);
+            }
+        });
+        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(getContext(), "CANCEL", Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setCancelable(false);
+        builder.show();
+    }
 }

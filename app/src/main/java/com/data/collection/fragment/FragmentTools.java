@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.data.collection.R;
 import com.data.collection.activity.CommonActivity;
+import com.data.collection.activity.MeasureActivity;
 import com.data.collection.util.LsLog;
 import com.data.collection.view.TitleView;
 
@@ -39,6 +40,10 @@ public class FragmentTools extends FragmentBase {
 
     @BindView(R.id.offline_map)
     LinearLayout offlineMap;
+
+    @BindView(R.id.measure_area_layout)
+    LinearLayout measureAreaLayout;
+
 
     @BindView(R.id.position_transform)
     LinearLayout positionTransform;
@@ -69,6 +74,7 @@ public class FragmentTools extends FragmentBase {
         satellite.setOnClickListener(v->FragmentGpsInfo.start(getContext()));
         offlineMap.setOnClickListener(v->FragmentOffline.start(getContext()));
         positionTransform.setOnClickListener(v->FragmentPositionTransform.start(getContext()));
+        measureAreaLayout.setOnClickListener(v-> MeasureActivity.start(getContext()));
     }
 
     private void showCompass() {
