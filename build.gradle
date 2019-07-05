@@ -27,6 +27,9 @@ allprojects {
         maven {
             url 'https://esri.bintray.com/arcgis'
         }
+        maven {
+            url 'https://esri.bintray.com/arcgis'
+        }
     }
 }
 

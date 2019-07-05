@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import com.data.collection.R;
+import com.data.collection.data.DataUtils;
 import com.data.collection.util.LocationController;
 import com.data.collection.util.LsLog;
 import com.esri.arcgisruntime.geometry.Envelope;
@@ -41,13 +42,11 @@ public class MeasureActivity extends AppCompatActivity {
         ArcGISTiledLayer tiledLayerBaseMap = new ArcGISTiledLayer(url);
         Basemap basemap = new Basemap(tiledLayerBaseMap);
         ArcGISMap map = new ArcGISMap(basemap);
-//        Envelope mInitExtent = new Envelope(12152397.115334747, 2780298.008156988,
-//                12204603.605653452, 2804643.2016657833,
-//                SpatialReference.create(102100));
-//        Viewpoint vp = new Viewpoint(mInitExtent);
 
         Location location = LocationController.getInstance().getLocation();
-        Viewpoint vp = new Viewpoint(location.getLatitude(), location.getLongitude(), 4000);
+
+        Viewpoint vp = new Viewpoint(location.getLatitude()+ DataUtils.GOOGLE_ADJUST.adjustLat,
+                location.getLongitude()+DataUtils.GOOGLE_ADJUST.adjustlng, 20000);
         // new Viewpoint();
         map.setInitialViewpoint(vp);
         mMapView.setMap(map);
@@ -57,7 +56,7 @@ public class MeasureActivity extends AppCompatActivity {
         measureToolView.init(mMapView);
         measureToolView.setButtonWidth(55);
         measureToolView.setButtonHeight(35);
-        measureToolView.setMeasureBackground(R.color.colorAccent);
+        // measureToolView.setMeasureBackground(R.color.colorAccent);
         measureToolView.setSohwText(true);
         measureToolView.setFontSize(12);
         measureToolView.setFontColor(R.color.color444);

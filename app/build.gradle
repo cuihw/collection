@@ -119,4 +119,5 @@ dependencies {
     implementation project(path: ':arcgistool')
     implementation 'org.osmdroid:osmdroid-android:6.0.3'
     implementation 'com.leon:lfilepickerlibrary:1.8.0'
+    implementation 'org.geotools:gt-geotiff:+'
 }

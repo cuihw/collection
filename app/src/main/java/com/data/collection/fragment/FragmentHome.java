@@ -332,6 +332,7 @@ public class FragmentHome extends FragmentBase {
     public static final int TIANDITU_SOURCE  = 6;
     */
     private void setMapType(int mapType) {
+        this.mapType = mapType;
         switch (mapType) {
             case Constants.OPEN_TOPO_SOURCE:
                 mMapView.setTileSource(openTopoSource);
@@ -636,8 +637,7 @@ public class FragmentHome extends FragmentBase {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext()) ;
         builder.setTitle("选择地图:");
 
-
-        builder.setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
+        builder.setSingleChoiceItems(items, mapType - 1, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 setMapType(which + 1);
