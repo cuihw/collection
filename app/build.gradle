@@ -116,4 +116,6 @@ dependencies {
     implementation project(path: ':arcgistool')
     implementation 'org.osmdroid:osmdroid-android:6.0.3'
     implementation 'com.leon:lfilepickerlibrary:1.8.0'
+    implementation 'com.github.beyka:androidtiffbitmapfactory:0.9.8.7'
+    implementation 'com.luffykou:android-common-utils:1.1.3'
 }

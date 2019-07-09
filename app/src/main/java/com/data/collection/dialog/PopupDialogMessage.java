@@ -54,7 +54,7 @@ public class PopupDialogMessage extends AlertDialog {
         setCancelable(cancelable);
         setCanceledOnTouchOutside(canceledOnTouchOutside);
         LayoutInflater inflater = LayoutInflater.from(this.context);
-        view = inflater.inflate(R.layout.popup_dialog_message, null);
+        view = inflater.inflate(R.layout.dialog_popup_message, null);
         initView();
     }
 

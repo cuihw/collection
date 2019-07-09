@@ -29,7 +29,6 @@ import com.data.collection.Constants;
 import com.data.collection.R;
 import com.data.collection.adapter.PointTypeAdapter;
 import com.data.collection.data.CacheData;
-import com.data.collection.data.greendao.CheckPoint;
 import com.data.collection.data.greendao.DaoSession;
 import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.dialog.ButtomDialogView;
@@ -444,7 +443,7 @@ public class AddCollectionActivity extends BaseActivity {
     }
 
     private void takePicture() {
-        ButtomDialogView dialogView = new ButtomDialogView(this, R.layout.popup_dialog_take_picture);
+        ButtomDialogView dialogView = new ButtomDialogView(this, R.layout.dialog_popup_take_picture);
         TextView camera = dialogView.getView().findViewById(R.id.action_camera);
         TextView gallary = dialogView.getView().findViewById(R.id.action_gallary);
         TextView cancel = dialogView.getView().findViewById(R.id.cancel_tv);

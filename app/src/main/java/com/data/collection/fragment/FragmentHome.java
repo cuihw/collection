@@ -3,6 +3,7 @@ package com.data.collection.fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
@@ -111,6 +112,9 @@ public class FragmentHome extends FragmentBase {
 
     @BindView(R.id.map_type)
     TextView mapTypeTv;
+
+    @BindView(R.id.read_tiff)
+    TextView readTiff;
 
     @BindView(R.id.show_map_arcgis)
     TextView showArcgisMap;
@@ -223,6 +227,10 @@ public class FragmentHome extends FragmentBase {
     }
 
     private void initListener() {
+        readTiff.setOnClickListener(v->{
+            DataUtils.readTiff(getContext());
+            loadBitmap();
+        });
 
         mMapView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -316,6 +324,23 @@ public class FragmentHome extends FragmentBase {
         myPosition.setOnClickListener(v -> {
             goToMyLocation();
         });
+    }
+
+    private void loadBitmap() {
+        GroundOverlay2 groundOverlay2 = new GroundOverlay2();
+
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ui_optimize_111);
+        groundOverlay2.setImage(bitmap);
+        //左上角经纬度坐标（单位：度）：113.592109680,34.799880981
+        //右下角经纬度坐标（单位：度）113.597259521,34.797134399
+        groundOverlay2.setPosition(new GeoPoint(34.799880981, 113.592109680),
+                new GeoPoint(34.797134399, 113.597259521));
+        if (hasOfflineLay ) {
+            mMapView.getOverlayManager().add(1,groundOverlay2);
+        } else {
+            mMapView.getOverlayManager().add(0,groundOverlay2);
+        }
+
     }
 
     /*  OnlineTileSourceBase openTopoSource = TileSourceFactory.OpenTopo; //Open Street 拓扑图

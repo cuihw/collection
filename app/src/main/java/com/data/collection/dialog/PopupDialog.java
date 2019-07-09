@@ -15,7 +15,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -54,7 +53,7 @@ public class PopupDialog extends AlertDialog {
         setCancelable(cancelable);
         setCanceledOnTouchOutside(canceledOnTouchOutside);
         LayoutInflater inflater = LayoutInflater.from(this.context);
-        view = inflater.inflate(R.layout.popup_dialog, null);
+        view = inflater.inflate(R.layout.dialog_popup, null);
         initView();
     }
 

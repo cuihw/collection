@@ -1,6 +1,9 @@
 package com.data.collection.data;
 
+import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.support.constraint.solver.widgets.Rectangle;
 import android.util.Log;
 
 import com.baidu.mapapi.map.OverlayOptions;
@@ -11,23 +14,36 @@ import com.data.collection.activity.AddCollectionActivity;
 import com.data.collection.data.greendao.DaoSession;
 import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.data.greendao.GatherPointDao;
+import com.data.collection.data.tiff.extended.GeoTiffImage;
+import com.data.collection.dialog.ImageDialog;
+import com.data.collection.fragment.FragmentHome;
 import com.data.collection.listener.IGatherDataListener;
 import com.data.collection.module.CollectType;
+import com.data.collection.util.FileUtils;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.PositionUtil;
 import com.data.collection.util.ToastUtil;
+import com.google.gson.Gson;
 
+import org.beyka.tiffbitmapfactory.TiffBitmapFactory;
 import org.geotools.gce.geotiff.GeoTiffReader;
 import org.greenrobot.greendao.query.QueryBuilder;
 import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.overlay.GroundOverlay2;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class DataUtils {
+
     private static final String TAG = "DataUtils";
     BoundingBox boundingBox;
 
@@ -117,11 +133,100 @@ public class DataUtils {
     }
 
     public static void loadTif(GroundOverlay2 go, String filepath) {
-//        GeoTiffReader reader = new GeoTiffReader(filepath);
-
 
 
     }
+
+    public static void decodeTiff(File filename) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    GeoTiffImage tiffImage = new GeoTiffImage(filename);
+                    Rectangle bounds = tiffImage.getBounds();
+                    Log.w(TAG, "bounds width = " + bounds.width + ", height = " + bounds.height);
+                    Bitmap image = tiffImage.getImage();
+                    double latitude = tiffImage.getmLatNorth();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+    }
+
+
+    public static void readTiff(Context context) {
+
+        String path = FileUtils.getFileDir() + "zhengzhou.tif";
+        Log.w(TAG, "path = " + path);
+        File file = new File(path);
+        if (!file.exists()) {
+            Log.w(TAG, "not found file. filename = " + path);
+            return;
+        }
+        decodeTiff(file);
+        //decodeByTiffBitmapFactory(context, file);
+    }
+
+    private static void decodeByTiffBitmapFactory(Context context, File file) {
+        int reqHeight = 2048;
+        int reqWidth = 2048;
+        //  Read data about image to Options object
+        TiffBitmapFactory.Options options = new TiffBitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        Bitmap bitmap = TiffBitmapFactory.decodeFile(file, options);
+
+        if (imageDialog == null) {
+            imageDialog = new ImageDialog(context, bitmap);
+        }
+        if (!imageDialog.getDialog().isShowing()) {
+            imageDialog.show();
+        }
+
+        Log.w(TAG, "file options = " + new Gson().toJson(options));
+
+        int dirCount = options.outDirectoryCount;
+        Log.w(TAG, "dirCount = " + dirCount);
+        // Read and process all images in file
+        for (int i = 0; i < dirCount; i++) {
+            options.inDirectoryNumber = i;
+            TiffBitmapFactory.decodeFile(file, options);
+
+            Log.w(TAG, i + " file options = " + new Gson().toJson(options));
+            int curDir = options.outCurDirectoryNumber;
+            int width = options.outWidth;
+            int height = options.outHeight;
+
+            Log.w(TAG, i + " file options outXResolution = " + options.outXResolution + ",  outYResolution = " + options.outYResolution);
+
+            //Change sample size if width or height bigger than required width or height
+            int inSampleSize = 1;
+            if (height > reqHeight && width > reqWidth) {
+
+                final int halfHeight = height / 2;
+                final int halfWidth = width / 2;
+
+                // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+                // height and width larger than the requested height and width.
+                while ((halfHeight / inSampleSize) > reqHeight
+                        && (halfWidth / inSampleSize) > reqWidth) {
+                    inSampleSize *= 2;
+                }
+            }
+            options.inJustDecodeBounds = false;
+            options.inSampleSize = inSampleSize;
+
+            // Specify the amount of memory available for the final bitmap and temporary storage.
+            options.inAvailableMemory = 20000000; // bytes
+
+            Bitmap bmp = TiffBitmapFactory.decodeFile(file, options);
+            // processBitmap(bmp);
+        }
+    }
+
+    static ImageDialog imageDialog;
 
     static public class Adjust{
         /*
@@ -131,4 +236,6 @@ public class DataUtils {
         public double adjustLat = - 0.0005;
         public double adjustlng = + 0.0063;
     }
+
+
 }

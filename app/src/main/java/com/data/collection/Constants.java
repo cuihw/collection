@@ -3,8 +3,9 @@ package com.data.collection;
 public class Constants {
     // http://192.168.1.227/collect/index.php
     // http://192.168.1.253/collection/index.php
+    // http://218.28.225.140/collection
 
-    public static final String HOST = "http://192.168.1.253/collection";
+    public static final String HOST = "http://218.28.225.140/collection";
 
     public static final String BASE_URL_V1 = HOST + "/index.php/app/v1/";
 
