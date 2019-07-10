@@ -519,6 +519,7 @@ public class CollectionListActivity extends BaseActivity {
     }
 
     private void showData() {
+        if (this.isDestroyed()) return;
         if (adapter == null) return;
 
         boolean checked = true;
@@ -550,6 +551,7 @@ public class CollectionListActivity extends BaseActivity {
     protected void onDestroy() {
         HttpRequest.cancleRequest(TAG);
         HttpRequest.cancleRequest("upLoadImgs");
+
         super.onDestroy();
     }
 }

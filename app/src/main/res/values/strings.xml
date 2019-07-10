@@ -20,4 +20,6 @@
 
     <string name="no_project_data">没有项目数据，请联系管理员</string>
 
+    <string name="operation_hint">点击地图，进行坐标纠偏</string>
+
 </resources>

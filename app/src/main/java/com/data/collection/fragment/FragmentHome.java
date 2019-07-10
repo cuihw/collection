@@ -3,7 +3,6 @@ package com.data.collection.fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
@@ -30,9 +29,7 @@ import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.baidu.mapapi.map.GroundOverlay;
 import com.data.collection.Constants;
 import com.data.collection.R;
 import com.data.collection.Tiles.GoogleTileSource;
@@ -42,7 +39,9 @@ import com.data.collection.data.CacheData;
 import com.data.collection.data.DataUtils;
 import com.data.collection.data.UserTrace;
 import com.data.collection.data.greendao.GatherPoint;
+import com.data.collection.data.tiff.extended.GeoTiffImage;
 import com.data.collection.listener.IGatherDataListener;
+import com.data.collection.listener.ITiffListener;
 import com.data.collection.module.CollectType;
 import com.data.collection.util.BitmapUtil;
 import com.data.collection.util.FileUtils;
@@ -50,6 +49,7 @@ import com.data.collection.util.LsLog;
 import com.data.collection.util.ToastUtil;
 import com.data.collection.view.MyOsmMarker;
 import com.data.collection.view.TitleView;
+import com.kaopiz.kprogresshud.KProgressHUD;
 import com.leon.lfilepickerlibrary.LFilePicker;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -66,6 +66,7 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.tileprovider.util.SimpleRegisterReceiver;
 import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
+import org.osmdroid.util.MapTileArea;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.GroundOverlay2;
 import org.osmdroid.views.overlay.MapEventsOverlay;
@@ -96,7 +97,7 @@ import static android.content.Context.SENSOR_SERVICE;
 public class FragmentHome extends FragmentBase {
     private static final String TAG = "FragmentHome";
 
-    int mapType = Constants.OPEN_TOPO_SOURCE;
+    int mapType = Constants.OPEN_STREET_SOURCE;
 
     @BindView(R.id.title_view)
     TitleView titleView;
@@ -116,8 +117,8 @@ public class FragmentHome extends FragmentBase {
     @BindView(R.id.read_tiff)
     TextView readTiff;
 
-    @BindView(R.id.show_map_arcgis)
-    TextView showArcgisMap;
+    @BindView(R.id.load_local_map)
+    TextView loadLocalMap;
 
     private SensorManager mSensorManager;
     private Double lastX = 0.0;
@@ -129,13 +130,26 @@ public class FragmentHome extends FragmentBase {
     @BindView(R.id.map_my_position)
     TextView myPosition;
 
+    @BindView(R.id.calibration_coordinate)
+    TextView calibrationCoordinate;
+
+
     private View infoView;
     private boolean hasOfflineLay = false;
+
+    @BindView(R.id.hint_title_tv)
+    TextView openationHint;
+
+
+    KProgressHUD hud;
 
     List<TilesOverlay> offlineLays = new ArrayList<>();
     List<GatherPoint> showInMap = new ArrayList<>();
     List<GatherPoint> newItemMarker = new ArrayList<>();
     List<GatherPoint> toBeRemove = new ArrayList<>();
+    Map<String, GroundOverlay2> groundOverlays = new HashMap<>();
+
+
     private Map<String, MyOsmMarker> markerMap = new HashMap<>();
     OnlineTileSourceBase openTopoSource = TileSourceFactory.OpenTopo; //Open Street 拓扑图
     OnlineTileSourceBase googleHybridTilesource = GoogleTileSource.GoogleHybrid; // 谷歌卫星混合
@@ -159,6 +173,8 @@ public class FragmentHome extends FragmentBase {
     };
     public final static ColorFilter transparency = new ColorMatrixColorFilter(trans);
 
+    private boolean isShowGroundLay = false;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -175,6 +191,10 @@ public class FragmentHome extends FragmentBase {
         initListener();
 
         infoView = creatInfoView();
+
+        hud = KProgressHUD.create(getContext())
+                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setCancellable(true);
         return view;
     }
 
@@ -185,10 +205,7 @@ public class FragmentHome extends FragmentBase {
     private void initView() {
         // 初始化，没有开始记录
         traceProcess.setVisibility(View.INVISIBLE);
-
-        GroundOverlay2 go = new GroundOverlay2();
-        String filepath = null;
-        DataUtils.loadTif(go,filepath);
+        openationHint.setVisibility(View.INVISIBLE);
     }
 
     private void clickTraceButton() {
@@ -226,10 +243,52 @@ public class FragmentHome extends FragmentBase {
         mMapView.getOverlayManager().getTilesOverlay();
     }
 
+    public void showGroundOverlay(boolean isShow){
+        this.isShowGroundLay = isShow;
+        List<GroundOverlay2> list = new ArrayList<>(groundOverlays.values());
+        if (isShowGroundLay) { // show
+            if (list.size() == 0) {
+                return;
+            }
+            if (hasOfflineLay) {
+                mMapView.getOverlayManager().addAll(1,list);
+            } else {
+                mMapView.getOverlayManager().addAll(0,list);
+            }
+            readTiff.setText("隐藏图层");
+        } else { // remove the tif & shp files lay
+            if (list.size() == 0) {
+                return;
+            }
+            mMapView.getOverlayManager().removeAll(list);
+            readTiff.setText("加载图片");
+        }
+        mMapView.invalidate();
+
+    }
+
+
+
     private void initListener() {
+        //openationHint
+        calibrationCoordinate.setOnClickListener(v->{
+            openationHint.setVisibility(View.VISIBLE);
+        });
+
         readTiff.setOnClickListener(v->{
-            DataUtils.readTiff(getContext());
-            loadBitmap();
+            if (isShowGroundLay) {
+                showGroundOverlay(false);
+            } else {
+                String fileDir = FileUtils.getFileDir();
+                new LFilePicker().withActivity(getActivity())
+                        .withRequestCode(Constants.GET_FILE_PATH)
+                        .withStartPath(fileDir)
+                        //.withFileFilter(new String[]{".txt", ".png", ".docx"})
+                        .withFileFilter(new String[]{".tif"})
+                        .withMutilyMode(false)
+                        .withTitle("加载图层文件")
+                        .start();
+            }
         });
 
         mMapView.setOnTouchListener(new View.OnTouchListener() {
@@ -304,10 +363,10 @@ public class FragmentHome extends FragmentBase {
             showChioceDialog();
         });
 
-        showArcgisMap.setOnClickListener(v -> {
+        loadLocalMap.setOnClickListener(v -> {
             if (hasOfflineLay ){
                 removeOffLineLay();
-                showArcgisMap.setText("离线\n底图");
+                loadLocalMap.setText("离线\n底图");
             } else {
                 String fileDir = FileUtils.getFileDir();
                 new LFilePicker().withActivity(getActivity())
@@ -326,21 +385,16 @@ public class FragmentHome extends FragmentBase {
         });
     }
 
-    private void loadBitmap() {
+    private void loadBitmap(GeoTiffImage geoTiffImage) {
         GroundOverlay2 groundOverlay2 = new GroundOverlay2();
 
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ui_optimize_111);
-        groundOverlay2.setImage(bitmap);
-        //左上角经纬度坐标（单位：度）：113.592109680,34.799880981
-        //右下角经纬度坐标（单位：度）113.597259521,34.797134399
-        groundOverlay2.setPosition(new GeoPoint(34.799880981, 113.592109680),
-                new GeoPoint(34.797134399, 113.597259521));
-        if (hasOfflineLay ) {
-            mMapView.getOverlayManager().add(1,groundOverlay2);
-        } else {
-            mMapView.getOverlayManager().add(0,groundOverlay2);
-        }
+        BoundingBox boundingBox = geoTiffImage.getBoundingBox();
 
+        groundOverlay2.setPosition(new GeoPoint(boundingBox.getLatNorth(), boundingBox.getLonWest()),
+                new GeoPoint(boundingBox.getLatSouth(), boundingBox.getLonEast()));
+        groundOverlay2.setImage(geoTiffImage.getImage());
+        groundOverlays.put(geoTiffImage.getFile().getAbsolutePath(),groundOverlay2);
+        showGroundOverlay(true);
     }
 
     /*  OnlineTileSourceBase openTopoSource = TileSourceFactory.OpenTopo; //Open Street 拓扑图
@@ -378,6 +432,13 @@ public class FragmentHome extends FragmentBase {
                 mMapView.setTileSource(tiandituTilesource);
                 break;
         }
+
+        MapTileArea mapTileArea = mMapView.getTileProvider().getTileCache().getMapTileArea();
+        int zoom = mapTileArea.getZoom();
+        int width = mapTileArea.getWidth();
+        int height = mapTileArea.getHeight();
+        LsLog.w(TAG, "mapTileArea zoom = " + zoom + ", width = " + width + ", height = " + height);
+
     }
 
     private void refreshMarker(){
@@ -390,7 +451,6 @@ public class FragmentHome extends FragmentBase {
     private void removeOffLineLay() {
         hasOfflineLay = false;
         TilesOverlay tilesOverlay = mMapView.getOverlayManager().getTilesOverlay();
-//        Log.w(TAG, "tilesOverlay = " + tilesOverlay.getBounds());
         mMapView.getOverlayManager().removeAll(offlineLays);
         offlineLays.clear();
         mMapView.invalidate();
@@ -398,8 +458,9 @@ public class FragmentHome extends FragmentBase {
 
     private void initMap() {
         Configuration.getInstance().setAnimationSpeedDefault(500);
+        setMapType(mapType);
         if (mMapView.getOverlays().size() <= 0) {
-            mMapView.setTileSource(TileSourceFactory.OpenTopo);
+
             mMapView.setDrawingCacheEnabled(true);
             mMapView.setMaxZoomLevel(19d);
             mMapView.setMinZoomLevel(0d);
@@ -485,17 +546,43 @@ public class FragmentHome extends FragmentBase {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == Constants.GET_FILE_PATH) { // get off line map files.
-            //If it is a file selection mode, you need to get the path collection of all the files selected
-            //List<String> list = data.getStringArrayListExtra(Constant.RESULT_INFO);//Constant.RESULT_INFO == "paths"
+        if (requestCode == Constants.GET_FILE_PATH) {
+            // get off line map files.
+            // If it is a file selection mode, you need to get the path
+            // collection of all the files selected
+            // List<String> list = data.getStringArrayListExtra(Constant.RESULT_INFO);
+            // Constant.RESULT_INFO == "paths"
             List<String> list = data.getStringArrayListExtra("paths");
             for (String file: list){
                 Log.w(TAG, "list get file name: " + file);
-                addTheMapLayer(file);
+                if (isPictureFile(file)) {
+                    readTiff(file);
+                } else {
+                    addTheMapLayer(file);
+                }
             }
-            //If it is a folder selection mode, you need to get the folder path of your choice
-            String path = data.getStringExtra("path");
-            Log.w(TAG, "get file name: " + path);
+        }
+    }
+
+    private boolean isPictureFile(String file) {
+        return file.endsWith(".tif");
+    }
+
+    private void readTiff(String path) {
+        hud.setLabel("加载中...");
+        if (!hud.isShowing()) {
+            hud.show();
+            DataUtils.loadTif(path, new ITiffListener(){
+                @Override
+                public void onFileReady(GeoTiffImage geoTiffImage) {
+                    if (geoTiffImage == null) {
+                        ToastUtil.showTextToast(getContext(), "加载的tif文件不含地理坐标信息");
+                        return;
+                    }
+                    loadBitmap(geoTiffImage);
+                    hud.dismiss();
+                }
+            });
         }
     }
 
@@ -536,7 +623,7 @@ public class FragmentHome extends FragmentBase {
     private void setOfflineLay(TilesOverlay overlay) {
         hasOfflineLay = true;
         offlineLays.add(overlay);
-        showArcgisMap.setText("删除\n底图");
+        loadLocalMap.setText("删除\n底图");
         mMapView.invalidate();
     }
 
@@ -678,7 +765,6 @@ public class FragmentHome extends FragmentBase {
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(getContext(), "CANCEL", Toast.LENGTH_SHORT).show();
             }
         });
         builder.setCancelable(false);

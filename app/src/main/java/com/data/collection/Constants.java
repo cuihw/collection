@@ -1,11 +1,12 @@
 package com.data.collection;
 
 public class Constants {
-    // http://192.168.1.227/collect/index.php
-    // http://192.168.1.253/collection/index.php
-    // http://218.28.225.140/collection
+    public static final String HOST1 =  "http://192.168.1.227/collect"; // test haibo
+    public static final String HOST2 =  "http://192.168.1.253/collection"; // test  dongjw
+    public static final String HOST3 =  "http://218.28.225.140/collection"; // test public server
+    public static final String HOST4 =  "http://192.168.1.215/collect"; // test ziyin
 
-    public static final String HOST = "http://218.28.225.140/collection";
+    public static final String HOST = HOST4;
 
     public static final String BASE_URL_V1 = HOST + "/index.php/app/v1/";
 
@@ -62,6 +63,5 @@ public class Constants {
     public static final int OPEN_STREET_SOURCE  = 4;
     public static final int GAODE_SOURCE  = 5;
     public static final int TIANDITU_SOURCE  = 6;
-
 
 }

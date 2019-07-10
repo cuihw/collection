@@ -18,6 +18,7 @@ import com.data.collection.data.tiff.extended.GeoTiffImage;
 import com.data.collection.dialog.ImageDialog;
 import com.data.collection.fragment.FragmentHome;
 import com.data.collection.listener.IGatherDataListener;
+import com.data.collection.listener.ITiffListener;
 import com.data.collection.module.CollectType;
 import com.data.collection.util.FileUtils;
 import com.data.collection.util.LsLog;
@@ -108,7 +109,6 @@ public class DataUtils {
         return type;
     }
 
-
     public static Adjust GOOGLE_ADJUST = new Adjust();
 
     public static GeoPoint adjustPoint(GeoPoint geoPoint, int mapType) {
@@ -132,8 +132,31 @@ public class DataUtils {
         GOOGLE_ADJUST = googleAdjust;
     }
 
-    public static void loadTif(GroundOverlay2 go, String filepath) {
+    public static void loadTif(String filepath, ITiffListener listener) {
 
+        new AsyncTask<String, Integer, GeoTiffImage>(){
+            @Override
+            protected GeoTiffImage doInBackground(String... strings) {
+                File file = new File(strings[0]);
+                if (!file.exists()) {
+                    Log.w(TAG, "not found file. filename = " + strings[0]);
+                    return null;
+                }
+                try {
+                    GeoTiffImage tiffImage = new GeoTiffImage(file);
+                    if (tiffImage.parse()) return tiffImage;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(GeoTiffImage geoTiffImage) {
+                if (listener != null) listener.onFileReady(geoTiffImage);
+            }
+        }.execute(filepath);
 
     }
 
@@ -143,11 +166,8 @@ public class DataUtils {
             public void run() {
                 try {
                     GeoTiffImage tiffImage = new GeoTiffImage(filename);
+                    tiffImage.parse();
                     Rectangle bounds = tiffImage.getBounds();
-                    Log.w(TAG, "bounds width = " + bounds.width + ", height = " + bounds.height);
-                    Bitmap image = tiffImage.getImage();
-                    double latitude = tiffImage.getmLatNorth();
-
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -158,8 +178,11 @@ public class DataUtils {
 
 
     public static void readTiff(Context context) {
-
+//        ssss.tif
         String path = FileUtils.getFileDir() + "zhengzhou.tif";
+
+
+
         Log.w(TAG, "path = " + path);
         File file = new File(path);
         if (!file.exists()) {
@@ -167,7 +190,7 @@ public class DataUtils {
             return;
         }
         decodeTiff(file);
-        //decodeByTiffBitmapFactory(context, file);
+        // decodeByTiffBitmapFactory(context, file);
     }
 
     private static void decodeByTiffBitmapFactory(Context context, File file) {

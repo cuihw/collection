@@ -2,7 +2,6 @@ package com.data.collection.activity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
@@ -86,7 +85,7 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
     @BindView(R.id.add_point)
     ImageView addPoint;
 
-    @BindView(R.id.show_map_arcgis)
+    @BindView(R.id.load_local_map)
     TextView showArcgisMap;
 
     final static float[] trans = {

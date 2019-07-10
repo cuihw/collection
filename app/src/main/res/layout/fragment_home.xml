@@ -45,6 +45,16 @@
         android:textSize="@dimen/font2"
         />
     <TextView
+        android:id="@+id/hint_title_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="@string/operation_hint"
+        android:textColor="@color/PrimaryRed"
+        android:textSize="@dimen/font2"
+        />
+    <TextView
         android:id="@+id/read_tiff"
         android:layout_width="@dimen/home_button"
         android:layout_height="@dimen/home_button"
@@ -91,7 +101,7 @@
         />
 
     <TextView
-        android:id="@+id/show_map_arcgis"
+        android:id="@+id/load_local_map"
         android:layout_width="@dimen/home_button"
         android:layout_height="@dimen/home_button"
         android:layout_above="@+id/map_type"

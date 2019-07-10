@@ -1,5 +1,6 @@
 package com.data.collection.data.tiff.extended;
 
+import android.graphics.Bitmap;
 import android.support.constraint.solver.widgets.Rectangle;
 
 import com.data.collection.data.tiff.baseline.RGBImage;
@@ -8,6 +9,7 @@ import com.data.collection.data.utils.Types;
 import org.osmdroid.util.BoundingBox;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
@@ -17,9 +19,78 @@ public class GeoTiffImage extends RGBImage {
 	private double mLonEast;
 	private double mLonWest;
 
+	protected Double[] tudePerPix33550; // 每像素占用多少度数（经纬度）
+
+	protected int[] TAG339; // 三个数字
+	protected Double[] TAG33922; //  六个double的数字，第3, 4是经度和纬度
+
+	// WGS 1984 是一个长半轴(a)为6378137，短半轴（b）为6356752.314245179
+	// 的椭球体，扁率(f)为298.257223563，f=(a-b)/a 。
+	protected Double[] TAG34736; // 扁率 椭球半径
+
+	protected int[] TAG34735; // GeoKeyDirectoryTag  length: 32
+
+	String  spatialReference;
+
+	public String getSpatialReference() {
+		return spatialReference;
+	}
+
+	public void setSpatialReference(String spatialReference) {
+		this.spatialReference = spatialReference;
+	}
+
+	public void setBoundingBox(BoundingBox boundingBox) {
+		this.boundingBox = boundingBox;
+	}
+
 	public GeoTiffImage(File input) throws IOException {
 		super(input);
 		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	public synchronized boolean parse() {
+		boolean retValue = false;
+		RandomAccessFile fstream = null;
+		try {
+			fstream = new RandomAccessFile(file, "rw");
+			decode(fstream);
+
+			if(tudePerPix33550 == null) {
+				return retValue;
+			}
+
+			if (TAG33922 == null || TAG33922.length < 5) {
+				return retValue;
+			}
+
+			calLongLat();
+
+			image = Bitmap.createBitmap((int) imageWidth, (int) imageLength, Bitmap.Config.ARGB_8888);
+			if (stripOffsets != null) {
+				retValue = readStrips(fstream);
+			}
+			if (tileOffsets != null){
+				log.append("readTiles...........");
+				retValue = readTiles(fstream);
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return retValue;
+	}
+
+	private void calLongLat() {
+		mLonWest = TAG33922[3];
+		mLatNorth = TAG33922[4];
+		// imageLength, imageWidth;
+		mLonEast = mLonWest +  tudePerPix33550[0] * imageWidth;
+		mLatSouth = mLatNorth - tudePerPix33550[1] * imageLength;
+		setmLonWest(mLonWest);
+		log.append("boundingBox = " + boundingBox.toString());
 	}
 
 	@Override
@@ -196,7 +267,50 @@ public class GeoTiffImage extends RGBImage {
 						start += Types.DATATYPE[datatype];
 					}
 					break;
-
+				case 339: // 未知的tag， short类型
+					TAG339 = new int[(int)valueCount];
+					for (int i = 0; i < valueCount; i++){
+						TAG339[i] = (int) Types.getObject(buffer, start, datatype, byteOrder);
+						start += Types.DATATYPE[datatype];
+						log.append("TAG339 = " + TAG339[i]);
+					}
+					break;
+				case 33550: // 每像素代表的经纬度
+					tudePerPix33550 = new Double[(int) valueCount];
+					for (int i = 0; i < valueCount; i++) {
+						tudePerPix33550[i] = (Double)Types.getObject(buffer, start, datatype, byteOrder);
+						start += Types.DATATYPE[datatype];
+						log.append("tudePerPix33550 = " + tudePerPix33550[i]);
+					}
+					break;
+				case 33922:
+					TAG33922 = new Double[(int) valueCount];
+					for (int i = 0; i < valueCount; i++) {
+						TAG33922[i] = (Double)Types.getObject(buffer, start, datatype, byteOrder);
+						start += Types.DATATYPE[datatype];
+						log.append("TAG33922 = " + TAG33922[i]);
+					}
+					break;
+				case 34737: // 空间坐标系
+					spatialReference = (String) Types.getObject(buffer, start, datatype, byteOrder);
+					log.append("spatialReference : " + spatialReference);
+					break;
+				case 34736: // 偏率， 半径
+					TAG34736 = new Double[(int) valueCount];
+					for (int i = 0; i < valueCount; i++) {
+						TAG34736[i] = (Double)Types.getObject(buffer, start, datatype, byteOrder);
+						start += Types.DATATYPE[datatype];
+						log.append("偏率， 半径 TAG34736 = " + TAG34736[i]);
+					}
+					break;
+				case 34735: // unknow data length 32
+					TAG34735 = new int[(int) valueCount];
+					for (int i = 0; i < valueCount; i++) {
+						TAG34735[i] = (int)Types.getObject(buffer, start, datatype, byteOrder);
+						start += Types.DATATYPE[datatype];
+						log.append("TAG34735[" +i + "] = " + TAG34735[i]);
+					}
+					break;
 				default:
 					if (isValue) {
 						String outValue = "";
@@ -205,11 +319,9 @@ public class GeoTiffImage extends RGBImage {
 					} else {
 						log.append("Unknown Tag Found : " + tag + " ValueOFFset : " + valueOffset);
 						start = 0;
-
 						Looper:
 						for (int i = 0; i < valueCount; i++) {
 							String outValue = "";
-
 							switch (datatype) {
 								case 1: // byte
 									byte object = (byte) Types.getObject(buffer, start, datatype, byteOrder);
@@ -281,6 +393,7 @@ public class GeoTiffImage extends RGBImage {
 
 	public void setmLonWest(double mLonWest) {
 		this.mLonWest = mLonWest;
+		//north,    final double east,   final double south, final double west
 		boundingBox.set(mLatNorth, mLonEast, mLatSouth, mLonWest);
 	}
 
@@ -289,5 +402,9 @@ public class GeoTiffImage extends RGBImage {
 
 	public BoundingBox getBoundingBox() {
 		return boundingBox;
+	}
+
+	public void recyle(){
+		image.recycle();
 	}
 }

@@ -4,11 +4,13 @@ import android.graphics.Bitmap;
 
 import com.data.collection.data.utils.Types;
 
-//import java.awt.image.BufferedImage;
-//import java.awt.image.WritableRaster;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+
+//import java.awt.image.BufferedImage;
+//import java.awt.image.WritableRaster;
 
 public class RGBImage extends GrayScaleImage {
     //	SamplesPerPixel
@@ -18,19 +20,41 @@ public class RGBImage extends GrayScaleImage {
     //	extra samples are present. See the ExtraSamples field for further information.
     protected int samplesPerPixel;
 
+    protected File file;
+
+    public File getFile() {
+        return file;
+    }
+
+    public void setFile(File file) {
+        this.file = file;
+    }
+
     public RGBImage(File input) throws IOException {
-        RandomAccessFile fstream = new RandomAccessFile(input, "rw");
-        decode(fstream);
-//		image = new BufferedImage(	(int) imageWidth,
-//									(int) imageLength,
-//									 BufferedImage.TYPE_3BYTE_BGR
-//				);
-        image = Bitmap.createBitmap((int) imageWidth, (int) imageLength, Bitmap.Config.ARGB_8888);
-        if (stripOffsets != null) readStrips(fstream);
-        if (tileOffsets != null){
-            log.append("readTiles...........");
-            readTiles(fstream);
+        file = input;
+    }
+
+    public synchronized boolean parse() {
+        boolean retValue = false;
+        RandomAccessFile fstream = null;
+        try {
+            fstream = new RandomAccessFile(file, "rw");
+            decode(fstream);
+
+            image = Bitmap.createBitmap((int) imageWidth, (int) imageLength, Bitmap.Config.ARGB_8888);
+            if (stripOffsets != null) {
+                retValue = readStrips(fstream);
+            }
+            if (tileOffsets != null){
+                log.append("readTiles...........");
+                retValue = readTiles(fstream);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        return retValue;
     }
 
     protected boolean byteOrder = false;
@@ -265,8 +289,8 @@ public class RGBImage extends GrayScaleImage {
                     if (c == imageLength * imageWidth) break;
                     row = (int) (c / imageWidth);
                     col = (int) (c % imageWidth);
-                    //buffer = Types.getByteAsBytes( (byte)wr.getSample(row, col, 0), true);
-                    //fstream.write(buffer);
+                    // buffer = Types.getByteAsBytes( (byte)wr.getSample(row, col, 0), true);
+                    // fstream.write(buffer);
                 }
             }
         } catch (Exception e) {
@@ -276,39 +300,34 @@ public class RGBImage extends GrayScaleImage {
         }
         return true;
     }
-
-    public boolean readStrips(RandomAccessFile fstream) {
+    public boolean readStrips(RandomAccessFile fstream){
         log.append("Reading Pixel Data From Strips");
-        int buffersize = 1;
-        int row = 0, col = 0, c = 1;
-//		short[][] pixel = new short[(int) imageLength][(int)imageWidth]; //allocate the 2d pixel array
-//		WritableRaster wr = image.getRaster();
-        try {
-            for (int offset = 0; offset < stripOffsets.length; offset++) {
-                log.append("Offset : " + offset);
-
-                //move file pointer to address of current strip
-                fstream.seek((int) stripOffsets[offset]);
-
+        int buffersize = 3;
+        int row = 0, col = 0,c = 1;
+        try{
+            for(int offset = 0; offset < stripOffsets.length; offset++){
+                log.append("Offset : "+offset);
+                fstream.seek((int)stripOffsets[offset]);
                 byte[] buffer = new byte[buffersize];//create buffer
 
-                for (int count = 0; count < stripByteCounts[offset]; count++, c++) {
+                for(int count = 0 ; count < stripByteCounts[offset] ; count += 3, c++){
                     fstream.read(buffer);
-                    //if( c % imageWidth == 0) log.append();
-                    if (c == imageLength * imageWidth) break;
+                    if( c == imageLength*imageWidth) break;
                     row = (int) (c / imageWidth);
                     col = (int) (c % imageWidth);
-                    log.append("" + col + row + "buffer = " + (buffer[0] & 0xff));
-//				wr.setSample( col, row, 0,(buffer[0] & 0xff));
-                    //System.out.print(pixel[row][col]+" ");
+                    int color = Types.getLong(buffer, 0, 3, byteOrder);
+                    color = color| 0xFF000000;
+                    image.setPixel(col, row, color);
                 }
-            }
-        } catch (Exception e) {
-            log.append("imageWidth : " + imageWidth + " imageLength :" + imageLength);
-            log.append("row : " + row + " col : " + col + " count : " + c);
+           }
+            return true;
+        }catch(Exception e){
+            log.append("imageWidth : "+imageWidth+" imageLength :"+imageLength);
+            log.append("row : "+row+" col : "+col+" count : "+c);
             e.printStackTrace();
+
+            return false;
         }
-        return false;
     }
 
     public boolean readTiles(RandomAccessFile fstream) {
@@ -350,9 +369,9 @@ public class RGBImage extends GrayScaleImage {
                         COL = (int) ((count / 3) % (tileWidth));
                         COL += (col * tileWidth);
                         if (ROW >= imageLength || COL >= imageWidth) continue;
-                        pixelData[0] = buffer[count];    //RED
-                        pixelData[1] = buffer[1 + count]; //GREEN
-                        pixelData[2] = buffer[2 + count]; //BLUE
+//                        pixelData[0] = buffer[count];    //RED
+//                        pixelData[1] = buffer[1 + count]; //GREEN
+//                        pixelData[2] = buffer[2 + count]; //BLUE
                         int color = Types.getLong(buffer, count, 3, byteOrder);
                         color = color| 0xFF000000;
                         // wr.setPixel( COL, ROW, pixelData );
@@ -361,13 +380,13 @@ public class RGBImage extends GrayScaleImage {
                     offset++;
                 }
             }
+            return true;
         } catch (Exception e) {
             log.append("Pixels Per Tile : " + pixelsPerTile);
             log.append("tileWidth : " + tileWidth + " tileLength :" + tileLength);
             log.append("ROW : " + ROW + " COL : " + COL + " Count : " + offset);
             e.printStackTrace();
+            return false;
         }
-
-        return false;
     }
 }

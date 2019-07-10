@@ -56,7 +56,7 @@
         android:visibility="invisible"
         />
     <TextView
-        android:id="@+id/show_map_arcgis"
+        android:id="@+id/load_local_map"
         android:layout_width="@dimen/home_button"
         android:layout_height="@dimen/home_button"
         android:layout_above="@+id/recode_trace"

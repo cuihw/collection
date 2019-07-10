@@ -97,7 +97,7 @@ public class FragmentHome1 extends FragmentBase {
     @BindView(R.id.map_type)
     TextView mapTypeTv;
 
-    @BindView(R.id.show_map_arcgis)
+    @BindView(R.id.load_local_map)
     TextView showArcgisMap;
 
     @BindView(R.id.baidu_container)
