@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/popup_dialog_bg"
+    android:layout_margin="@dimen/item_padding"
+    android:padding="@dimen/item_padding"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/common_dialog_top_rl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:gravity="center_vertical"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp">
+
+        <TextView
+            android:id="@+id/title_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center_horizontal"
+            android:textColor="#555555"
+            android:textSize="@dimen/font2"
+            tools:text="坐标校准" />
+    </RelativeLayout>
+
+    <RadioGroup
+        android:id="@+id/radio_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+        <RadioButton
+            android:id="@+id/mylocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="我的坐标校准"
+            android:gravity="center"
+            android:background="@drawable/checkbox_selector"
+            android:button="@null"
+            android:layout_marginRight="@dimen/item_padding_large"
+            android:layout_marginLeft="@dimen/item_padding_large"
+            android:textColor="@color/font1"
+            />
+        <RadioButton
+            android:id="@+id/recognize_position"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="已知点校准"
+            android:gravity="center"
+            android:background="@drawable/checkbox_selector"
+            android:button="@null"
+            android:layout_marginRight="@dimen/item_padding_large"
+            android:layout_marginLeft="@dimen/item_padding_large"
+            android:textColor="@color/font1"
+            >
+        </RadioButton>
+    </RadioGroup>
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/item_padding_large"
+        android:layout_marginBottom="@dimen/item_padding_large"
+        >
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="经度："
+                android:layout_weight="1"
+                android:textSize="@dimen/font4"
+                android:gravity="center"
+                android:textColor="@color/font1"
+                />
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="输入点击点的经度"
+                android:layout_weight="3"
+                android:inputType="numberDecimal"
+                />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="纬度："
+                android:layout_weight="1"
+                android:textSize="@dimen/font4"
+                android:gravity="center"
+                android:textColor="@color/font1"
+                />
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:hint="输入点击点的纬度"
+                android:inputType="numberDecimal"
+                />
+        </TableRow>
+    </TableLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/item_padding_large"
+        />
+
+    <TextView
+        android:id="@+id/tv_desc2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="17dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:gravity="center"
+        android:lineSpacingExtra="3dp"
+        android:maxLines="5"
+        android:minHeight="25dp"
+        android:textColor="#555555"
+        android:textSize="18dp"
+        android:visibility="gone"
+        tools:text="信息" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#F5F5F5" />
+
+    <LinearLayout
+        android:id="@+id/common_dialog_bottom_ll"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/cancel_tv"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:gravity="center"
+            android:textColor="#0679FE"
+            android:textSize="18dp"
+            tools:text="取消" />
+
+        <View
+            android:id="@+id/common_dialog_vertical_line"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="#F5F5F5" />
+
+        <TextView
+            android:id="@+id/confirm_tv"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:gravity="center"
+            android:textColor="#0679FE"
+            android:textSize="18dp"
+            tools:text="确定" />
+    </LinearLayout>
+</LinearLayout>

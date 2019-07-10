@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
+import android.graphics.PointF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
@@ -40,6 +41,8 @@ import com.data.collection.data.DataUtils;
 import com.data.collection.data.UserTrace;
 import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.data.tiff.extended.GeoTiffImage;
+import com.data.collection.dialog.AdjustPosDialog;
+import com.data.collection.listener.IAdjustPosListener;
 import com.data.collection.listener.IGatherDataListener;
 import com.data.collection.listener.ITiffListener;
 import com.data.collection.module.CollectType;
@@ -59,8 +62,10 @@ import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
 import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.tileprovider.IRegisterReceiver;
+import org.osmdroid.tileprovider.MapTileProviderBase;
 import org.osmdroid.tileprovider.modules.ArchiveFileFactory;
 import org.osmdroid.tileprovider.modules.OfflineTileProvider;
+import org.osmdroid.tileprovider.tilesource.ITileSource;
 import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.tileprovider.util.SimpleRegisterReceiver;
@@ -255,24 +260,49 @@ public class FragmentHome extends FragmentBase {
             } else {
                 mMapView.getOverlayManager().addAll(0,list);
             }
-            readTiff.setText("隐藏图层");
+            readTiff.setText("隐藏\n图层");
         } else { // remove the tif & shp files lay
             if (list.size() == 0) {
                 return;
             }
             mMapView.getOverlayManager().removeAll(list);
-            readTiff.setText("加载图片");
+            readTiff.setText("加载\n图片");
         }
         mMapView.invalidate();
 
     }
 
 
+    AdjustPosDialog dialog;
+
+    private void showAdjustDialog(PointF pixel, GeoPoint point) {
+        dialog = new AdjustPosDialog(getContext(), new IAdjustPosListener() {
+            @Override
+            public void onConfirm(GeoPoint point, PointF pPixel) {
+                dialog.dismiss();
+            }
+
+            @Override
+            public void onCancel() {
+                dialog.dismiss();
+            }
+        });
+        dialog.setMyPoint(point);
+        dialog.setPixel(pixel);
+
+        dialog.show();
+    }
 
     private void initListener() {
         //openationHint
         calibrationCoordinate.setOnClickListener(v->{
-            openationHint.setVisibility(View.VISIBLE);
+            if (openationHint.getVisibility() == View.GONE) {
+                // 在纠偏模式下
+                openationHint.setVisibility(View.VISIBLE);
+            } else {
+                // 普通模式下
+                openationHint.setVisibility(View.GONE);
+            }
         });
 
         readTiff.setOnClickListener(v->{
@@ -397,18 +427,19 @@ public class FragmentHome extends FragmentBase {
         showGroundOverlay(true);
     }
 
-    /*  OnlineTileSourceBase openTopoSource = TileSourceFactory.OpenTopo; //Open Street 拓扑图
+    /*
+        OnlineTileSourceBase openTopoSource = TileSourceFactory.OpenTopo; //Open Street 拓扑图
         OnlineTileSourceBase googleHybridTilesource = GoogleTileSource.GoogleHybrid; // 谷歌卫星混合
         OnlineTileSourceBase googleTilesource = GoogleTileSource.GoogleSat; // 谷歌卫星
         OnlineTileSourceBase openstreetmap = GoogleTileSource.openstreetmap; // Open Street 交通图
         OnlineTileSourceBase autoNaviVector = GoogleTileSource.AutoNaviVector; // 高德地图
         OnlineTileSourceBase tiandituTilesource = GoogleTileSource.tianDiTuCiaTileSource; //天地图
-    public static final int OPEN_TOPO_SOURCE = 1;
-    public static final int GOOGLE_MAP_SOURCE = 2;
-    public static final int GOOGLE_TILE_SOURCE = 3;
-    public static final int OPEN_STREET_SOURCE  = 4;
-    public static final int GAODE_SOURCE  = 5;
-    public static final int TIANDITU_SOURCE  = 6;
+        public static final int OPEN_TOPO_SOURCE = 1;
+        public static final int GOOGLE_MAP_SOURCE = 2;
+        public static final int GOOGLE_TILE_SOURCE = 3;
+        public static final int OPEN_STREET_SOURCE  = 4;
+        public static final int GAODE_SOURCE  = 5;
+        public static final int TIANDITU_SOURCE  = 6;
     */
     private void setMapType(int mapType) {
         this.mapType = mapType;
@@ -437,6 +468,9 @@ public class FragmentHome extends FragmentBase {
         int zoom = mapTileArea.getZoom();
         int width = mapTileArea.getWidth();
         int height = mapTileArea.getHeight();
+        MapTileProviderBase tileProvider = mMapView.getTileProvider();
+        ITileSource tileSource = mMapView.getTileProvider().getTileSource();
+
         LsLog.w(TAG, "mapTileArea zoom = " + zoom + ", width = " + width + ", height = " + height);
 
     }
@@ -569,6 +603,12 @@ public class FragmentHome extends FragmentBase {
     }
 
     private void readTiff(String path) {
+        GroundOverlay2 groundOverlay2 = groundOverlays.get(path);
+        if (groundOverlay2 != null) {
+            showGroundOverlay(true);
+            return;
+        }
+
         hud.setLabel("加载中...");
         if (!hud.isShowing()) {
             hud.show();
