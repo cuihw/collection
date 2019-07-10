@@ -2,24 +2,22 @@ package com.data.collection.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.PointF;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.data.collection.R;
 import com.data.collection.listener.IAdjustPosListener;
 
-import org.greenrobot.greendao.annotation.NotNull;
 import org.osmdroid.util.GeoPoint;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class AdjustPosDialog extends Dialog{
+public class AdjustPosDialog extends Dialog {
     IAdjustPosListener listener;
-
 
     @BindView(R.id.mylocation)
     RadioButton mylocation;
@@ -36,29 +34,58 @@ public class AdjustPosDialog extends Dialog{
     @BindView(R.id.confirm_tv)
     TextView confirmTv;
 
-    PointF pixel;
+    @BindView(R.id.lng_text)
+    EditText lngEdit;
 
-    public AdjustPosDialog(Context context, IAdjustPosListener listener) {
+    @BindView(R.id.lat_text)
+    EditText latEdit;
+
+    GeoPoint fromPoint; // 点击的坐标
+
+    GeoPoint toPoint;
+
+    public GeoPoint getToPoint() {
+        return toPoint;
+    }
+
+    public void setToPoint(GeoPoint toPoint) {
+        this.toPoint = toPoint;
+    }
+
+    public AdjustPosDialog(Context context, IAdjustPosListener iAdjustPosListener) {
         super(context, R.style.Dialog_Common);
         setContentView(R.layout.dialog_cal_position);
-        this.listener = listener;
+        this.listener = iAdjustPosListener;
         setCanceledOnTouchOutside(false);
         ButterKnife.bind(this);
         mylocation.setChecked(true);
 
-        cancelTv.setOnClickListener(v->{
-            if (listener != null) listener.onCancel();
-        });
-
-        confirmTv.setOnClickListener(v->{
-            if (listener != null) {
-                getDataFromUI();
+        cancelTv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listener != null) listener.onCancel();
             }
         });
+
+        confirmTv.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (listener != null) {
+                            getDataFromUI();
+                        }
+                    }
+                }
+        );
     }
 
     private void getDataFromUI() {
-        listener.onConfirm(MyPoint, pixel);
+        if (mylocation.isChecked()) {
+            listener.onConfirm(toPoint, fromPoint);
+        } else {
+            String longtitude = lngEdit.getText().toString();
+            String latitude = latEdit.getText().toString();
+            listener.onConfirm(new GeoPoint(Double.parseDouble(latitude), Double.parseDouble(longtitude)), fromPoint);
+        }
     }
 
     @Override
@@ -67,22 +94,19 @@ public class AdjustPosDialog extends Dialog{
         title_tv.setText("坐标纠偏");
         cancelTv.setText("取消");
         confirmTv.setText("确定");
+
+        if (toPoint != null) {
+            lngEdit.setText(toPoint.getLongitude() + "");
+            latEdit.setText(toPoint.getLatitude() + "");
+        }
     }
 
-    public void setPixel(PointF pixel) {
-        this.pixel = pixel;
+    public GeoPoint getFromPoint() {
+        return fromPoint;
     }
 
-    public PointF getPixel() {
-        return pixel;
-    }
-    GeoPoint MyPoint;
-
-    public GeoPoint getMyPoint() {
-        return MyPoint;
+    public void setFromPoint(GeoPoint fromPoint) {
+        this.fromPoint = fromPoint;
     }
 
-    public void setMyPoint(GeoPoint myPoint) {
-        MyPoint = myPoint;
-    }
 }

@@ -13,6 +13,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -21,7 +22,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
@@ -48,6 +48,7 @@ import com.data.collection.listener.ITiffListener;
 import com.data.collection.module.CollectType;
 import com.data.collection.util.BitmapUtil;
 import com.data.collection.util.FileUtils;
+import com.data.collection.util.LocationController;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.ToastUtil;
 import com.data.collection.view.MyOsmMarker;
@@ -62,16 +63,15 @@ import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
 import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.tileprovider.IRegisterReceiver;
-import org.osmdroid.tileprovider.MapTileProviderBase;
 import org.osmdroid.tileprovider.modules.ArchiveFileFactory;
 import org.osmdroid.tileprovider.modules.OfflineTileProvider;
-import org.osmdroid.tileprovider.tilesource.ITileSource;
 import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.tileprovider.util.SimpleRegisterReceiver;
 import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.util.MapTileArea;
+import org.osmdroid.util.PointL;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.GroundOverlay2;
 import org.osmdroid.views.overlay.MapEventsOverlay;
@@ -271,14 +271,15 @@ public class FragmentHome extends FragmentBase {
         mMapView.invalidate();
 
     }
-
-
     AdjustPosDialog dialog;
 
-    private void showAdjustDialog(PointF pixel, GeoPoint point) {
+    private void showAdjustDialog(GeoPoint fromPoint, GeoPoint toPoint) {
         dialog = new AdjustPosDialog(getContext(), new IAdjustPosListener() {
             @Override
-            public void onConfirm(GeoPoint point, PointF pPixel) {
+            public void onConfirm(GeoPoint fromPoint, GeoPoint toPoint) {
+                // point
+                adjustMapView(fromPoint, toPoint);
+                LsLog.w(TAG, "point = " + fromPoint.toString());
                 dialog.dismiss();
             }
 
@@ -287,9 +288,8 @@ public class FragmentHome extends FragmentBase {
                 dialog.dismiss();
             }
         });
-        dialog.setMyPoint(point);
-        dialog.setPixel(pixel);
-
+        dialog.setFromPoint(fromPoint);
+        dialog.setToPoint(toPoint);
         dialog.show();
     }
 
@@ -321,17 +321,16 @@ public class FragmentHome extends FragmentBase {
             }
         });
 
-        mMapView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return false;
-            }
-        });
-
         mMapView.getOverlays().add(new MapEventsOverlay(new MapEventsReceiver(){
             @Override
-            public boolean singleTapConfirmedHelper(GeoPoint p) {
-                Log.w(TAG, "singleTapConfirmedHelper GeoPoint = " + p.getLatitude() + ", " + p.getLongitude());
+            public boolean singleTapConfirmedHelper(GeoPoint formPoint) {
+                Log.w(TAG, "singleTapConfirmedHelper GeoPoint = " + formPoint.toString());
+
+                if (openationHint.getVisibility() == View.VISIBLE) { // in adjust mode.
+                    Location location = LocationController.getInstance().getLocation();
+                    showAdjustDialog(formPoint, new GeoPoint(location.getLatitude(), location.getLongitude()));
+                    return true;
+                }
                 return false;
             }
 
@@ -442,6 +441,9 @@ public class FragmentHome extends FragmentBase {
         public static final int TIANDITU_SOURCE  = 6;
     */
     private void setMapType(int mapType) {
+
+
+
         this.mapType = mapType;
         switch (mapType) {
             case Constants.OPEN_TOPO_SOURCE:
@@ -468,11 +470,7 @@ public class FragmentHome extends FragmentBase {
         int zoom = mapTileArea.getZoom();
         int width = mapTileArea.getWidth();
         int height = mapTileArea.getHeight();
-        MapTileProviderBase tileProvider = mMapView.getTileProvider();
-        ITileSource tileSource = mMapView.getTileProvider().getTileSource();
-
-        LsLog.w(TAG, "mapTileArea zoom = " + zoom + ", width = " + width + ", height = " + height);
-
+        LsLog.w(TAG, "mapTileArea zoom before = " + zoom + ", width = " + width + ", height = " + height);
     }
 
     private void refreshMarker(){
@@ -541,11 +539,11 @@ public class FragmentHome extends FragmentBase {
             // the Y axis is vertical and points up ,
             // the Z axis points towards the outside of the front face of the screen.
             // In this system, coordinates behind the screen have negative Z values.
-            double x = event.values[SensorManager.DATA_X];
-            if (Math.abs(x - lastX) > 1.0) {
-                mCurrentDirection = (int) x;
-            }
-            lastX = x;
+//            double x = event.values[SensorManager.DATA_X];
+//            if (Math.abs(x - lastX) > 1.0) {
+//                mCurrentDirection = (int) x;
+//            }
+//            lastX = x;
         }
 
         @Override
@@ -809,5 +807,12 @@ public class FragmentHome extends FragmentBase {
         });
         builder.setCancelable(false);
         builder.show();
+    }
+
+    public void adjustMapView(GeoPoint fromPoint, GeoPoint toPoint){
+        double  deltaLat = fromPoint.getLatitude() - toPoint.getLatitude();
+        double  deltaLon = fromPoint.getLongitude() - toPoint.getLongitude();
+        Log.w(TAG, "dalteLat = " + deltaLat + ", dalteLon  = " + deltaLon);
+        openationHint.setVisibility(View.GONE);
     }
 }

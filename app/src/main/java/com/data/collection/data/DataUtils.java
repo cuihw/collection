@@ -256,8 +256,11 @@ public class DataUtils {
     //shanghai
     var xOffset= -0.001889737;
     var yOffset= 0.004844069;*/
-        public double adjustLat = - 0.0005;
-        public double adjustlng = + 0.0063;
+        // 9.532983321633992E-4,  -0.006085311202994603
+        // 0.0009532
+        // 0.00608
+        public double adjustLat = - 0.000953298;
+        public double adjustlng = + 0.00608531;
     }
 
 

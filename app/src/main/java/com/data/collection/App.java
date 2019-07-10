@@ -132,7 +132,7 @@ public class App extends Application {
 
         Configuration.getInstance().setAnimationSpeedDefault(500);
         Configuration.getInstance().setUserAgentValue(BuildConfig.APPLICATION_ID);
-        Configuration.getInstance().setDebugMode(true);
+//        Configuration.getInstance().setDebugMode(true);
     }
 
     private void showSignInfo() {
