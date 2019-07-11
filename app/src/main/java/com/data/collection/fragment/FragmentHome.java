@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
-import android.graphics.PointF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
@@ -37,7 +36,7 @@ import com.data.collection.Tiles.GoogleTileSource;
 import com.data.collection.activity.AddCollectionActivity;
 import com.data.collection.activity.CollectionListActivity;
 import com.data.collection.data.CacheData;
-import com.data.collection.data.DataUtils;
+import com.data.collection.data.MapDataUtils;
 import com.data.collection.data.UserTrace;
 import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.data.tiff.extended.GeoTiffImage;
@@ -51,6 +50,7 @@ import com.data.collection.util.FileUtils;
 import com.data.collection.util.LocationController;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.ToastUtil;
+import com.data.collection.view.MyGroundOverLay;
 import com.data.collection.view.MyOsmMarker;
 import com.data.collection.view.TitleView;
 import com.kaopiz.kprogresshud.KProgressHUD;
@@ -70,10 +70,7 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.tileprovider.util.SimpleRegisterReceiver;
 import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
-import org.osmdroid.util.MapTileArea;
-import org.osmdroid.util.PointL;
 import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.GroundOverlay2;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.OverlayManager;
@@ -102,7 +99,7 @@ import static android.content.Context.SENSOR_SERVICE;
 public class FragmentHome extends FragmentBase {
     private static final String TAG = "FragmentHome";
 
-    int mapType = Constants.OPEN_STREET_SOURCE;
+    int mapType = MapDataUtils.OPEN_STREET_SOURCE;
 
     @BindView(R.id.title_view)
     TitleView titleView;
@@ -148,25 +145,24 @@ public class FragmentHome extends FragmentBase {
 
     KProgressHUD hud;
 
+    List<GatherPoint> showColletMarkerList= new ArrayList<>(); // 当前显示的采集点
     List<TilesOverlay> offlineLays = new ArrayList<>();
-    List<GatherPoint> showInMap = new ArrayList<>();
-    List<GatherPoint> newItemMarker = new ArrayList<>();
-    List<GatherPoint> toBeRemove = new ArrayList<>();
-    Map<String, GroundOverlay2> groundOverlays = new HashMap<>();
-
 
     private Map<String, MyOsmMarker> markerMap = new HashMap<>();
-    OnlineTileSourceBase openTopoSource = TileSourceFactory.OpenTopo; //Open Street 拓扑图
+
+    Map<String, MyGroundOverLay> groundOverlayMap = new HashMap<>();
+
+
+    OnlineTileSourceBase openTopoSource = TileSourceFactory.OpenTopo; // Open Street 拓扑图
     OnlineTileSourceBase googleHybridTilesource = GoogleTileSource.GoogleHybrid; // 谷歌卫星混合
     OnlineTileSourceBase googleTilesource = GoogleTileSource.GoogleSat; // 谷歌卫星
     OnlineTileSourceBase openstreetmap = GoogleTileSource.openstreetmap; // Open Street 交通图
     OnlineTileSourceBase autoNaviVector = GoogleTileSource.AutoNaviVector; // 高德地图
-    OnlineTileSourceBase tiandituTilesource = GoogleTileSource.tianDiTuCiaTileSource; //天地图
+    OnlineTileSourceBase tiandituTilesource = GoogleTileSource.tianDiTuCiaTileSource; // 天地图
     String[] items = new String[]{"Open Street 拓扑图", "谷歌卫星混合", "谷歌卫星",
             "Open Street 交通图", "高德地图", "天地图"};
     //List<String> items = Arrays.asList(new String[]{"Open Street 拓扑图", "谷歌卫星混合", "谷歌卫星", "Open Street 交通图", "高德地图", "天地图"});
 
-    List<GatherPoint> showlist;
 
     MyLocationNewOverlay mLocationOverlay;
 
@@ -250,9 +246,10 @@ public class FragmentHome extends FragmentBase {
 
     public void showGroundOverlay(boolean isShow){
         this.isShowGroundLay = isShow;
-        List<GroundOverlay2> list = new ArrayList<>(groundOverlays.values());
+        List<MyGroundOverLay> list = new ArrayList<>(groundOverlayMap.values());
         if (isShowGroundLay) { // show
             if (list.size() == 0) {
+                mMapView.invalidate();
                 return;
             }
             if (hasOfflineLay) {
@@ -263,14 +260,15 @@ public class FragmentHome extends FragmentBase {
             readTiff.setText("隐藏\n图层");
         } else { // remove the tif & shp files lay
             if (list.size() == 0) {
+                mMapView.invalidate();
                 return;
             }
             mMapView.getOverlayManager().removeAll(list);
             readTiff.setText("加载\n图片");
         }
         mMapView.invalidate();
-
     }
+
     AdjustPosDialog dialog;
 
     private void showAdjustDialog(GeoPoint fromPoint, GeoPoint toPoint) {
@@ -286,6 +284,7 @@ public class FragmentHome extends FragmentBase {
             @Override
             public void onCancel() {
                 dialog.dismiss();
+                openationHint.setVisibility(View.GONE);
             }
         });
         dialog.setFromPoint(fromPoint);
@@ -347,7 +346,7 @@ public class FragmentHome extends FragmentBase {
             public boolean onScroll(ScrollEvent event) {
                 Log.w(TAG, "onScroll");
                 BoundingBox boundingBox = event.getSource().getBoundingBox();
-                DataUtils.asyncPointsByBounds(boundingBox, new IGatherDataListener() {
+                MapDataUtils.asyncPointsByBounds(boundingBox, new IGatherDataListener() {
                     @Override
                     public void onListData(List<GatherPoint> list) {
                         showListPoint(list, mMapView);
@@ -360,7 +359,7 @@ public class FragmentHome extends FragmentBase {
             public boolean onZoom(ZoomEvent event) {
                 Log.w(TAG, "onZoom");
                 BoundingBox boundingBox = event.getSource().getBoundingBox();
-                DataUtils.asyncPointsByBounds(boundingBox, new IGatherDataListener() {
+                MapDataUtils.asyncPointsByBounds(boundingBox, new IGatherDataListener() {
                     @Override
                     public void onListData(List<GatherPoint> list) {
                         showListPoint(list, mMapView);
@@ -415,14 +414,18 @@ public class FragmentHome extends FragmentBase {
     }
 
     private void loadBitmap(GeoTiffImage geoTiffImage) {
-        GroundOverlay2 groundOverlay2 = new GroundOverlay2();
+        MyGroundOverLay groundOverlay2 = new MyGroundOverLay();
 
         BoundingBox boundingBox = geoTiffImage.getBoundingBox();
 
-        groundOverlay2.setPosition(new GeoPoint(boundingBox.getLatNorth(), boundingBox.getLonWest()),
-                new GeoPoint(boundingBox.getLatSouth(), boundingBox.getLonEast()));
+        GeoPoint UL = new GeoPoint(boundingBox.getLatNorth(), boundingBox.getLonWest());
+        GeoPoint RD = new GeoPoint(boundingBox.getLatSouth(), boundingBox.getLonEast());
+        groundOverlay2.set84Position(UL, RD);
+        UL = MapDataUtils.adjustPoint(UL, mapType);
+        RD = MapDataUtils.adjustPoint(RD, mapType);
+        groundOverlay2.setPosition(UL, RD);
         groundOverlay2.setImage(geoTiffImage.getImage());
-        groundOverlays.put(geoTiffImage.getFile().getAbsolutePath(),groundOverlay2);
+        groundOverlayMap.put(geoTiffImage.getFile().getAbsolutePath(),groundOverlay2);
         showGroundOverlay(true);
     }
 
@@ -441,43 +444,28 @@ public class FragmentHome extends FragmentBase {
         public static final int TIANDITU_SOURCE  = 6;
     */
     private void setMapType(int mapType) {
-
-
-
         this.mapType = mapType;
         switch (mapType) {
-            case Constants.OPEN_TOPO_SOURCE:
+            case MapDataUtils.OPEN_TOPO_SOURCE:
                 mMapView.setTileSource(openTopoSource);
                 break;
-            case Constants.GOOGLE_MAP_SOURCE:
+            case MapDataUtils.GOOGLE_MAP_SOURCE:
                 mMapView.setTileSource(googleHybridTilesource);
                 break;
-            case Constants.GOOGLE_TILE_SOURCE:
+            case MapDataUtils.GOOGLE_TILE_SOURCE:
                 mMapView.setTileSource(googleTilesource);
                 break;
-            case Constants.OPEN_STREET_SOURCE:
+            case MapDataUtils.OPEN_STREET_SOURCE:
                 mMapView.setTileSource(openstreetmap);
                 break;
-            case Constants.GAODE_SOURCE:
+            case MapDataUtils.GAODE_SOURCE:
                 mMapView.setTileSource(autoNaviVector);
                 break;
-            case Constants.TIANDITU_SOURCE:
+            case MapDataUtils.TIANDITU_SOURCE:
                 mMapView.setTileSource(tiandituTilesource);
                 break;
         }
-
-        MapTileArea mapTileArea = mMapView.getTileProvider().getTileCache().getMapTileArea();
-        int zoom = mapTileArea.getZoom();
-        int width = mapTileArea.getWidth();
-        int height = mapTileArea.getHeight();
-        LsLog.w(TAG, "mapTileArea zoom before = " + zoom + ", width = " + width + ", height = " + height);
-    }
-
-    private void refreshMarker(){
-        if (showlist == null) return ;
-        mMapView.getOverlayManager().removeAll(showInMap);
-        showInMap.clear();
-        showListPoint(showlist, mMapView);
+        refresh(MapDataUtils.isNeedAdjust(mapType));
     }
 
     private void removeOffLineLay() {
@@ -490,32 +478,42 @@ public class FragmentHome extends FragmentBase {
 
     private void initMap() {
         Configuration.getInstance().setAnimationSpeedDefault(500);
-        setMapType(mapType);
-        if (mMapView.getOverlays().size() <= 0) {
 
-            mMapView.setDrawingCacheEnabled(true);
-            mMapView.setMaxZoomLevel(19d);
-            mMapView.setMinZoomLevel(0d);
-            // mMapView.getZoomController().setVisibility(CustomZoomButtonsController.Visibility.NEVER);
-            mMapView.getController().setZoom(14);
-            // 113.6019350, 34.7967643
-            mMapView.getController().setCenter(new GeoPoint(34.7967643, 113.6019350));
-            mMapView.setUseDataConnection(true);
-            mMapView.setMultiTouchControls(true);// 触控放大缩小
-            mMapView.getOverlayManager().getTilesOverlay().setEnabled(true);
-            initMylocaltion();
-        }
+        mMapView.setDrawingCacheEnabled(true);
+        mMapView.setMaxZoomLevel(19d);
+        mMapView.setMinZoomLevel(0d);
+        // mMapView.getZoomController().setVisibility(CustomZoomButtonsController.Visibility.NEVER);
+        mMapView.getController().setZoom(14);
+        // 113.6019350, 34.7967643
+        mMapView.getController().setCenter(new GeoPoint(34.7967643, 113.6019350));
+        mMapView.setUseDataConnection(true);
+        mMapView.setMultiTouchControls(true);// 触控放大缩小
+        mMapView.getOverlayManager().getTilesOverlay().setEnabled(true);
+        setMapType(mapType); // 增加了定位
     }
 
     private void initMylocaltion() {
-        mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(getContext()), mMapView);
+        if (mLocationOverlay != null) {
+            mMapView.getOverlays().remove(mLocationOverlay);
+        }
+
+        mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(getContext()){
+            @Override
+            public void onLocationChanged(Location location) {
+                if(MapDataUtils.isNeedAdjust(mapType)) {
+                    location.setLatitude(MapDataUtils.adjustLatitude(location.getLatitude(), mapType));
+                    location.setLongitude(MapDataUtils.adjustLongitude(location.getLongitude(), mapType));
+                }
+                super.onLocationChanged(location);
+            }
+        }, mMapView);
         mLocationOverlay.enableMyLocation();
         mMapView.getOverlays().add(mLocationOverlay);
         goToMyLocation();
     }
 
     private void goToMyLocation() {
-        mLocationOverlay.enableFollowLocation();
+        // mLocationOverlay.enableFollowLocation();
         mMapView.getController().animateTo(mLocationOverlay.getMyLocation());
     }
 
@@ -601,8 +599,8 @@ public class FragmentHome extends FragmentBase {
     }
 
     private void readTiff(String path) {
-        GroundOverlay2 groundOverlay2 = groundOverlays.get(path);
-        if (groundOverlay2 != null) {
+        MyGroundOverLay groundOverlay = groundOverlayMap.get(path);
+        if (groundOverlay != null) {
             showGroundOverlay(true);
             return;
         }
@@ -610,7 +608,7 @@ public class FragmentHome extends FragmentBase {
         hud.setLabel("加载中...");
         if (!hud.isShowing()) {
             hud.show();
-            DataUtils.loadTif(path, new ITiffListener(){
+            MapDataUtils.loadTif(path, new ITiffListener(){
                 @Override
                 public void onFileReady(GeoTiffImage geoTiffImage) {
                     if (geoTiffImage == null) {
@@ -655,7 +653,6 @@ public class FragmentHome extends FragmentBase {
                 //Toast.makeText(getContext(), " dir not found!", Toast.LENGTH_LONG).show();
             }
         }
-
     }
 
     private void setOfflineLay(TilesOverlay overlay) {
@@ -667,7 +664,7 @@ public class FragmentHome extends FragmentBase {
 
     private void delayRun(int i) {
         new Handler().postDelayed(() -> {
-            DataUtils.asyncPointsByBounds(mMapView.getBoundingBox(), new IGatherDataListener() {
+            MapDataUtils.asyncPointsByBounds(mMapView.getBoundingBox(), new IGatherDataListener() {
                 @Override
                 public void onListData(List<GatherPoint> list) {
                     showListPoint(list, mMapView);
@@ -677,24 +674,19 @@ public class FragmentHome extends FragmentBase {
     }
 
     private synchronized void showListPoint(List<GatherPoint> list, MapView mapView) {
-        // if (BuildConfig.DEBUG) return;
-        showlist = list;
-        newItemMarker.clear();
+        List<GatherPoint> newItemMarker = new ArrayList<>();  // 地图滑动后，新增加的采集点
+        List<GatherPoint> toBeRemove = new ArrayList<>(); // 地图滑动后，需要删除不显示的采集点
         for (GatherPoint gp: list) {
-            if (!showInMap.contains(gp)) {
+            if (!showColletMarkerList.contains(gp)) {
                 newItemMarker.add(gp);
                 LsLog.w(TAG, "new gp to show: " + gp.getName());
-            } else {
-                LsLog.w(TAG, "already showing: " + gp.getName());
             }
         }
-        LsLog.w(TAG, "newItemMarker size : " + newItemMarker.size());
         if (newItemMarker.size() == 0) return;
 
         // 加上新元素。
-        showInMap.addAll(newItemMarker);
+        showColletMarkerList.addAll(newItemMarker);
 
-        Log.w(TAG, "showListPoint");
         for (GatherPoint gp : newItemMarker) {
             MyOsmMarker marker = createMarker(gp, mapView);
             mapView.getOverlays().add(marker);
@@ -702,10 +694,8 @@ public class FragmentHome extends FragmentBase {
         mapView.invalidate();
     }
 
-
     private MyOsmMarker createMarker(GatherPoint gp, MapView mapView) {
-        Log.w(TAG, "createMarker");
-        CollectType typeIconUrl = DataUtils.getTypeIconUrl(gp);
+        CollectType typeIconUrl = MapDataUtils.getTypeIconUrl(gp);
         double latitude = Double.parseDouble(gp.getLatitude());
         double nextlng = Double.parseDouble(gp.getLongitude());
 
@@ -719,10 +709,9 @@ public class FragmentHome extends FragmentBase {
 
         MyOsmMarker marker = new MyOsmMarker(gp, mapView);
 
-        //GeoPoint point = DataUtils.adjustPoint(new GeoPoint(latitude, nextlng), mapType);
-        marker.setPosition(new GeoPoint(latitude, nextlng));
-
-        Log.w(TAG, "createMarker = " + latitude + ", " + nextlng);
+        GeoPoint geoPoint = new GeoPoint(latitude, nextlng);
+        geoPoint = MapDataUtils.adjustPoint(geoPoint, mapType);
+        marker.setPosition(geoPoint);
 
         View view = View.inflate(getContext(), R.layout.view_point_marker, null);
         TextView viewById = view.findViewById(R.id.name_tv);
@@ -744,14 +733,13 @@ public class FragmentHome extends FragmentBase {
 
     private void setMarkerListener(Marker marker, final GatherPoint gp, MapView mapView) {
         //layout/osmdroid_info_window.xml
-        Log.w(TAG, "setMarkerListener");
         MarkerInfoWindow makerInfoWindow = new MarkerInfoWindow(R.layout.osmdroid_info_window, mapView);
         View view = makerInfoWindow.getView();
         view.setTag(gp);
 
         marker.setInfoWindow(makerInfoWindow);
         marker.setTitle(gp.getName());
-        CollectType collectType = DataUtils.getTypeIconUrl(gp);
+        CollectType collectType = MapDataUtils.getTypeIconUrl(gp);
         if (collectType != null) {
             //
             Bitmap bitmap = ImageLoader.getInstance().loadImageSync(collectType.getIcon());
@@ -810,9 +798,47 @@ public class FragmentHome extends FragmentBase {
     }
 
     public void adjustMapView(GeoPoint fromPoint, GeoPoint toPoint){
-        double  deltaLat = fromPoint.getLatitude() - toPoint.getLatitude();
-        double  deltaLon = fromPoint.getLongitude() - toPoint.getLongitude();
-        Log.w(TAG, "dalteLat = " + deltaLat + ", dalteLon  = " + deltaLon);
+        double  deltaLat = toPoint.getLatitude() - fromPoint.getLatitude();
+        double  deltaLon = toPoint.getLongitude() - fromPoint.getLongitude();
+//      Log.w(TAG, "dalteLat = " + deltaLat + ", dalteLon  = " + deltaLon);
+        MapDataUtils.GOOGLE_ADJUST.adjustLat = deltaLat;
+        MapDataUtils.GOOGLE_ADJUST.adjustlng = deltaLon;
         openationHint.setVisibility(View.GONE);
+        refresh(true);
+    }
+
+    private void refresh(boolean needAdjust) {
+        // marker
+        List<GatherPoint> list = showColletMarkerList;
+        showColletMarkerList = new ArrayList<>();
+        List<MyOsmMarker> markers = new ArrayList<>(markerMap.values());
+        mMapView.getOverlayManager().removeAll(markers);
+        markerMap.clear();
+        showListPoint(list, mMapView);
+
+        // groundOverlay
+        List<MyGroundOverLay> groundOverlays = new ArrayList<>(groundOverlayMap.values());
+        for (MyGroundOverLay groundOverlay: groundOverlays) {
+            GeoPoint rd = groundOverlay.getRD();
+            GeoPoint ul = groundOverlay.getUL();
+            GeoPoint unmodifiedRD = groundOverlay.getUnmodifiedRD();
+            GeoPoint unmodifiedUL = groundOverlay.getUnmodifiedUL();
+
+            if (needAdjust && rd.equals(unmodifiedRD)) {
+                Log.w(TAG, "groundOverlay show adjust postion");
+                rd = MapDataUtils.adjustPoint(rd, mapType);
+                ul = MapDataUtils.adjustPoint(ul, mapType);
+                groundOverlay.setPosition(ul, rd);
+            } else {
+                Log.w(TAG, "groundOverlay show unmodified postion");
+                groundOverlay.setPosition(unmodifiedUL, unmodifiedRD);
+            }
+        }
+
+        showGroundOverlay(isShowGroundLay);
+        // myLocation.
+
+        Log.w(TAG, "initMylocaltion");
+        initMylocaltion();
     }
 }

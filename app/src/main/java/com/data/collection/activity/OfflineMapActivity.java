@@ -23,7 +23,7 @@ import android.widget.Toast;
 
 import com.data.collection.Constants;
 import com.data.collection.R;
-import com.data.collection.data.DataUtils;
+import com.data.collection.data.MapDataUtils;
 import com.data.collection.data.UserTrace;
 import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.listener.IGatherDataListener;
@@ -127,7 +127,7 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
             public boolean onScroll(ScrollEvent event) {
                 Log.w(TAG, "onScroll");
                 BoundingBox boundingBox = event.getSource().getBoundingBox();
-                DataUtils.asyncPointsByBounds(boundingBox, new IGatherDataListener() {
+                MapDataUtils.asyncPointsByBounds(boundingBox, new IGatherDataListener() {
                     @Override
                     public void onListData(List<GatherPoint> list) {
                         showListPoint(list);
@@ -140,7 +140,7 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
             public boolean onZoom(ZoomEvent event) {
                 Log.w(TAG, "onZoom");
                 BoundingBox boundingBox = event.getSource().getBoundingBox();
-                DataUtils.asyncPointsByBounds(boundingBox, new IGatherDataListener() {
+                MapDataUtils.asyncPointsByBounds(boundingBox, new IGatherDataListener() {
                     @Override
                     public void onListData(List<GatherPoint> list) {
                         showListPoint(list);
@@ -182,7 +182,7 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
 
     private MyOsmMarker getMarker(GatherPoint gp) {
         Log.w(TAG, "getMarker");
-        CollectType typeIconUrl = DataUtils.getTypeIconUrl(gp);
+        CollectType typeIconUrl = MapDataUtils.getTypeIconUrl(gp);
         double latitude = Double.parseDouble(gp.getLatitude());
         double nextlng = Double.parseDouble(gp.getLongitude());
 
@@ -263,7 +263,7 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
 
         marker.setInfoWindow(makerInfoWindow);
         marker.setTitle(gp.getName());
-        CollectType collectType = DataUtils.getTypeIconUrl(gp);
+        CollectType collectType = MapDataUtils.getTypeIconUrl(gp);
         if (collectType != null) {
             //
             Bitmap bitmap = ImageLoader.getInstance().loadImageSync(collectType.getIcon());
@@ -380,7 +380,7 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
 
     private void delayRun(int i) {
         new Handler().postDelayed(() -> {
-            DataUtils.asyncPointsByBounds(osmdroidMapView.getBoundingBox(), new IGatherDataListener() {
+            MapDataUtils.asyncPointsByBounds(osmdroidMapView.getBoundingBox(), new IGatherDataListener() {
                 @Override
                 public void onListData(List<GatherPoint> list) {
                     showListPoint(list);

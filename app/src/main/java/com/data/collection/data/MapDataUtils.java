@@ -43,37 +43,155 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class DataUtils {
+public class MapDataUtils {
 
-    private static final String TAG = "DataUtils";
-    BoundingBox boundingBox;
+    private static final String TAG = "MapDataUtils";
 
     final static double RANGE = 0.01;
 
+    public static final int OPEN_TOPO_SOURCE = 1;
+    public static final int GOOGLE_MAP_SOURCE = 2;
+    public static final int GOOGLE_TILE_SOURCE = 3;
+    public static final int OPEN_STREET_SOURCE = 4;
+    public static final int GAODE_SOURCE = 5;
+    public static final int TIANDITU_SOURCE = 6;
+
+    public static GeoPoint deAdjustPoint(final GeoPoint geoPoint, int mapType) {
+        GeoPoint retValue = null;
+        switch (mapType) {
+            case GOOGLE_MAP_SOURCE:
+            case GOOGLE_TILE_SOURCE:
+            case GAODE_SOURCE:
+            case TIANDITU_SOURCE:
+                retValue = geoPoint;
+                break;
+            case OPEN_TOPO_SOURCE:
+            case OPEN_STREET_SOURCE:
+                retValue = new GeoPoint(geoPoint.getLatitude() - GOOGLE_ADJUST.adjustLat,
+                        geoPoint.getLongitude() - GOOGLE_ADJUST.adjustlng);
+
+                break;
+        }
+        return retValue;
+    }
+
+    public static GeoPoint adjustPoint(final  GeoPoint geoPoint, int mapType) {
+        GeoPoint retValue = null;
+        switch (mapType) {
+            case GOOGLE_MAP_SOURCE:
+            case GOOGLE_TILE_SOURCE:
+            case GAODE_SOURCE:
+            case TIANDITU_SOURCE:
+                retValue = new GeoPoint(geoPoint.getLatitude() + GOOGLE_ADJUST.adjustLat,
+                        geoPoint.getLongitude() + GOOGLE_ADJUST.adjustlng);
+                break;
+            case OPEN_TOPO_SOURCE:
+            case OPEN_STREET_SOURCE:
+                retValue = geoPoint;
+                break;
+        }
+        return retValue;
+    }
+
+    public static double deAdjustLatitude(double lat, int mapType) {
+        switch (mapType) {
+            case GOOGLE_MAP_SOURCE:
+            case GOOGLE_TILE_SOURCE:
+            case GAODE_SOURCE:
+            case TIANDITU_SOURCE:
+                break;
+            case OPEN_TOPO_SOURCE:
+            case OPEN_STREET_SOURCE:
+                lat = lat - GOOGLE_ADJUST.adjustLat;
+                break;
+        }
+        return lat;
+    }
+
+    public static double adjustLatitude(double lat, int mapType) {
+        switch (mapType) {
+            case GOOGLE_MAP_SOURCE:
+            case GOOGLE_TILE_SOURCE:
+            case GAODE_SOURCE:
+            case TIANDITU_SOURCE:
+                lat = lat + GOOGLE_ADJUST.adjustLat;
+                break;
+            case OPEN_TOPO_SOURCE:
+            case OPEN_STREET_SOURCE:
+                break;
+        }
+        return lat;
+    }
+
+    public static double deAdjustLongitude(double lon, int mapType) {
+        switch (mapType) {
+            case GOOGLE_MAP_SOURCE:
+            case GOOGLE_TILE_SOURCE:
+            case GAODE_SOURCE:
+            case TIANDITU_SOURCE:
+                break;
+            case OPEN_TOPO_SOURCE:
+            case OPEN_STREET_SOURCE:
+                lon = lon - GOOGLE_ADJUST.adjustlng;
+                break;
+        }
+        return lon;
+    }
+
+    public static double adjustLongitude(double lon, int mapType) {
+        switch (mapType) {
+            case GOOGLE_MAP_SOURCE:
+            case GOOGLE_TILE_SOURCE:
+            case GAODE_SOURCE:
+            case TIANDITU_SOURCE:
+                lon = lon + GOOGLE_ADJUST.adjustlng;
+                break;
+            case OPEN_TOPO_SOURCE:
+            case OPEN_STREET_SOURCE:
+                break;
+        }
+        return lon;
+    }
+
+    public static boolean isNeedAdjust(int mapType) {
+        boolean isNeedAdjust = false;
+        switch (mapType) {
+            case GOOGLE_MAP_SOURCE:
+            case GOOGLE_TILE_SOURCE:
+            case GAODE_SOURCE:
+            case TIANDITU_SOURCE:
+                isNeedAdjust = true;
+                break;
+            case OPEN_TOPO_SOURCE:
+            case OPEN_STREET_SOURCE:
+                break;
+        }
+        return isNeedAdjust;
+    }
 
     public static void asyncPointsByBounds(BoundingBox boundingBox,
-                                           IGatherDataListener lintener){
+                                           IGatherDataListener lintener) {
         asyncPointsByBounds(boundingBox.getLatNorth(),
                 boundingBox.getLatSouth(), boundingBox.getLonEast(),
-                boundingBox.getLonWest(), false,lintener);
+                boundingBox.getLonWest(), false, lintener);
     }
 
     public static void asyncPointsByBounds(BoundingBox boundingBox,
                                            boolean isUploaded,
-                                           IGatherDataListener lintener){
+                                           IGatherDataListener lintener) {
         asyncPointsByBounds(boundingBox.getLatNorth(),
                 boundingBox.getLatSouth(), boundingBox.getLonEast(),
-        boundingBox.getLonWest(), isUploaded,lintener);
+                boundingBox.getLonWest(), isUploaded, lintener);
     }
 
     public static void asyncPointsByBounds(double latNorth,
-                                                      double latSouth,
-                                                      double lonEast,
-                                                      double lonWest,
+                                           double latSouth,
+                                           double lonEast,
+                                           double lonWest,
                                            boolean isUploaded,
-                                           IGatherDataListener lintener){
+                                           IGatherDataListener lintener) {
 
-        new AsyncTask<Double, Integer, List<GatherPoint>>(){
+        new AsyncTask<Double, Integer, List<GatherPoint>>() {
             @Override
             protected List doInBackground(Double... doubles) {
                 DaoSession daoSession = App.getInstence().getDaoSession();
@@ -102,7 +220,7 @@ public class DataUtils {
         }.execute(latSouth, latNorth, lonWest, lonEast);
     }
 
-    public static CollectType getTypeIconUrl(GatherPoint gp){
+    public static CollectType getTypeIconUrl(GatherPoint gp) {
         String type_id = gp.getType_id();
         Map<String, CollectType> typeMaps = CacheData.getTypeMaps();
         CollectType type = typeMaps.get(type_id);
@@ -111,30 +229,33 @@ public class DataUtils {
 
     public static Adjust GOOGLE_ADJUST = new Adjust();
 
-    public static GeoPoint adjustPoint(GeoPoint geoPoint, int mapType) {
-        switch (mapType) {
-            case Constants.GOOGLE_MAP_SOURCE:
-                geoPoint.setLatitude(geoPoint.getLatitude() + GOOGLE_ADJUST.adjustLat);
-                geoPoint.setLongitude(geoPoint.getLongitude() + GOOGLE_ADJUST.adjustlng);
-                break;
-            case Constants.OPEN_TOPO_SOURCE:
-                break;
-        }
-        return geoPoint;
-    }
 
-    static public Adjust getGoogleAdjust(){
+    static public Adjust getGoogleAdjust() {
         return GOOGLE_ADJUST;
     }
 
     public static void setGoogleAdjust(Adjust googleAdjust) {
-        if (googleAdjust == null) {LsLog.w(TAG, "adjust is null"); return;}
+        if (googleAdjust == null) {
+            LsLog.w(TAG, "adjust is null");
+            return;
+        }
         GOOGLE_ADJUST = googleAdjust;
     }
 
+    //async read tiff file and parse it.
+
+    /**
+     * loadTif
+     * <p>show async read tiff file and parse it<br>
+     * loadTif use AsyncTask tool to open it.
+     *
+     * @param filepath to open the file that tiff file
+     * @param listener notify the load result. if GeoTiffImage is null, means tif file is not a geotiff.
+     * @return void
+     */
     public static void loadTif(String filepath, ITiffListener listener) {
 
-        new AsyncTask<String, Integer, GeoTiffImage>(){
+        new AsyncTask<String, Integer, GeoTiffImage>() {
             @Override
             protected GeoTiffImage doInBackground(String... strings) {
                 File file = new File(strings[0]);
@@ -157,41 +278,8 @@ public class DataUtils {
                 if (listener != null) listener.onFileReady(geoTiffImage);
             }
         }.execute(filepath);
-
     }
 
-    public static void decodeTiff(File filename) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    GeoTiffImage tiffImage = new GeoTiffImage(filename);
-                    tiffImage.parse();
-                    Rectangle bounds = tiffImage.getBounds();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-
-    }
-
-
-    public static void readTiff(Context context) {
-//        ssss.tif
-        String path = FileUtils.getFileDir() + "zhengzhou.tif";
-
-
-
-        Log.w(TAG, "path = " + path);
-        File file = new File(path);
-        if (!file.exists()) {
-            Log.w(TAG, "not found file. filename = " + path);
-            return;
-        }
-        decodeTiff(file);
-        // decodeByTiffBitmapFactory(context, file);
-    }
 
     private static void decodeByTiffBitmapFactory(Context context, File file) {
         int reqHeight = 2048;
@@ -251,17 +339,14 @@ public class DataUtils {
 
     static ImageDialog imageDialog;
 
-    static public class Adjust{
+    static public class Adjust {
         /*
-    //shanghai
-    var xOffset= -0.001889737;
-    var yOffset= 0.004844069;*/
-        // 9.532983321633992E-4,  -0.006085311202994603
-        // 0.0009532
-        // 0.00608
-        public double adjustLat = - 0.000953298;
-        public double adjustlng = + 0.00608531;
+        var xOffset= -0.001889737;
+        var yOffset= 0.004844069;*/
+        // public double adjustLat = - 0.000953298;
+        // public double adjustlng = + 0.00608531;
+        public double adjustLat = 0;
+        public double adjustlng = 0;
+
     }
-
-
 }

@@ -8,10 +8,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import com.data.collection.R;
-import com.data.collection.data.DataUtils;
+import com.data.collection.data.MapDataUtils;
 import com.data.collection.util.LocationController;
 import com.data.collection.util.LsLog;
-import com.esri.arcgisruntime.geometry.Envelope;
 import com.esri.arcgisruntime.geometry.SpatialReference;
 import com.esri.arcgisruntime.layers.ArcGISTiledLayer;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
@@ -20,8 +19,6 @@ import com.esri.arcgisruntime.mapping.Viewpoint;
 import com.esri.arcgisruntime.mapping.view.MapView;
 
 import cn.sddman.arcgistool.common.Variable;
-import cn.sddman.arcgistool.view.ArcGisZoomView;
-import cn.sddman.arcgistool.view.MapRotateView;
 import cn.sddman.arcgistool.view.MeasureToolView;
 
 public class MeasureActivity extends AppCompatActivity {
@@ -45,8 +42,8 @@ public class MeasureActivity extends AppCompatActivity {
 
         Location location = LocationController.getInstance().getLocation();
 
-        Viewpoint vp = new Viewpoint(location.getLatitude()+ DataUtils.GOOGLE_ADJUST.adjustLat,
-                location.getLongitude()+DataUtils.GOOGLE_ADJUST.adjustlng, 20000);
+        Viewpoint vp = new Viewpoint(location.getLatitude()+ MapDataUtils.GOOGLE_ADJUST.adjustLat,
+                location.getLongitude()+ MapDataUtils.GOOGLE_ADJUST.adjustlng, 20000);
         // new Viewpoint();
         map.setInitialViewpoint(vp);
         mMapView.setMap(map);

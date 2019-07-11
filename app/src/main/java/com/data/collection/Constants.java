@@ -57,11 +57,5 @@ public class Constants {
 
     public static final int GET_FILE_PATH = 1000;
 
-    public static final int OPEN_TOPO_SOURCE = 1;
-    public static final int GOOGLE_MAP_SOURCE = 2;
-    public static final int GOOGLE_TILE_SOURCE = 3;
-    public static final int OPEN_STREET_SOURCE  = 4;
-    public static final int GAODE_SOURCE  = 5;
-    public static final int TIANDITU_SOURCE  = 6;
 
 }
