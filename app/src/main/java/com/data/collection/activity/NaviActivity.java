@@ -25,7 +25,7 @@ import com.baidu.navisdk.adapter.map.BNItemizedOverlay;
 import com.baidu.navisdk.adapter.map.BNOverlayItem;
 import com.data.collection.R;
 import com.data.collection.service.ForegroundService;
-
+@Deprecated
 public class NaviActivity extends Activity {
 
     private static final String TAG = "NaviActivity";

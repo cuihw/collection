@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -13,9 +14,11 @@ import com.classic.adapter.CommonAdapter;
 import com.data.collection.Constants;
 import com.data.collection.R;
 import com.data.collection.adapter.MultipleLayoutAdapter;
+import com.data.collection.dialog.PopupDialog;
 import com.data.collection.module.NaviData;
 import com.data.collection.module.NaviListBean;
 import com.data.collection.network.HttpRequest;
+import com.data.collection.util.CommonUtils;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.ToastUtil;
 import com.data.collection.view.TitleView;
@@ -153,19 +156,17 @@ public class NaviListActivity extends BaseActivity {
     }
 
     private void naviToPos(NaviData item) {
-        NaviDataSS naviDataSS = new NaviDataSS();
-        LocaltionData endNode  = new  LocaltionData();
-        endNode.setName(item.getName());
-        endNode.setLatitude(Double.parseDouble(item.getLatitude()));
-        endNode.setLongitude(Double.parseDouble(item.getLongitude()));
-        naviDataSS.setEndNode(endNode);
-
-        String activity = "com.data.zwnavi.MainActivity";
-        ComponentName component = new ComponentName("com.data.zwnavi", activity);
-        Intent intent = new Intent();
-        intent.setComponent(component);
-        intent.putExtra("NaviDataSS", new Gson().toJson(naviDataSS));
-        startActivityForResult(intent, START_NAVI);
+        if (!CommonUtils.navito(this, item, START_NAVI)) {
+            CommonUtils.copy(NaviListActivity.this);
+            PopupDialog popupDialog = PopupDialog.create(this, "提醒", "开始安装导航插件",
+                    "确定", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            CommonUtils.install(NaviListActivity.this);
+                        }
+                    });
+            popupDialog.show();
+        }
     }
 
     @Override

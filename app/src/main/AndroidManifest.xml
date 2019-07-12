@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.data.collection">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -16,7 +17,7 @@
     <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.BAIDU_LOCATION_SERVICE" />
-
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
     <!--camera-->
     <uses-permission android:name="android.permission.CAMERA" />
 
@@ -134,6 +135,20 @@
 
         <meta-data android:name="MAPQUEST_MAPID" android:value="ANDROID" />
         <meta-data android:name="MAPQUEST_ACCESS_TOKEN" android:value="pk.eyJ1IjoiY2hyaXNjdWljbiIsImEiOiJjanhkNGdtdXowYWZtM3ltbXVuaGwzZTc2In0.iD3nidfKrnjl8KtVaQfVRw" />
+
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.data.collection"
+            android:exported="false"
+            tools:replace="android:authorities"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                tools:replace="android:resource"
+                android:resource="@xml/file_paths" />
+        </provider>
+
     </application>
 
 </manifest>

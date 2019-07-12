@@ -27,7 +27,7 @@ android {
         variant.outputs.each {
             output -> if (!variant.buildType.isDebuggable()){
                 output.outputFileName = new File(output.outputFile.name.replace("app-release.apk",
-                        "collector-release_v${android.defaultConfig.versionName}${releaseTime()}.apk"))
+                        "collection-release_v${android.defaultConfig.versionName}${releaseTime()}.apk"))
             }
         }
     }
