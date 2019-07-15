@@ -824,12 +824,12 @@ public class FragmentHome extends FragmentBase {
             GeoPoint unmodifiedRD = groundOverlay.getUnmodifiedRD();
             GeoPoint unmodifiedUL = groundOverlay.getUnmodifiedUL();
 
-            if (needAdjust && rd.equals(unmodifiedRD)) {
+            if (needAdjust) { // 需要纠偏
                 Log.w(TAG, "groundOverlay show adjust postion");
-                rd = MapDataUtils.adjustPoint(rd, mapType);
-                ul = MapDataUtils.adjustPoint(ul, mapType);
+                rd = MapDataUtils.adjustPoint(unmodifiedRD, mapType);
+                ul = MapDataUtils.adjustPoint(unmodifiedUL, mapType);
                 groundOverlay.setPosition(ul, rd);
-            } else {
+            } else { // 不需要纠偏
                 Log.w(TAG, "groundOverlay show unmodified postion");
                 groundOverlay.setPosition(unmodifiedUL, unmodifiedRD);
             }
