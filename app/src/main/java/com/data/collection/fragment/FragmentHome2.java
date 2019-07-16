@@ -2,6 +2,8 @@ package com.data.collection.fragment;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -35,9 +37,12 @@ import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.dialog.AdjustPosDialog2;
 import com.data.collection.listener.IAdjustPosListener2;
 import com.data.collection.listener.IGatherDataListener;
+import com.data.collection.module.CollectType;
+import com.data.collection.util.BitmapUtil;
 import com.data.collection.util.FileUtils;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.ToastUtil;
+import com.data.collection.view.MyPicMarkerSymbol;
 import com.data.collection.view.TitleView;
 import com.esri.arcgisruntime.ArcGISRuntimeException;
 import com.esri.arcgisruntime.data.FeatureTable;
@@ -52,6 +57,8 @@ import com.esri.arcgisruntime.geometry.SpatialReferences;
 import com.esri.arcgisruntime.layers.FeatureLayer;
 import com.esri.arcgisruntime.layers.RasterLayer;
 import com.esri.arcgisruntime.loadable.LoadStatus;
+import com.esri.arcgisruntime.loadable.LoadStatusChangedEvent;
+import com.esri.arcgisruntime.loadable.LoadStatusChangedListener;
 import com.esri.arcgisruntime.location.AndroidLocationDataSource;
 import com.esri.arcgisruntime.location.LocationDataSource;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
@@ -59,6 +66,7 @@ import com.esri.arcgisruntime.mapping.Basemap;
 import com.esri.arcgisruntime.mapping.LayerList;
 import com.esri.arcgisruntime.mapping.Viewpoint;
 import com.esri.arcgisruntime.mapping.view.DefaultMapViewOnTouchListener;
+import com.esri.arcgisruntime.mapping.view.Graphic;
 import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
 import com.esri.arcgisruntime.mapping.view.LocationDisplay;
 import com.esri.arcgisruntime.mapping.view.MapScaleChangedEvent;
@@ -67,12 +75,16 @@ import com.esri.arcgisruntime.mapping.view.MapView;
 import com.esri.arcgisruntime.mapping.view.WrapAroundMode;
 import com.esri.arcgisruntime.raster.GeoPackageRaster;
 import com.esri.arcgisruntime.raster.Raster;
+import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.leon.lfilepickerlibrary.LFilePicker;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 
@@ -386,9 +398,74 @@ public class FragmentHome2 extends FragmentBase {
         });
     }
 
+
     private void showCollectList(List<GatherPoint> list) {
-        showCollectMarkerList = list;
+        // showCollectMarkerList = list;
+        // 查找出来新的marker点
+        List<GatherPoint> newPoints = new ArrayList<>();
+        for (GatherPoint point : list) {
+            if (!showCollectMarkerList.contains(point)) {
+                newPoints.add(point);
+            }
+        }
+
+        if (newPoints.size() == 0) return;
+
+        for (GatherPoint point :newPoints) {
+            MyPicMarkerSymbol markerSymbol = creatMyPicMarker(point);
+        }
+        showCollectMarkerList.addAll(newPoints);
     }
+
+    Map<String, MyPicMarkerSymbol> myPicMarkerSymbolMap = new HashMap<>();
+
+    private MyPicMarkerSymbol creatMyPicMarker(GatherPoint point) {
+
+        MyPicMarkerSymbol symbol = new MyPicMarkerSymbol(point);
+        double latitude = symbol.getLatitude();
+        double nextlng = symbol.getLongitude();
+        String key = symbol.genericKey(latitude, nextlng);
+
+        MyPicMarkerSymbol existMarker = myPicMarkerSymbolMap.get(key);
+        while (existMarker != null) {
+            nextlng = nextlng + Constants.DIFF2;
+            existMarker = myPicMarkerSymbolMap.get(symbol.genericKey(latitude, nextlng));
+        }
+        symbol.setGeoPoint(latitude, nextlng);
+        myPicMarkerSymbolMap.put(symbol.genericKey(latitude, nextlng), symbol);
+
+        PictureMarkerSymbol pictureMarkerSymbol = new PictureMarkerSymbol(createMarkerBitmap(point));
+        pictureMarkerSymbol.loadAsync();
+
+        pictureMarkerSymbol.addDoneLoadingListener(()->{
+            if (pictureMarkerSymbol.getLoadStatus() == LoadStatus.LOADED) {
+                LsLog.w(TAG, "load pictureMarkerSymbol");
+            }
+        });
+
+        Graphic campsiteGraphic = new Graphic(symbol.getGeoPoint(), pictureMarkerSymbol);
+        mGraphicsOverlay.getGraphics().add(campsiteGraphic);
+        symbol.setMyPicture(pictureMarkerSymbol);
+
+
+        return symbol;
+    }
+
+    private BitmapDrawable createMarkerBitmap(GatherPoint point) {
+        View view = View.inflate(getContext(), R.layout.view_point_marker, null);
+        TextView viewById = view.findViewById(R.id.name_tv);
+        viewById.setText(point.getName());
+        CollectType typeIconUrl = MapDataUtils.getTypeIconUrl(point);
+        if (typeIconUrl != null) {
+            Bitmap bitmap = ImageLoader.getInstance().loadImageSync(typeIconUrl.getIcon());
+            ImageView imageView = view.findViewById(R.id.icon_iv);
+            imageView.setImageBitmap(bitmap);
+        }
+        Bitmap bitmap = BitmapUtil.convertViewToBitmap(view);
+        BitmapDrawable drawable = new BitmapDrawable(getResources(), bitmap);
+        return drawable;
+    }
+
 
     private void showImageShpLayer(boolean isShow) {
 
