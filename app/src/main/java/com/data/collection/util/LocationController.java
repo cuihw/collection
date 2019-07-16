@@ -69,6 +69,7 @@ public class LocationController implements LocationListener {
                 .time(location.getTime())
                 .build();
         BaiduNaviManagerFactory.getMapManager().setMyLocationData(mLocData);
+
     }
 
     public void startLocation(Context ctx) {

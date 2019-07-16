@@ -15,8 +15,6 @@ import com.google.gson.Gson;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import io.fabric.sdk.android.services.concurrency.Task;
-
 public class TraceService extends Service {
 
     private static final String TAG = "TraceService";

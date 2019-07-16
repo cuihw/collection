@@ -1,10 +1,12 @@
 package com.data.collection.module;
 
 public class Gps {
-    double wgLon;
-    double wgLat;
+    double wgLon;  // Mercator x
+    double wgLat;  // Mercator y
 
-    public Gps(double lat, double lon) {
+    public Gps(){}
+
+    public Gps( double lon, double lat) {
         wgLon = lon;
         wgLat = lat;
     }
@@ -15,5 +17,10 @@ public class Gps {
 
     public double getWgLat() {
         return wgLat;
+    }
+
+    @Override
+    public String toString() {
+        return "[" + wgLon + ", " + wgLat + "]";
     }
 }

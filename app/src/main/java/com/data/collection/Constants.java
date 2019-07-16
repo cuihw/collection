@@ -57,5 +57,7 @@ public class Constants {
 
     public static final int GET_FILE_PATH = 1000;
 
-
+    public static final double latitude = 34.7967643;
+    public static final double longitude = 113.6019350;
+    public static final int levelOfDetail = 14;
 }

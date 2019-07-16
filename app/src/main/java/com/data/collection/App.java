@@ -1,7 +1,6 @@
 package com.data.collection;
 
 import android.app.Application;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -49,7 +48,6 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        // Fabric.with(this, new Crashlytics());
         instence = this;
 
         initDaoSession();

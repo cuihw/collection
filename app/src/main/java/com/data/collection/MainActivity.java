@@ -12,6 +12,7 @@ import com.data.collection.data.CacheData;
 import com.data.collection.data.UserTrace;
 import com.data.collection.fragment.FragmentCheckRecord;
 import com.data.collection.fragment.FragmentHome;
+import com.data.collection.fragment.FragmentHome2;
 import com.data.collection.fragment.FragmentNavi2;
 import com.data.collection.fragment.FragmentSettings;
 import com.data.collection.service.UpLocationTask;
@@ -41,8 +42,8 @@ public class MainActivity extends BaseActivity {
 
     @BindString(R.string.settings)
     String settings;
-
-    FragmentHome fragmentHome = new FragmentHome();
+    // FragmentHome fragmentHome = new FragmentHome();
+    FragmentHome2 fragmentHome = new FragmentHome2();
     FragmentNavi2 fragmentNavi = new FragmentNavi2();
     FragmentCheckRecord fragmentCheckRecord = new FragmentCheckRecord();
     FragmentSettings fragmentSettings = new FragmentSettings();

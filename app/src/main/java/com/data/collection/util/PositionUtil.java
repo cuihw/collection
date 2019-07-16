@@ -18,6 +18,34 @@ public class PositionUtil {
     public static double a = 6378245.0;
     public static double ee = 0.00669342162296594323;
 
+
+    /**
+     * 经纬度转墨卡托
+     * @param LonLat 经纬度坐标
+     * @return
+     */
+    public static Gps lonLatToMercator(Gps LonLat){
+        double x =  (LonLat.getWgLon() * 20037508.342789 / 180);
+        double y =  (Math.log(Math.tan((90 + LonLat.getWgLat()) * Math.PI / 360)) / (Math.PI / 180));
+        y =  (double)(y * 20037508.342789 / 180);
+        Gps mercator = new Gps(x, y);
+        return mercator;
+    }
+
+    /**
+     * 墨卡托转经纬度
+     * @param mercator 墨卡托坐标
+     * @return
+     */
+    public static Gps mercatorToLonLat(Gps mercator){
+        double x =   (mercator.getWgLon()/ 20037508.342789 * 180);
+        double y =  (mercator.getWgLat() / 20037508.342789 * 180);
+        y = (double) (180 / Math.PI * (2 * Math.atan(Math.exp(y * Math.PI / 180)) - Math.PI / 2));
+        Gps lonlat  = new Gps(x, y);
+        return lonlat;
+    }
+
+
     /**
      * 84 to 火星坐标系 (GCJ-02)
      *
