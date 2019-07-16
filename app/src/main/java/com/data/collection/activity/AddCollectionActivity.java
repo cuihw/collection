@@ -121,13 +121,24 @@ public class AddCollectionActivity extends BaseActivity {
     LinearLayout bottomLayout;
 
     CommonAdapter<CollectionImage> adapter;
-
-
     static GatherPoint gatherPoint;
+
+
+    public static void  start(Context context){
+        Intent intent = new Intent(context, AddCollectionActivity.class);
+        gatherPoint = null;
+        context.startActivity(intent);
+    }
 
     public static void start(Context context, GatherPoint gatherPoint){
         Intent intent = new Intent(context, AddCollectionActivity.class);
         AddCollectionActivity.gatherPoint = gatherPoint;
+        context.startActivity(intent);
+    }
+
+    public static void  start(Context context, com.esri.arcgisruntime.geometry.Point point){
+        Intent intent = new Intent(context, AddCollectionActivity.class);
+
         context.startActivity(intent);
     }
 
@@ -163,7 +174,6 @@ public class AddCollectionActivity extends BaseActivity {
             longitudeTv.setText(longitude);
             laititudeTv.setText(laititude);
         }
-
 
         altitudeTv.setText(gatherPoint.getHeight());
         timeTv.setText(gatherPoint.getCollected_at());

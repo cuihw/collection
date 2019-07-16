@@ -47,9 +47,11 @@ import com.esri.arcgisruntime.data.GeoPackage;
 import com.esri.arcgisruntime.data.GeoPackageFeatureTable;
 import com.esri.arcgisruntime.data.ShapefileFeatureTable;
 import com.esri.arcgisruntime.geometry.DatumTransformation;
+import com.esri.arcgisruntime.geometry.Envelope;
 import com.esri.arcgisruntime.geometry.GeographicTransformation;
 import com.esri.arcgisruntime.geometry.GeographicTransformationStep;
 import com.esri.arcgisruntime.geometry.GeometryEngine;
+import com.esri.arcgisruntime.geometry.ImmutablePartCollection;
 import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.geometry.Polygon;
 import com.esri.arcgisruntime.geometry.SpatialReference;
@@ -66,7 +68,11 @@ import com.esri.arcgisruntime.mapping.LayerList;
 import com.esri.arcgisruntime.mapping.Viewpoint;
 import com.esri.arcgisruntime.mapping.view.DefaultMapViewOnTouchListener;
 import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
+import com.esri.arcgisruntime.mapping.view.LayerViewStateChangedEvent;
+import com.esri.arcgisruntime.mapping.view.LayerViewStateChangedListener;
 import com.esri.arcgisruntime.mapping.view.LocationDisplay;
+import com.esri.arcgisruntime.mapping.view.MapScaleChangedEvent;
+import com.esri.arcgisruntime.mapping.view.MapScaleChangedListener;
 import com.esri.arcgisruntime.mapping.view.MapView;
 import com.esri.arcgisruntime.mapping.view.WrapAroundMode;
 import com.esri.arcgisruntime.raster.GeoPackageRaster;
@@ -231,7 +237,7 @@ public class FragmentHome2 extends FragmentBase {
     }
 
     private void initListener() {
-        //openationHint
+        //openation Hint
         calibrationCoordinate.setOnClickListener(v->{
             if (openationHint.getVisibility() == View.GONE) {
                 // 在纠偏模式下
@@ -250,7 +256,6 @@ public class FragmentHome2 extends FragmentBase {
 
         mMapView.setOnTouchListener(new DefaultMapViewOnTouchListener(getContext(), mMapView) {
 
-
             @Override
             public boolean  onSingleTapConfirmed(MotionEvent v) {
                 android.graphics.Point screenPoint = new android.graphics.Point(Math.round(v.getX()), Math.round(v.getY()));
@@ -258,15 +263,38 @@ public class FragmentHome2 extends FragmentBase {
                 // Project the point to WGS84, using the transformation
                 clickPoint = (Point) GeometryEngine.project(clickPoint, SpatialReferences.getWgs84());
                 Log.i("sss", clickPoint.toString());
-
-                Point toPoint = locationDisplay.getLocation().getPosition();
-
-                showAdjustDialog(clickPoint, toPoint);
+                if (openationHint.getVisibility() == View.VISIBLE){
+                    // 纠偏模式下：
+                    Point toPoint = locationDisplay.getLocation().getPosition();
+                    showAdjustDialog(clickPoint, toPoint);
+                }
                 return true;
+            }
+
+            @Override
+            public void onLongPress(MotionEvent v) {
+                android.graphics.Point screenPoint = new android.graphics.Point(Math.round(v.getX()), Math.round(v.getY()));
+                Point clickPoint = mMapView.screenToLocation(screenPoint); // 地理坐标点；
+                // Project the point to WGS84, using the transformation
+                clickPoint = (Point) GeometryEngine.project(clickPoint, SpatialReferences.getWgs84());
+                // 长按采集点
+                AddCollectionActivity.start(getContext(), clickPoint);
+            }
+
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+
+                getMapBounds();
+
+                return super.onScroll(e1, e2, distanceX, distanceY);
             }
         });
 
-
+        mMapView.addMapScaleChangedListener(new MapScaleChangedListener() {
+            @Override
+            public void mapScaleChanged(MapScaleChangedEvent mapScaleChangedEvent) {
+            }
+        });
 
         readTiff.setOnClickListener(v->{
             if (isShowImageLayer) {
@@ -295,7 +323,7 @@ public class FragmentHome2 extends FragmentBase {
 
         addPoint.setOnClickListener(v -> {
             if (CacheData.isLogin()) {
-                AddCollectionActivity.start(getContext(), null);
+                AddCollectionActivity.start(getContext());
             } else {
                 ToastUtil.showTextToast(getContext(), "请先登录系统，再进行操作");
             }
@@ -327,6 +355,17 @@ public class FragmentHome2 extends FragmentBase {
         myPosition.setOnClickListener(v -> {
             goToMyLocation();
         });
+    }
+
+    private void getMapBounds() {
+        Polygon visibleArea = mMapView.getVisibleArea();
+        Envelope extent = visibleArea.getExtent();
+        extent = (Envelope) GeometryEngine.project(extent, SpatialReferences.getWgs84());
+        LsLog.w(TAG, "getMapBounds extent = " + extent.toString());
+        double xMin = extent.getXMin();
+        double xMax = extent.getXMax();
+        double yMin = extent.getYMin();
+        double yMax = extent.getYMax();
     }
 
     private void showImageShpLayer(boolean isShow) {

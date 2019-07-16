@@ -67,10 +67,6 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
     @BindView(R.id.title_view)
     TitleView titleView;
 
-    //@BindView(R.id.arcgis_map)
-    // com.esri.arcgisruntime.mapping.view.MapView
-     //MapView        mArcgisMapView;
-
     @BindView(R.id.osmdroidMapView)
     MapView osmdroidMapView;
 
@@ -119,7 +115,7 @@ public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtE
         titleView.getLefticon().setOnClickListener(v -> finish());
         titleView.getRighticon().setOnClickListener(v -> CollectionListActivity.start(this));
         addPoint.setOnClickListener(v -> {
-            AddCollectionActivity.start(this, null);
+            AddCollectionActivity.start(this);
         });
 
         osmdroidMapView.addMapListener(new MapListener() {

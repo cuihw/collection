@@ -196,7 +196,7 @@ public class FragmentHome1 extends FragmentBase {
 
         addPoint.setOnClickListener(v->{
             if (CacheData.isLogin()) {
-                AddCollectionActivity.start(getContext(),null);
+                AddCollectionActivity.start(getContext());
             } else {
                 ToastUtil.showTextToast(getContext(), "请先登录系统，再进行操作");
             }
