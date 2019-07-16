@@ -8,6 +8,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -31,14 +32,11 @@ import com.data.collection.data.CacheData;
 import com.data.collection.data.MapDataUtils;
 import com.data.collection.data.UserTrace;
 import com.data.collection.data.greendao.GatherPoint;
-import com.data.collection.dialog.AdjustPosDialog;
 import com.data.collection.dialog.AdjustPosDialog2;
-import com.data.collection.listener.IAdjustPosListener;
 import com.data.collection.listener.IAdjustPosListener2;
-import com.data.collection.module.Gps;
+import com.data.collection.listener.IGatherDataListener;
 import com.data.collection.util.FileUtils;
 import com.data.collection.util.LsLog;
-import com.data.collection.util.PositionUtil;
 import com.data.collection.util.ToastUtil;
 import com.data.collection.view.TitleView;
 import com.esri.arcgisruntime.ArcGISRuntimeException;
@@ -46,17 +44,11 @@ import com.esri.arcgisruntime.data.FeatureTable;
 import com.esri.arcgisruntime.data.GeoPackage;
 import com.esri.arcgisruntime.data.GeoPackageFeatureTable;
 import com.esri.arcgisruntime.data.ShapefileFeatureTable;
-import com.esri.arcgisruntime.geometry.DatumTransformation;
 import com.esri.arcgisruntime.geometry.Envelope;
-import com.esri.arcgisruntime.geometry.GeographicTransformation;
-import com.esri.arcgisruntime.geometry.GeographicTransformationStep;
 import com.esri.arcgisruntime.geometry.GeometryEngine;
-import com.esri.arcgisruntime.geometry.ImmutablePartCollection;
 import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.geometry.Polygon;
-import com.esri.arcgisruntime.geometry.SpatialReference;
 import com.esri.arcgisruntime.geometry.SpatialReferences;
-import com.esri.arcgisruntime.internal.jni.CoreViewpoint;
 import com.esri.arcgisruntime.layers.FeatureLayer;
 import com.esri.arcgisruntime.layers.RasterLayer;
 import com.esri.arcgisruntime.loadable.LoadStatus;
@@ -68,8 +60,6 @@ import com.esri.arcgisruntime.mapping.LayerList;
 import com.esri.arcgisruntime.mapping.Viewpoint;
 import com.esri.arcgisruntime.mapping.view.DefaultMapViewOnTouchListener;
 import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
-import com.esri.arcgisruntime.mapping.view.LayerViewStateChangedEvent;
-import com.esri.arcgisruntime.mapping.view.LayerViewStateChangedListener;
 import com.esri.arcgisruntime.mapping.view.LocationDisplay;
 import com.esri.arcgisruntime.mapping.view.MapScaleChangedEvent;
 import com.esri.arcgisruntime.mapping.view.MapScaleChangedListener;
@@ -79,8 +69,6 @@ import com.esri.arcgisruntime.raster.GeoPackageRaster;
 import com.esri.arcgisruntime.raster.Raster;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.leon.lfilepickerlibrary.LFilePicker;
-
-import org.osmdroid.util.GeoPoint;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -100,6 +88,7 @@ import static android.content.Context.SENSOR_SERVICE;
 public class FragmentHome2 extends FragmentBase {
 
     private static final String TAG = "FragmentHome";
+    private static final int GET_BOUNDS = 1;
 
     int mapType = 1;
 
@@ -143,7 +132,7 @@ public class FragmentHome2 extends FragmentBase {
 
     KProgressHUD hud;
 
-    List<GatherPoint> showColletMarkerList= new ArrayList<>(); // 当前显示的采集点
+    List<GatherPoint> showCollectMarkerList = new ArrayList<>(); // 当前显示的采集点
 
     List<GeoPackageRaster> geoPackageRasters;
     List<RasterLayer> geoPackageRasterLayers = new ArrayList<>();  // 离线底图包gpkg
@@ -283,8 +272,8 @@ public class FragmentHome2 extends FragmentBase {
 
             @Override
             public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                beginScroll();
 
-                getMapBounds();
 
                 return super.onScroll(e1, e2, distanceX, distanceY);
             }
@@ -293,6 +282,7 @@ public class FragmentHome2 extends FragmentBase {
         mMapView.addMapScaleChangedListener(new MapScaleChangedListener() {
             @Override
             public void mapScaleChanged(MapScaleChangedEvent mapScaleChangedEvent) {
+
             }
         });
 
@@ -357,15 +347,47 @@ public class FragmentHome2 extends FragmentBase {
         });
     }
 
+    long startScrollStamp;
+
+    Handler handlerScroll = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.what == GET_BOUNDS) {
+                LsLog.w(TAG, "handlerScroll 。。。");
+                if (FragmentHome2.this.isVisible()) {
+                    getMapBounds();
+                }
+            }
+        }
+    };
+
+    private void beginScroll() {
+        startScrollStamp = System.currentTimeMillis();
+        handlerScroll.removeMessages(GET_BOUNDS);
+        handlerScroll.sendEmptyMessageDelayed(GET_BOUNDS,1000);
+    }
+
     private void getMapBounds() {
         Polygon visibleArea = mMapView.getVisibleArea();
         Envelope extent = visibleArea.getExtent();
         extent = (Envelope) GeometryEngine.project(extent, SpatialReferences.getWgs84());
-        LsLog.w(TAG, "getMapBounds extent = " + extent.toString());
-        double xMin = extent.getXMin();
+
+        double xMin = extent.getXMin(); // lon
         double xMax = extent.getXMax();
-        double yMin = extent.getYMin();
+        double yMin = extent.getYMin(); // lat
         double yMax = extent.getYMax();
+        LsLog.w(TAG, "getMapBounds extent = " + extent.toString());
+
+        MapDataUtils.asyncPointsByBounds(yMax, yMin, xMax,xMin ,false, new IGatherDataListener(){
+            @Override
+            public void onListData(List<GatherPoint> list) {
+                showCollectList(list);
+            }
+        });
+    }
+
+    private void showCollectList(List<GatherPoint> list) {
+        showCollectMarkerList = list;
     }
 
     private void showImageShpLayer(boolean isShow) {
@@ -485,10 +507,11 @@ public class FragmentHome2 extends FragmentBase {
         if (mMapView!=null) {
             mMapView.dispose();
         }
+        handlerScroll.removeMessages(GET_BOUNDS);
         super.onDestroy();
     }
 
-    //实现图片闪烁效果
+    // 实现图片闪烁效果
     private void setFlickerAnimation(View view) {
         final Animation animation = new AlphaAnimation(1, 0); // Change alpha from fully visible to invisible
         animation.setDuration(500); // duration - half a second
@@ -501,11 +524,6 @@ public class FragmentHome2 extends FragmentBase {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == Constants.GET_FILE_PATH) {
-            // get off line map files.
-            // If it is a file selection mode, you need to get the path
-            // collection of all the files selected
-            // List<String> list = data.getStringArrayListExtra(Constant.RESULT_INFO);
-            // Constant.RESULT_INFO == "paths"
             List<String> list = data.getStringArrayListExtra("paths");
             for (String file: list){
                 Log.w(TAG, "list get file name: " + file);
@@ -629,6 +647,7 @@ public class FragmentHome2 extends FragmentBase {
     private void delayRun(int i) {
         new Handler().postDelayed(() -> {
             goToMyLocation();
+            getMapBounds();
         }, i);
     }
 
