@@ -72,8 +72,6 @@ public class FragmentTrace extends FragmentBase {
     Polyline mTexturePolyline ;
     private BitmapDescriptor mBlueTexture;
 
-    List<TraceLocation> traceList;
-
     public static void start(Context context){
         Bundle bundle = new Bundle();
         bundle.putInt(CommonActivity.FRAGMENT, CommonActivity.FRAGMENT_TRACE);

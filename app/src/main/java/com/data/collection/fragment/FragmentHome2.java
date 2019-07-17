@@ -26,7 +26,6 @@ import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.data.collection.Constants;
 import com.data.collection.R;
@@ -61,8 +60,6 @@ import com.esri.arcgisruntime.geometry.SpatialReferences;
 import com.esri.arcgisruntime.layers.FeatureLayer;
 import com.esri.arcgisruntime.layers.RasterLayer;
 import com.esri.arcgisruntime.loadable.LoadStatus;
-import com.esri.arcgisruntime.loadable.LoadStatusChangedEvent;
-import com.esri.arcgisruntime.loadable.LoadStatusChangedListener;
 import com.esri.arcgisruntime.location.AndroidLocationDataSource;
 import com.esri.arcgisruntime.location.LocationDataSource;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
@@ -81,7 +78,6 @@ import com.esri.arcgisruntime.mapping.view.WrapAroundMode;
 import com.esri.arcgisruntime.raster.GeoPackageRaster;
 import com.esri.arcgisruntime.raster.Raster;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
-import com.esri.arcgisruntime.util.ListenableList;
 import com.google.gson.Gson;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.leon.lfilepickerlibrary.LFilePicker;
@@ -320,8 +316,6 @@ public class FragmentHome2 extends FragmentBase {
             @Override
             public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
                 beginScroll();
-
-
                 return super.onScroll(e1, e2, distanceX, distanceY);
             }
         });
@@ -416,8 +410,6 @@ public class FragmentHome2 extends FragmentBase {
         dialog.show();
     }
 
-    long startScrollStamp;
-
     Handler handlerScroll = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -430,7 +422,6 @@ public class FragmentHome2 extends FragmentBase {
     };
 
     private void beginScroll() {
-        startScrollStamp = System.currentTimeMillis();
         handlerScroll.removeMessages(GET_BOUNDS);
         handlerScroll.sendEmptyMessageDelayed(GET_BOUNDS, 1000);
     }
@@ -580,7 +571,7 @@ public class FragmentHome2 extends FragmentBase {
             LsLog.w(TAG, "locationDataSource instanceof AndroidLocationDataSource 。。。 ");
         }
 
-        locationDisplay.setAutoPanMode(LocationDisplay.AutoPanMode.RECENTER);
+        locationDisplay.setAutoPanMode(LocationDisplay.AutoPanMode.OFF);
         locationDisplay.startAsync();
         locationDisplay.addLocationChangedListener(new LocationDisplay.LocationChangedListener() {
             @Override

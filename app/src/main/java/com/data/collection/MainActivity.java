@@ -74,6 +74,7 @@ public class MainActivity extends BaseActivity {
                 switch (index) {
                     case 0:
                         // 采集主页
+                        fragmentHome = new FragmentHome2();
                         tranToFragment(fragmentHome);
                         break;
                     case 1:
@@ -82,6 +83,7 @@ public class MainActivity extends BaseActivity {
                         break;
                     case 2:
                         // 检查功能
+                        fragmentCheckRecord = new FragmentCheckRecord();
                         tranToFragment(fragmentCheckRecord);
                         break;
                     case 3:

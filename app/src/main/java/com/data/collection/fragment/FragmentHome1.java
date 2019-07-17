@@ -538,9 +538,9 @@ public class FragmentHome1 extends FragmentBase {
             return null;
         }
 
-        FragmentCheckRecord.InfoWindowHolder infoHolder = null;
+        FragmentCheckRecord1.InfoWindowHolder infoHolder = null;
         if (view.getTag() == null) {
-            infoHolder = new FragmentCheckRecord.InfoWindowHolder();
+            infoHolder = new FragmentCheckRecord1.InfoWindowHolder();
             infoHolder.name_tv = view.findViewById(R.id.name_tv);
             infoHolder.type_tv = view.findViewById(R.id.type_tv);
             infoHolder.point_tv = view.findViewById(R.id.point_tv);
@@ -548,7 +548,7 @@ public class FragmentHome1 extends FragmentBase {
             infoHolder.type_icon = view.findViewById(R.id.type_icon);
             view.setTag(infoHolder);
         }
-        infoHolder = (FragmentCheckRecord.InfoWindowHolder) view.getTag();
+        infoHolder = (FragmentCheckRecord1.InfoWindowHolder) view.getTag();
 
         infoHolder.name_tv.setText(pointInfo.getName());
         infoHolder.type_tv.setText(type.getName());

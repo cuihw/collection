@@ -48,7 +48,6 @@ public class UserTrace {
         Intent intentOne = new Intent(applicationContext, TraceService.class);
         applicationContext.startService(intentOne);
         LsLog.w(TAG, "start trace location");
-
     }
 
     public synchronized void stop() {

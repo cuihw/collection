@@ -42,17 +42,17 @@ public class BaseActivity extends AppCompatActivity {
         LsLog.w(TAG, "tranToFragment = " +  fragment.getClass().getSimpleName());
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        if (fragments != null && fragments.size() > 0) {
+            transaction.remove(fragments.get(0));
+        }
+//        for (Fragment item: fragments){
+//            if (fragment != item) {
+//                transaction.hide(item);
+//            }
+//        }
+        transaction.replace(R.id.container, fragment);
 
-        for (Fragment item: fragments){
-            if (fragment != item) {
-                transaction.hide(item);
-            }
-        }
-        if (fragment.isAdded()) {
-            transaction.show(fragment);
-        } else {
-            transaction.add(R.id.container, fragment);
-        }
+
         transaction.commit();
     }
 }

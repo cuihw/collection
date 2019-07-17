@@ -30,7 +30,6 @@ public class UpLocationTask extends TimerTask {
     public static synchronized UpLocationTask getInstance() {
         if (instance == null)
             instance = new UpLocationTask();
-
         return instance;
     }
 
@@ -51,8 +50,6 @@ public class UpLocationTask extends TimerTask {
         timer = null;
         isStart = false;
     }
-
-
 
     @Override
     public void run() {

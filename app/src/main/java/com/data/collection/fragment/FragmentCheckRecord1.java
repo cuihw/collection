@@ -73,7 +73,7 @@ import static android.content.Context.SENSOR_SERVICE;
  * create an instance of this fragment.
  */
 public class FragmentCheckRecord1 extends FragmentBase {
-    private static final String TAG = "FragmentCheckRecord";
+    private static final String TAG = "FragmentCheckRecord1";
 
     @BindView(R.id.mapview)
     TextureMapView mMapView;
