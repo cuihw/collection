@@ -123,22 +123,26 @@ public class AddCollectionActivity extends BaseActivity {
     CommonAdapter<CollectionImage> adapter;
     static GatherPoint gatherPoint;
 
+    static com.esri.arcgisruntime.geometry.Point geoPoint;
 
-    public static void  start(Context context){
+    public static void start(Context context) {
         Intent intent = new Intent(context, AddCollectionActivity.class);
         gatherPoint = null;
+        geoPoint = null;
         context.startActivity(intent);
     }
 
-    public static void start(Context context, GatherPoint gatherPoint){
+    public static void start(Context context, GatherPoint gatherPoint) {
         Intent intent = new Intent(context, AddCollectionActivity.class);
         AddCollectionActivity.gatherPoint = gatherPoint;
+        geoPoint = null;
         context.startActivity(intent);
     }
 
-    public static void  start(Context context, com.esri.arcgisruntime.geometry.Point point){
+    public static void start(Context context, com.esri.arcgisruntime.geometry.Point point) {
         Intent intent = new Intent(context, AddCollectionActivity.class);
-
+        AddCollectionActivity.gatherPoint = null;
+        geoPoint = point;
         context.startActivity(intent);
     }
 
@@ -193,9 +197,10 @@ public class AddCollectionActivity extends BaseActivity {
             // 加载网络图片
             String imgs = gatherPoint.getImgs();
             if (!TextUtils.isEmpty(imgs)) {
-                Type type =new TypeToken<List<CollectionImage>>(){}.getType();
+                Type type = new TypeToken<List<CollectionImage>>() {
+                }.getType();
                 List<CollectionImage> list = new Gson().fromJson(imgs, type);
-                for (CollectionImage image:list) {
+                for (CollectionImage image : list) {
                     image.isUrlImage = true;
                 }
                 imageList.clear();
@@ -205,7 +210,8 @@ public class AddCollectionActivity extends BaseActivity {
             // 本地图片
             String picPath1 = gatherPoint.getPicPath1();
             if (!TextUtils.isEmpty(picPath1)) {
-                Type type =new TypeToken<List<CollectionImage>>(){}.getType();
+                Type type = new TypeToken<List<CollectionImage>>() {
+                }.getType();
                 List<CollectionImage> list = new Gson().fromJson(picPath1, type);
                 imageList.clear();
                 imageList.addAll(list);
@@ -240,12 +246,12 @@ public class AddCollectionActivity extends BaseActivity {
                 } else if (TextUtils.isEmpty(item.filename)) {
                     imageview.setImageBitmap(null);
                     delete.setVisibility(View.GONE);
-                    imageview.setOnClickListener( v-> addPicture(position));
+                    imageview.setOnClickListener(v -> addPicture(position));
                 } else {
                     delete.setVisibility(View.VISIBLE);
                     Uri uri = Uri.fromFile(new File(item.filename));
                     imageview.setImageURI(uri);
-                    delete.setOnClickListener(v->deleteImage(position));
+                    delete.setOnClickListener(v -> deleteImage(position));
                 }
             }
         };
@@ -280,25 +286,31 @@ public class AddCollectionActivity extends BaseActivity {
     }
 
     Location location;
+
     private void fillLongitudeAndLaititude() {
-
         location = LocationController.getInstance().getLocation();
-        if (location == null) {
-            ToastUtil.showTextToast(this, "Gps定位失败，请打开定位后再采集");
-            return;
+        DecimalFormat df = new DecimalFormat("#.00000000");
+        if (geoPoint != null) {
+            longitude = df.format(geoPoint.getX());
+            laititude = df.format(geoPoint.getY());
+            location.setLongitude(geoPoint.getX());
+            location.setLatitude(geoPoint.getX());
+        } else {
+            if (location == null) {
+                ToastUtil.showTextToast(this, "Gps定位失败，请打开定位后再采集");
+                return;
+            }
+            longitude = df.format(location.getLongitude());
+            laititude = df.format(location.getLatitude());
         }
-        DecimalFormat df = new DecimalFormat("#.0000000");
 
-        longitude = df.format(location.getLongitude());
-        laititude = df.format(location.getLatitude());
-
-         if (CacheData.isDMS()) {
-             longitudeTv.setText(Utils.formatLL(longitude));
-             laititudeTv.setText(Utils.formatLL(laititude));
-         } else {
-             longitudeTv.setText(longitude);
-             laititudeTv.setText(laititude);
-         }
+        if (CacheData.isDMS()) {
+            longitudeTv.setText(Utils.formatLL(longitude));
+            laititudeTv.setText(Utils.formatLL(laititude));
+        } else {
+            longitudeTv.setText(longitude);
+            laititudeTv.setText(laititude);
+        }
 
         altitudeTv.setText(String.format("%.1f", location.getAltitude()));
 
@@ -329,11 +341,10 @@ public class AddCollectionActivity extends BaseActivity {
         if (gatherPoint != null) {
             attrsView.setGatherPoint(gatherPoint);
         }
-
     }
+
     private void initSpinner() {
         try {
-
             if (!CacheData.isValidProject()) {
                 ToastUtil.showTextToast(this, getString(R.string.no_project_data));
                 return;
@@ -361,11 +372,11 @@ public class AddCollectionActivity extends BaseActivity {
     }
 
     private void initListener() {
-        titleView.getLefticon().setOnClickListener(v->finish());
+        titleView.getLefticon().setOnClickListener(v -> finish());
 
-        resetLayout.setOnClickListener(v->resetData());
+        resetLayout.setOnClickListener(v -> resetData());
 
-        saveLayout.setOnClickListener(v->initPermission(SAVE_POINT));//  动态请求权限);
+        saveLayout.setOnClickListener(v -> initPermission(SAVE_POINT));//  动态请求权限);
 
         typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -397,7 +408,7 @@ public class AddCollectionActivity extends BaseActivity {
 
         String pointName = nameTv.getText().toString().trim();
 
-        CollectType selectedItem = (CollectType)typeSpinner.getSelectedItem();
+        CollectType selectedItem = (CollectType) typeSpinner.getSelectedItem();
 
         if (TextUtils.isEmpty(pointName)) {
             ToastUtil.showTextToast(this, "请输入采集点名称");
@@ -443,10 +454,10 @@ public class AddCollectionActivity extends BaseActivity {
             gatherPoint.setPicPath1(s);
         }
 
-        DaoSession daoSession =  App.getInstence().getDaoSession();
+        DaoSession daoSession = App.getInstence().getDaoSession();
         long id = daoSession.insertOrReplace(gatherPoint);
         Log.i(TAG, "save id = " + id);
-        if(id > 0) {
+        if (id > 0) {
             ToastUtil.showTextToast(this, "保存成功。");
             finish();
         }
@@ -459,10 +470,16 @@ public class AddCollectionActivity extends BaseActivity {
         TextView cancel = dialogView.getView().findViewById(R.id.cancel_tv);
 
         camera.setOnClickListener(
-                v->{callCamera();dialogView.dismiss();});
+                v -> {
+                    callCamera();
+                    dialogView.dismiss();
+                });
         gallary.setOnClickListener(
-                v->{callGallary();dialogView.dismiss();});
-        cancel.setOnClickListener(v->dialogView.dismiss());
+                v -> {
+                    callGallary();
+                    dialogView.dismiss();
+                });
+        cancel.setOnClickListener(v -> dialogView.dismiss());
         dialogView.show();
         camera.setText("拍摄照片");
         gallary.setText("从手机相册选择");
@@ -476,6 +493,7 @@ public class AddCollectionActivity extends BaseActivity {
         intent.setDataAndType(MediaStore.Images.Media.INTERNAL_CONTENT_URI, "image/*");
         startActivityForResult(intent, REQUEST_CODE_PIC_PHOTO);
     }
+
     private void callCamera() {
         if (!hasProjectInfo()) return;
         takeCameraFilename = FileUtils.getFileDir() + "zw" + System.currentTimeMillis() + ".jpg";
@@ -485,7 +503,11 @@ public class AddCollectionActivity extends BaseActivity {
 
         File f = new File(FileUtils.getSdcardDir(), FileUtils.APP_FOLDER_NAME);
         if (!f.exists()) {
-            try {f.mkdir();} catch (Exception e) {e.printStackTrace();}
+            try {
+                f.mkdir();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -515,6 +537,7 @@ public class AddCollectionActivity extends BaseActivity {
             }
         }
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
@@ -535,7 +558,7 @@ public class AddCollectionActivity extends BaseActivity {
         }
     }
 
-    private void addImageFile(){
+    private void addImageFile() {
         CollectionImage image = new CollectionImage();
         image.filename = takeCameraFilename;
         int size = imageList.size();
@@ -544,12 +567,12 @@ public class AddCollectionActivity extends BaseActivity {
             imageList.remove(2);
             imageList.add(image);
         } else {
-            imageList.add(size -1, image);
+            imageList.add(size - 1, image);
         }
         adapter.replaceAll(imageList);
     }
 
-    boolean hasProjectInfo (){
+    boolean hasProjectInfo() {
         UserInfoBean userInfoBean = CacheData.getUserInfoBean();
         if (userInfoBean == null) {
             ToastUtil.showTextToast(this, Constants.NO_PROJECT_INFO);

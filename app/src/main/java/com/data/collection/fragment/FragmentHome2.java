@@ -3,6 +3,7 @@ package com.data.collection.fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -36,6 +37,7 @@ import com.data.collection.data.MapDataUtils;
 import com.data.collection.data.UserTrace;
 import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.dialog.AdjustPosDialog2;
+import com.data.collection.dialog.PopupInfoWindow;
 import com.data.collection.listener.IAdjustPosListener2;
 import com.data.collection.listener.IGatherDataListener;
 import com.data.collection.module.CollectType;
@@ -392,8 +394,21 @@ public class FragmentHome2 extends FragmentBase {
         });
     }
 
-    private void showInfoWindow(GatherPoint point) {
-        
+    private void showInfoWindow(final  GatherPoint point) {
+        CollectType typeIconUrl = MapDataUtils.getTypeIconUrl(point);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(),R.mipmap.five_sided);
+        if (typeIconUrl != null) {
+            bitmap = ImageLoader.getInstance().loadImageSync(typeIconUrl.getIcon());
+        }
+
+        String location = point.getLongitude() + ", " + point.getLatitude();
+        PopupInfoWindow dialog = PopupInfoWindow.create(getContext(), point.getName(), bitmap, typeIconUrl.getName(), location, "查看", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AddCollectionActivity.start(getContext(), point);
+            }
+        });
+        dialog.show();
     }
 
     long startScrollStamp;
@@ -402,7 +417,6 @@ public class FragmentHome2 extends FragmentBase {
         @Override
         public void handleMessage(Message msg) {
             if (msg.what == GET_BOUNDS) {
-                LsLog.w(TAG, "handlerScroll 。。。");
                 if (FragmentHome2.this.isVisible()) {
                     getMapBounds();
                 }
@@ -434,7 +448,6 @@ public class FragmentHome2 extends FragmentBase {
             }
         });
     }
-
 
     private void showCollectList(List<GatherPoint> list) {
         // showCollectMarkerList = list;
@@ -524,8 +537,7 @@ public class FragmentHome2 extends FragmentBase {
         imageryRasterLayers = new ArrayList<>(); // tiff 图层
         geoFeatureLayers = new ArrayList<>();  //
         initMylocaltion();
-    }
-
+}
 
     private void removeOffLineLay() {
         hasOfflineLay = false;
