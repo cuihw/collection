@@ -59,7 +59,7 @@ import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
-
+@Deprecated
 public class OfflineMapActivity extends BaseActivity implements Thread.UncaughtExceptionHandler {
 
     private static final String TAG = "OfflineMapActivity";

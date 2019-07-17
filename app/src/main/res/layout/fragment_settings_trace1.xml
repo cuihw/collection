@@ -37,9 +37,9 @@
             android:textSize="@dimen/font2" />
     </LinearLayout>
     <!-- open map -->
-    <com.esri.arcgisruntime.mapping.view.MapView
+    <FrameLayout
+        android:id="@+id/map_framelayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent" />
 
-    </com.esri.arcgisruntime.mapping.view.MapView>
 </LinearLayout>
