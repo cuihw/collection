@@ -66,7 +66,7 @@ public class AddCollectionActivity extends BaseActivity {
     private static final int REQUEST_CODE_PIC_PHOTO = 2;
     private static final int REQUEST_CODE_TAKE_PHOTO = 3;
 
-    private static CollectType collectType;
+    private CollectType collectType;
 
     String takeCameraFilename; // 照相机照片保存路径
 
@@ -294,7 +294,7 @@ public class AddCollectionActivity extends BaseActivity {
             longitude = df.format(geoPoint.getX());
             laititude = df.format(geoPoint.getY());
             location.setLongitude(geoPoint.getX());
-            location.setLatitude(geoPoint.getX());
+            location.setLatitude(geoPoint.getY());
         } else {
             if (location == null) {
                 ToastUtil.showTextToast(this, "Gps定位失败，请打开定位后再采集");
@@ -581,4 +581,11 @@ public class AddCollectionActivity extends BaseActivity {
         return true;
     }
 
+    @Override
+    protected void onDestroy() {
+        geoPoint = null;
+        collectType = null;
+        gatherPoint = null;
+        super.onDestroy();
+    }
 }

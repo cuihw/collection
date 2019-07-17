@@ -107,7 +107,7 @@ import static android.content.Context.SENSOR_SERVICE;
  */
 public class FragmentHome2 extends FragmentBase {
 
-    private static final String TAG = "FragmentHome";
+    private static final String TAG = "FragmentHome2";
     private static final int GET_BOUNDS = 1;
 
     int mapType = 1;
@@ -329,6 +329,11 @@ public class FragmentHome2 extends FragmentBase {
         mMapView.addMapScaleChangedListener(new MapScaleChangedListener() {
             @Override
             public void mapScaleChanged(MapScaleChangedEvent mapScaleChangedEvent) {
+                // Gets the current scale of the map, expressing the relationship between a distance in the MapView
+                // and the corresponding distance on the ground.
+                // For example, a map scale of 100,000 indicates that one centimeter on the map equates to one kilometer on the ground.
+                double mapScale = mMapView.getMapScale();
+                LsLog.w(TAG, "mapScale = " + mapScale);
 
             }
         });

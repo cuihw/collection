@@ -14,12 +14,12 @@
         >
     </com.data.collection.view.TitleView>
     <!-- open map -->
-    <com.esri.arcgisruntime.mapping.view.MapView
+    <com.baidu.mapapi.map.TextureMapView
         android:id="@+id/mapview"
         android:layout_below="@+id/title_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    </com.esri.arcgisruntime.mapping.view.MapView>
+        android:layout_height="match_parent"
+        android:clickable="true" />
 
     <TextView
         android:id="@+id/map_my_position"
