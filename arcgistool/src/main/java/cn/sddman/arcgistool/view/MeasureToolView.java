@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -24,6 +25,7 @@ import cn.sddman.arcgistool.util.ArcGisMeasure;
 import cn.sddman.arcgistool.util.Util;
 
 public class MeasureToolView extends LinearLayout {
+    private static final String TAG = "MeasureToolView";
     private Context context;
     private ArcGisMeasure arcgisMeasure;
     private MapView mMapView;
@@ -72,9 +74,9 @@ public class MeasureToolView extends LinearLayout {
     }
     public void init(MapView mMapView){
         this.mMapView=mMapView;
-        arcgisMeasure=new ArcGisMeasure(context,mMapView);
+        arcgisMeasure = new ArcGisMeasure(context,mMapView);
 
-         DefaultMapViewOnTouchListener listener=new DefaultMapViewOnTouchListener(context,mMapView){
+         DefaultMapViewOnTouchListener listener=new DefaultMapViewOnTouchListener(context, mMapView){
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
                 if(drawType==Variable.DrawType.LINE) {
@@ -195,50 +197,52 @@ public class MeasureToolView extends LinearLayout {
         setMeasureEndImage(measureEndImage);
     }
 
-    private OnClickListener listener=new OnClickListener() {
+    private OnClickListener listener = new OnClickListener() {
         @Override
         public void onClick(View view) {
             int i = view.getId();
-            if (i == R.id.measure_prev_layout){
-                boolean hasPrev=arcgisMeasure.prevDraw();
-                if(measureClickListener!=null){
+            if (i == R.id.measure_prev_layout) {
+                boolean hasPrev = arcgisMeasure.prevDraw();
+                if (measureClickListener != null) {
                     measureClickListener.prevClick(hasPrev);
+                } else {
+                    Log.w(TAG, "");
                 }
-            }else if (i == R.id.measure_next_layout){
-                boolean hasNext=arcgisMeasure.nextDraw();
-                if(measureClickListener!=null){
+            } else if (i == R.id.measure_next_layout) {
+                boolean hasNext = arcgisMeasure.nextDraw();
+                if (measureClickListener != null) {
                     measureClickListener.nextClick(hasNext);
                 }
-            }else if (i == R.id.measure_length_layout){
-                drawType=Variable.DrawType.LINE;
+            } else if (i == R.id.measure_length_layout) { // 测量长度
+                drawType = Variable.DrawType.LINE;
                 arcgisMeasure.endMeasure();
                 measureLengthLayout.setBackgroundColor(getResources().getColor(R.color.black_1a));
                 measureAreaLayout.setBackgroundColor(getResources().getColor(R.color.transparent));
-                if(measureClickListener!=null){
+                if (measureClickListener != null) { // 测量监听
                     measureClickListener.lengthClick();
                 }
-            }else if (i == R.id.measure_area_layout){
-                drawType=Variable.DrawType.POLYGON;
+            } else if (i == R.id.measure_area_layout) { // 测量面积
+                drawType = Variable.DrawType.POLYGON;
                 arcgisMeasure.endMeasure();
                 measureLengthLayout.setBackgroundColor(getResources().getColor(R.color.transparent));
                 measureAreaLayout.setBackgroundColor(getResources().getColor(R.color.black_1a));
-                if(measureClickListener!=null){
+                if (measureClickListener != null) { // 测量监听
                     measureClickListener.areaClick();
                 }
-            }else if (i == R.id.measure_clear_layout){
-                drawType=null;
-                DrawEntity draw=arcgisMeasure.clearMeasure();
+            } else if (i == R.id.measure_clear_layout) {
+                drawType = null;
+                DrawEntity draw = arcgisMeasure.clearMeasure();
                 measureLengthLayout.setBackgroundColor(getResources().getColor(R.color.transparent));
                 measureAreaLayout.setBackgroundColor(getResources().getColor(R.color.transparent));
-                if(measureClickListener!=null){
+                if (measureClickListener != null) {
                     measureClickListener.clearClick(draw);
                 }
-            }else if (i == R.id.measure_end_layout){
-                drawType=null;
-                DrawEntity draw=arcgisMeasure.endMeasure();
+            } else if (i == R.id.measure_end_layout) {
+                drawType = null;
+                DrawEntity draw = arcgisMeasure.endMeasure();
                 measureLengthLayout.setBackgroundColor(getResources().getColor(R.color.transparent));
                 measureAreaLayout.setBackgroundColor(getResources().getColor(R.color.transparent));
-                if(measureClickListener!=null){
+                if (measureClickListener != null) {
                     measureClickListener.endClick(draw);
                 }
             }

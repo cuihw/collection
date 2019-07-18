@@ -27,13 +27,27 @@
         android:layout_height="@dimen/home_button"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginLeft="@dimen/item_padding"
         android:layout_marginRight="@dimen/item_padding"
         android:layout_marginBottom="@dimen/item_padding"
         android:background="@drawable/button_selector"
         android:clickable="true"
         android:gravity="center"
         android:text="我的\n位置"
+        android:textColor="@color/font6"
+        android:textSize="@dimen/font3" />
+
+    <TextView
+        android:visibility="gone"
+        android:id="@+id/measure"
+        android:layout_width="@dimen/home_button"
+        android:layout_height="@dimen/home_button"
+        android:layout_alignParentRight="true"
+        android:layout_margin="@dimen/item_padding"
+        android:background="@drawable/button_selector"
+        android:layout_below="@+id/title_view"
+        android:clickable="true"
+        android:gravity="center"
+        android:text="采集\n测量"
         android:textColor="@color/font6"
         android:textSize="@dimen/font3" />
 </RelativeLayout>

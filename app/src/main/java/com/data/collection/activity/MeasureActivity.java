@@ -7,6 +7,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
+import com.data.collection.Constants;
 import com.data.collection.R;
 import com.data.collection.data.MapDataUtils;
 import com.data.collection.util.LocationController;
@@ -25,6 +26,7 @@ public class MeasureActivity extends AppCompatActivity {
     private static final String TAG = "MeasureActivity";
     private MapView mMapView;
     private String url="http://cache1.arcgisonline.cn/arcgis/rest/services/ChinaOnlineCommunity/MapServer";
+    private ArcGISMap mArcGISMap;
 
     public static void start(Context context) {
         Intent intent = new Intent(context, MeasureActivity.class);
@@ -36,18 +38,10 @@ public class MeasureActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_measure);
         mMapView = findViewById(R.id.mapViewLayout);
-        ArcGISTiledLayer tiledLayerBaseMap = new ArcGISTiledLayer(url);
-        Basemap basemap = new Basemap(tiledLayerBaseMap);
-        ArcGISMap map = new ArcGISMap(basemap);
+        mArcGISMap = new ArcGISMap(Basemap.Type.OPEN_STREET_MAP, Constants.latitude,
+                Constants.longitude, Constants.levelOfDetail);
 
-        Location location = LocationController.getInstance().getLocation();
-
-        Viewpoint vp = new Viewpoint(location.getLatitude()+ MapDataUtils.GOOGLE_ADJUST.adjustLat,
-                location.getLongitude()+ MapDataUtils.GOOGLE_ADJUST.adjustlng, 20000);
-        // new Viewpoint();
-        map.setInitialViewpoint(vp);
-        mMapView.setMap(map);
-        Rect clipBounds = mMapView.getClipBounds();
+        mMapView.setMap(mArcGISMap);
 
         MeasureToolView measureToolView=(MeasureToolView)findViewById(R.id.measure_tool);
         measureToolView.init(mMapView);
@@ -83,8 +77,8 @@ public class MeasureActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        super.onPause();
         mMapView.pause();
+        super.onPause();
     }
 
     @Override
@@ -95,7 +89,7 @@ public class MeasureActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         mMapView.dispose();
+        super.onDestroy();
     }
 }

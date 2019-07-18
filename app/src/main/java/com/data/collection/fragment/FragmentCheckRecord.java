@@ -9,7 +9,6 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -20,7 +19,6 @@ import android.widget.TextView;
 import com.data.collection.Constants;
 import com.data.collection.R;
 import com.data.collection.activity.AddCheckReportActivitiy;
-import com.data.collection.activity.AddCollectionActivity;
 import com.data.collection.activity.CheckReportListActivitiy;
 import com.data.collection.data.MapDataUtils;
 import com.data.collection.data.greendao.GatherPoint;
@@ -35,10 +33,11 @@ import com.esri.arcgisruntime.concurrent.ListenableFuture;
 import com.esri.arcgisruntime.geometry.Envelope;
 import com.esri.arcgisruntime.geometry.GeometryEngine;
 import com.esri.arcgisruntime.geometry.Point;
+import com.esri.arcgisruntime.geometry.PointCollection;
 import com.esri.arcgisruntime.geometry.Polygon;
+import com.esri.arcgisruntime.geometry.Polyline;
 import com.esri.arcgisruntime.geometry.SpatialReferences;
 import com.esri.arcgisruntime.loadable.LoadStatus;
-import com.esri.arcgisruntime.location.AndroidLocationDataSource;
 import com.esri.arcgisruntime.location.LocationDataSource;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
 import com.esri.arcgisruntime.mapping.Basemap;
@@ -71,6 +70,8 @@ import butterknife.BindView;
 public class FragmentCheckRecord extends FragmentBase {
     private static final String TAG = "FragmentCheckRecord";
     private static final int GET_BOUNDS = 1;
+    private static final int LINE_TYPE = 1;
+    private static final int AREA_TYPE = 2;
 
     @BindView(R.id.mapview)
     MapView mMapView;
@@ -99,7 +100,7 @@ public class FragmentCheckRecord extends FragmentBase {
     }
 
     private void initListener() {
-        titleView.getRighticon().setOnClickListener(v-> CheckReportListActivitiy.start(getContext()));
+        titleView.getRighticon().setOnClickListener(v -> CheckReportListActivitiy.start(getContext()));
         myPosition.setOnClickListener(v -> goToMyLocation());
 
         mMapView.setOnTouchListener(new DefaultMapViewOnTouchListener(getContext(), mMapView) {
@@ -122,7 +123,7 @@ public class FragmentCheckRecord extends FragmentBase {
                     List<Graphic> graphic = identifyGraphicsOverlayResult.getGraphics();
                     if (!graphic.isEmpty()) {
                         Graphic graphic1 = graphic.get(0);
-                        String gatherPoint = (String)graphic1.getAttributes().get("GatherPoint");
+                        String gatherPoint = (String) graphic1.getAttributes().get("GatherPoint");
                         GatherPoint point = new Gson().fromJson(gatherPoint, GatherPoint.class);
                         showInfoWindow(point);
                         return true;
@@ -153,6 +154,7 @@ public class FragmentCheckRecord extends FragmentBase {
             }
         }
     };
+
     private void beginScroll() {
 
         handlerScroll.removeMessages(GET_BOUNDS);
@@ -161,7 +163,7 @@ public class FragmentCheckRecord extends FragmentBase {
 
     private void showInfoWindow(GatherPoint point) {
         CollectType typeIconUrl = MapDataUtils.getTypeIconUrl(point);
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(),R.mipmap.five_sided);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.five_sided);
         if (typeIconUrl != null) {
             bitmap = ImageLoader.getInstance().loadImageSync(typeIconUrl.getIcon());
         }
@@ -169,15 +171,18 @@ public class FragmentCheckRecord extends FragmentBase {
         String location = point.getLongitude() + ", " + point.getLatitude();
         PopupInfoWindow dialog = PopupInfoWindow.create(getContext(), point.getName(), bitmap,
                 typeIconUrl.getName(), location, "检查", new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AddCheckReportActivitiy.start(getContext(),point);
-            }
-        });
+                    @Override
+                    public void onClick(View v) {
+                        AddCheckReportActivitiy.start(getContext(), point);
+                    }
+                });
         dialog.show();
     }
 
     private void getInBoundsData() {
+        //java.lang.NullPointerException: Attempt to invoke virtual method 'com.esri.arcgisruntime.geometry.Polygon
+        // com.esri.arcgisruntime.mapping.view.MapView.getVisibleArea()'
+        if (mMapView == null) return;
         Polygon visibleArea = mMapView.getVisibleArea();
 
         Envelope extent = visibleArea.getExtent();
@@ -189,7 +194,7 @@ public class FragmentCheckRecord extends FragmentBase {
         double yMax = extent.getYMax();
         LsLog.w(TAG, "getMapBounds extent = " + extent.toString());
 
-        MapDataUtils.asyncPointsByBounds(yMax, yMin, xMax, xMin, false, new IGatherDataListener() {
+        MapDataUtils.asyncPointsByBounds(yMax, yMin, xMax, xMin, true, new IGatherDataListener() {
             @Override
             public void onListData(List<GatherPoint> list) {
                 showCollectList(list);
@@ -209,11 +214,13 @@ public class FragmentCheckRecord extends FragmentBase {
         if (newPoints.size() == 0) return;
 
         for (GatherPoint point : newPoints) {
-            MyPicMarkerSymbol markerSymbol = creatMyPicMarker(point);
+            creatMyPicMarker(point);
         }
         showCollectMarkerList.addAll(newPoints);
     }
+
     Map<String, MyPicMarkerSymbol> myPicMarkerSymbolMap = new HashMap<>();
+
     private MyPicMarkerSymbol creatMyPicMarker(GatherPoint point) {
 
         MyPicMarkerSymbol symbol = new MyPicMarkerSymbol(point);
@@ -288,8 +295,23 @@ public class FragmentCheckRecord extends FragmentBase {
 
     private void goToMyLocation() {
         LocationDataSource.Location location = locationDisplay.getLocation();
-        if (location!= null && location.getPosition()!= null)
+        if (location != null && location.getPosition() != null && mMapView != null)
             mMapView.setViewpointCenterAsync(location.getPosition());
+    }
+
+    private void measure(int measureType, List<Point> list) {
+        PointCollection points = new PointCollection(list);
+
+        switch (measureType) {
+            case LINE_TYPE:
+                Polyline line = new Polyline(points);
+                GeometryEngine.length(line);
+                break;
+            case AREA_TYPE:
+                Polygon polygon = new Polygon(points);
+                double area = GeometryEngine.area(polygon);
+                break;
+        }
     }
 
     @Override
@@ -319,9 +341,6 @@ public class FragmentCheckRecord extends FragmentBase {
         handlerScroll = null;
         super.onDestroy();
     }
-
-
-
 
 
 }

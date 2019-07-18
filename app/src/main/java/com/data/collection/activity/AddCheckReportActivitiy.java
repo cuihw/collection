@@ -74,6 +74,9 @@ public class AddCheckReportActivitiy extends BaseActivity {
     private void getData() {
         String onLineId = gatherPoint.getId();
         DaoSession daoSession = App.getInstence().getDaoSession();
+        if (TextUtils.isEmpty(onLineId)) {
+            return;
+        }
 
         QueryBuilder<CheckPoint> qb = daoSession.queryBuilder(CheckPoint.class)
                 .where(CheckPointDao.Properties.CollectOnlineId.eq(onLineId))

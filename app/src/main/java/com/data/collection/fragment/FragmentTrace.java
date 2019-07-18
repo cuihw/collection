@@ -230,8 +230,6 @@ public class FragmentTrace extends FragmentBase {
         UserTrace.getInstance().getHistoryTrace(time, traceListener);
     }
 
-
-
     private void initListener() {
         titleView.getLefticon().setOnClickListener(v->{
             getActivity().finish();

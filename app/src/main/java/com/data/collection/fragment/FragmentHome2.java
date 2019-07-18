@@ -25,12 +25,14 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.data.collection.Constants;
 import com.data.collection.R;
 import com.data.collection.activity.AddCollectionActivity;
 import com.data.collection.activity.CollectionListActivity;
+import com.data.collection.activity.MeasureCollectionListActivity;
 import com.data.collection.data.CacheData;
 import com.data.collection.data.MapDataUtils;
 import com.data.collection.data.UserTrace;
@@ -46,6 +48,7 @@ import com.data.collection.util.LsLog;
 import com.data.collection.util.ToastUtil;
 import com.data.collection.view.MyPicMarkerSymbol;
 import com.data.collection.view.TitleView;
+import com.esri.arcgisruntime.ArcGISRuntimeEnvironment;
 import com.esri.arcgisruntime.ArcGISRuntimeException;
 import com.esri.arcgisruntime.concurrent.ListenableFuture;
 import com.esri.arcgisruntime.data.FeatureTable;
@@ -55,7 +58,9 @@ import com.esri.arcgisruntime.data.ShapefileFeatureTable;
 import com.esri.arcgisruntime.geometry.Envelope;
 import com.esri.arcgisruntime.geometry.GeometryEngine;
 import com.esri.arcgisruntime.geometry.Point;
+import com.esri.arcgisruntime.geometry.PointCollection;
 import com.esri.arcgisruntime.geometry.Polygon;
+import com.esri.arcgisruntime.geometry.Polyline;
 import com.esri.arcgisruntime.geometry.SpatialReferences;
 import com.esri.arcgisruntime.layers.FeatureLayer;
 import com.esri.arcgisruntime.layers.RasterLayer;
@@ -91,6 +96,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import butterknife.BindView;
+import cn.sddman.arcgistool.common.Variable;
+import cn.sddman.arcgistool.util.ArcGisMeasure;
 
 import static android.content.Context.SENSOR_SERVICE;
 
@@ -106,6 +113,10 @@ public class FragmentHome2 extends FragmentBase {
     private static final String TAG = "FragmentHome2";
     private static final int GET_BOUNDS = 1;
 
+    private static final int LINE_TYPE = 1;
+    private static final int AREA_TYPE = 2;
+
+
     int mapType = 1;
 
     @BindView(R.id.title_view)
@@ -119,6 +130,14 @@ public class FragmentHome2 extends FragmentBase {
 
     @BindView(R.id.recode_trace)
     TextView recodeTrace;
+
+    @BindView(R.id.measure_layout)
+    LinearLayout measureLayout;
+
+    @BindView(R.id.measure_end_layout)
+    LinearLayout measureEndLayout;
+    @BindView(R.id.measure_clear_layout)
+    LinearLayout measureClearLayout;
 
     @BindView(R.id.map_type)
     TextView mapTypeTv;
@@ -145,6 +164,9 @@ public class FragmentHome2 extends FragmentBase {
 
     @BindView(R.id.hint_title_tv)
     TextView openationHint;
+
+    @BindView(R.id.measure_action)
+    TextView measureAction;
 
     KProgressHUD hud;
 
@@ -208,6 +230,7 @@ public class FragmentHome2 extends FragmentBase {
         // 初始化，没有开始记录
         traceProcess.setVisibility(View.INVISIBLE);
         openationHint.setVisibility(View.INVISIBLE);
+        measureLayout.setVisibility(View.INVISIBLE);
     }
 
     private void clickTraceButton() {
@@ -242,6 +265,26 @@ public class FragmentHome2 extends FragmentBase {
     }
 
     private void initListener() {
+
+        measureAction.setOnClickListener(v->{
+            // showMeasureTypeDialog()
+            if (measureLayout.getVisibility() == View.VISIBLE) {
+                // 测量完成
+                measureLayout.setVisibility(View.INVISIBLE);
+                Measurehelper.getInstance().getArcGisMeasure().clearMeasure();
+                Measurehelper.getInstance().endMeasure();
+            } else { // 进入测量模式
+                showMeasureTypeDialog();
+            }
+        });
+
+        measureEndLayout.setOnClickListener(v->{
+            Measurehelper.getInstance().getArcGisMeasure().endMeasure();
+        });
+        measureClearLayout.setOnClickListener(v->{
+            Measurehelper.getInstance().getArcGisMeasure().clearMeasure();
+        });
+
         //openation Hint
         calibrationCoordinate.setOnClickListener(v -> {
             if (openationHint.getVisibility() == View.GONE) {
@@ -264,6 +307,17 @@ public class FragmentHome2 extends FragmentBase {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent v) {
                 android.graphics.Point screenPoint = new android.graphics.Point(Math.round(v.getX()), Math.round(v.getY()));
+
+                if (measureLayout.getVisibility() == View.VISIBLE) { // 测量模式
+                    Variable.DrawType drawType = Measurehelper.getInstance().getDrawType();
+                    if (drawType == Variable.DrawType.LINE) {
+                        Measurehelper.getInstance().getArcGisMeasure().startMeasuredLength(screenPoint);
+                    } else {
+                        Measurehelper.getInstance().getArcGisMeasure().startMeasuredArea(screenPoint);
+                    }
+                    return true;
+                }
+
 
                 Point clickPoint = mMapView.screenToLocation(screenPoint); // 地理坐标点；
                 // Project the point to WGS84, using the transformation
@@ -427,6 +481,7 @@ public class FragmentHome2 extends FragmentBase {
     }
 
     private void getMapBounds() {
+        if (mMapView == null) return;
         Polygon visibleArea = mMapView.getVisibleArea();
         Envelope extent = visibleArea.getExtent();
         extent = (Envelope) GeometryEngine.project(extent, SpatialReferences.getWgs84());
@@ -540,7 +595,7 @@ public class FragmentHome2 extends FragmentBase {
     }
 
     private void initMap() {
-//        ArcGISRuntimeEnvironment.setLicense("runtimelite,1000,rud8361042706,none,KGE60RFLTFCJTK118097");
+        // ArcGISRuntimeEnvironment.setLicense("runtimelite,1000,rud8361042706,none,KGE60RFLTFCJTK118097");
         mapTypeList.add(Basemap.Type.OPEN_STREET_MAP);
         mapTypeList.add(Basemap.Type.STREETS_VECTOR);
         mapTypeList.add(Basemap.Type.IMAGERY_WITH_LABELS_VECTOR);
@@ -555,6 +610,9 @@ public class FragmentHome2 extends FragmentBase {
             mMapView.buildDrawingCache();
             mGraphicsOverlay = new GraphicsOverlay();
             mMapView.getGraphicsOverlays().add(mGraphicsOverlay);
+
+            ArcGisMeasure arcGisMeasure = new ArcGisMeasure(getContext(), mMapView);
+            Measurehelper.init(arcGisMeasure);
         }
         initMylocaltion();
     }
@@ -583,9 +641,9 @@ public class FragmentHome2 extends FragmentBase {
     }
 
     private void goToMyLocation() {
-        //4326   GCS_WGS_1984  和  102100    WGS_1984_web_mercator_auxiliary_sphere 。  EPSG:3857 -- WGS84 Web Mercator (Auxiliary Sphere)
+        // 4326   GCS_WGS_1984  和  102100    WGS_1984_web_mercator_auxiliary_sphere 。  EPSG:3857 -- WGS84 Web Mercator (Auxiliary Sphere)
         LocationDataSource.Location location = locationDisplay.getLocation();
-        if (location != null && location.getPosition() != null)
+        if (location != null && location.getPosition() != null&& mMapView!= null)
             mMapView.setViewpointCenterAsync(location.getPosition());
     }
 
@@ -674,6 +732,7 @@ public class FragmentHome2 extends FragmentBase {
                     if (shapefileFeatureTable.getLoadStatus() == LoadStatus.LOADED) {
                         // create a feature layer to display the shapefile
                         FeatureLayer shapefileFeatureLayer = new FeatureLayer(shapefileFeatureTable);
+                        shapefileFeatureLayer.setSelectionColor(R.color.yellow);
                         // add the feature layer to the map
                         geoFeatureLayers.add(shapefileFeatureLayer);  // 加载shp图
                         refreshOperstionLayer();
@@ -780,6 +839,61 @@ public class FragmentHome2 extends FragmentBase {
     private synchronized void showListPoint(List<GatherPoint> list, MapView mapView) {
     }
 
+    Variable.DrawType drawType;
+    private void showMeasureTypeDialog() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("测量方式");
+
+        String[] measureStr = new String[]{"点屏测量长度", "点屏测量面积", "采集点选取测量"};
+
+        builder.setSingleChoiceItems(measureStr, 0, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch(which) {
+                    case 0:
+                        // 点屏测量长度
+                        Measurehelper.getInstance().setDrawType(Variable.DrawType.LINE);
+                        Measurehelper.getInstance().endMeasure();
+                        break;
+                    case 1:
+                        // 点屏测量面积
+                        Measurehelper.getInstance().setDrawType(Variable.DrawType.POLYGON);
+                        Measurehelper.getInstance().endMeasure();
+                        break;
+                    case 2:
+                        // 选取采集点进行测量
+                        MeasureCollectionListActivity.start(getContext());
+                        break;
+                }
+                measureLayout.setVisibility(View.VISIBLE);
+                dialog.dismiss();
+            }
+        });
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch(which) {
+                    case 0:
+                        // 点屏测量长度
+                        Measurehelper.getInstance().setDrawType(Variable.DrawType.LINE);
+                        Measurehelper.getInstance().endMeasure();
+                        break;
+                }
+                measureLayout.setVisibility(View.VISIBLE);
+            }
+        });
+        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        builder.setCancelable(false);
+        builder.show();
+    }
+
     public void showChioceDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("选择地图:");
@@ -851,4 +965,62 @@ public class FragmentHome2 extends FragmentBase {
         openationHint.setVisibility(View.GONE);
         refresh(true);
     }
+
+    //
+
+    //
+    private void measure(int measureType, List<Point> list) {
+        PointCollection points = new PointCollection(list);
+
+        switch (measureType) {
+            case LINE_TYPE:
+                Polyline line = new Polyline(points);
+                GeometryEngine.length(line);
+                break;
+            case AREA_TYPE:
+                Polygon polygon = new Polygon(points);
+                double area = GeometryEngine.area(polygon);
+                break;
+        }
+    }
+
+    public static class Measurehelper {
+        static Measurehelper instance;
+
+        public static void init(ArcGisMeasure arcGisMeasure){
+            instance = new Measurehelper(arcGisMeasure);
+        };
+
+        public static Measurehelper getInstance() {
+            return instance;
+        }
+
+        private Measurehelper(ArcGisMeasure arcGisMeasure){
+            this.arcGisMeasure = arcGisMeasure;
+        }
+
+        private Variable.DrawType drawType = Variable.DrawType.LINE;
+        private ArcGisMeasure arcGisMeasure;
+
+        public Variable.DrawType getDrawType() {
+            return drawType;
+        }
+
+        public void setDrawType(Variable.DrawType drawType) {
+            this.drawType = drawType;
+        }
+
+        public ArcGisMeasure getArcGisMeasure() {
+            return arcGisMeasure;
+        }
+
+        public void setArcGisMeasure(ArcGisMeasure arcGisMeasure) {
+            this.arcGisMeasure = arcGisMeasure;
+        }
+
+        public void endMeasure() {
+            arcGisMeasure.endMeasure();
+        }
+    }
+
 }

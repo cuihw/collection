@@ -35,7 +35,7 @@ public class ArcGisMeasure extends Draw {
         tmpLengthList=new ArrayList<>();
     }
 
-    public void startMeasuredLength(float screenX,float screenY){
+    public void startMeasuredLength(float screenX,  float screenY){
         if(drawType==null) {
             super.startLine();
             drawType=Variable.DrawType.LINE;
@@ -100,6 +100,7 @@ public class ArcGisMeasure extends Draw {
         lengthList.clear();
         return super.clear();
     }
+
     public void setSpatialReference(SpatialReference spatialReference) {
         super.setSpatialReference(spatialReference);
     }

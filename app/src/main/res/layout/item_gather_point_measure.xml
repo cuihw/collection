@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/item_padding"
+    android:paddingTop="@dimen/item_padding"
+    android:paddingBottom="@dimen/item_padding"
+    >
+
+    <CheckBox
+        android:id="@+id/check_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/item_padding"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        />
+
+    <RelativeLayout
+        android:id="@+id/data_layout"
+        android:layout_toRightOf="@+id/sort_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/icon_type"
+            android:layout_width="@dimen/type_icon"
+            android:layout_height="@dimen/type_icon"
+            android:src="@mipmap/icon_tree"
+            android:layout_margin="@dimen/item_padding"
+            />
+
+        <TextView
+            android:id="@+id/location"
+            android:layout_below="@+id/icon_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="经度：114.4564511,经度：114.4564511"
+            android:layout_marginLeft="@dimen/item_padding"
+            android:layout_marginBottom="@dimen/item_padding"
+            android:layout_marginTop="-5dp"
+            android:textSize="@dimen/font5"
+            />
+
+        <LinearLayout
+            android:id="@+id/name_layout"
+            android:layout_toRightOf="@+id/icon_type"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:layout_toLeftOf="@+id/icon_navi"
+            >
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:text="采集名称采集名称采集名称"
+                android:paddingTop="@dimen/item_padding"
+                android:paddingBottom="@dimen/item_padding"
+                android:textSize="@dimen/font2"
+                android:textColor="@color/font1"
+                android:singleLine="true"
+                android:layout_toRightOf="@+id/icon_type"
+                />
+            <TextView
+                android:id="@+id/time"
+                android:layout_below="@+id/location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2019-06-03 12:32:65"
+                android:singleLine="true"
+                android:layout_marginLeft="@dimen/item_padding_small"
+                android:textSize="@dimen/font6"
+                />
+
+
+
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/icon_navi"
+            android:layout_width="@dimen/home_button"
+            android:layout_height="@dimen/home_button"
+            android:layout_alignParentRight="true"
+            android:src="@mipmap/icon_point_navi"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="@dimen/item_padding"
+            android:padding="5dp"
+            android:visibility="gone"
+            />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/sort_layout"
+        android:layout_centerVertical="true"
+        android:layout_width="wrap_content"
+        android:orientation="vertical"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/up_index"
+            android:layout_width="@dimen/title_image"
+            android:layout_height="@dimen/title_image"
+            android:src="@mipmap/icon_arrow_up"
+            android:layout_marginBottom="2dp"
+            android:background="@drawable/round_background3"
+            android:padding="2dp"
+            />
+
+        <ImageView
+            android:id="@+id/down_index"
+            android:layout_width="@dimen/title_image"
+            android:layout_height="@dimen/title_image"
+            android:src="@mipmap/icon_arrow_down"
+            android:layout_marginTop="2dp"
+            android:background="@drawable/round_background3"
+            android:padding="2dp"
+            />
+    </LinearLayout>
+</RelativeLayout>

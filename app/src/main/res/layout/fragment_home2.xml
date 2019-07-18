@@ -122,6 +122,7 @@
         android:id="@+id/add_point"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/item_padding"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:background="@null"
@@ -142,4 +143,80 @@
         android:text="我的\n位置"
         android:textColor="@color/font6"
         android:textSize="@dimen/font3" />
+
+    <TextView
+        android:id="@+id/measure_action"
+        android:layout_below="@+id/title_view"
+        android:layout_width="@dimen/home_button"
+        android:layout_height="@dimen/home_button"
+        android:layout_alignParentRight="true"
+        android:layout_margin="@dimen/item_padding"
+        android:background="@drawable/button_selector"
+        android:clickable="true"
+        android:gravity="center"
+        android:text="测量\n工具"
+        android:textColor="@color/font6"
+        android:textSize="@dimen/font3" />
+
+    <LinearLayout
+        android:id="@+id/measure_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/measure_action"
+        android:layout_marginTop="-10dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginEnd="@dimen/item_padding"
+        android:background="@drawable/sddman_shadow_bg"
+        android:gravity="center"
+        android:orientation="vertical">
+        <!--measure_end_layout  measure_clear_layout-->
+        <LinearLayout
+            android:id="@+id/measure_clear_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="@dimen/home_button"
+                android:layout_height="@dimen/home_button"
+                android:layout_alignParentRight="true"
+                android:padding="@dimen/zoom_btn_padding"
+                android:src="@drawable/sddman_measure_clear" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="@dimen/item_padding_small"
+                android:text="清除" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/spilt_line0"
+            android:layout_width="25dp"
+            android:layout_height="1dp"
+            android:background="#c5c5c5" />
+
+        <LinearLayout
+
+            android:id="@+id/measure_end_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="@dimen/home_button"
+                android:layout_height="@dimen/home_button"
+                android:layout_alignParentRight="true"
+                android:padding="@dimen/zoom_btn_padding"
+                android:src="@drawable/sddman_measure_end" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="@dimen/item_padding_small"
+                android:text="完成" />
+        </LinearLayout>
+    </LinearLayout>
 </RelativeLayout>

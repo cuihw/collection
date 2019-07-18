@@ -99,6 +99,10 @@
             android:screenOrientation="portrait"></activity>
 
         <activity
+            android:name=".activity.MeasureCollectionListActivity"
+            android:screenOrientation="portrait"></activity>
+
+        <activity
             android:name=".activity.NaviListActivity"
             android:screenOrientation="portrait"></activity>
 

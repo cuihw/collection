@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:title="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background5"
+    >
+    <LinearLayout
+        android:layout_above="@+id/action_ok"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.data.collection.view.TitleView
+            android:id="@+id/title_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            title:TitleText="采集点测量"
+            title:IconLeft="@mipmap/top_back"
+            />
+        <RadioGroup
+            android:id="@+id/radio_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/header_layout"
+            android:background="@color/background1"
+            android:orientation="horizontal"
+            android:padding="@dimen/item_padding">
+            <RadioButton
+                android:id="@+id/length_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/item_padding"
+                android:layout_marginRight="@dimen/item_padding"
+                android:layout_weight="1"
+                android:background="@drawable/checkbox_selector"
+                android:button="@null"
+                android:gravity="center"
+                android:textSize="@dimen/font3"
+                android:text="长度测量"
+                android:textColor="@drawable/button1_text_selector" />
+            <RadioButton
+                android:id="@+id/area_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/item_padding"
+                android:layout_weight="1"
+                android:background="@drawable/checkbox_selector"
+                android:button="@null"
+                android:textSize="@dimen/font3"
+                android:gravity="center"
+                android:text="面积测量"
+                android:textColor="@drawable/button1_text_selector" />
+
+        </RadioGroup>
+        <ListView
+            android:layout_margin="@dimen/item_padding_small"
+            android:id="@+id/listview"
+            android:divider="@color/font1"
+            android:dividerHeight="1px"
+            android:layout_width="match_parent"
+            android:padding="@dimen/item_padding"
+            android:background="@drawable/round_background"
+            android:layout_height="wrap_content">
+        </ListView>
+        <TextView
+            android:id="@+id/no_data_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="没有数据，赶快去采集"
+            android:gravity="center"
+            android:layout_gravity="center"
+            />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/action_ok"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button1_selector"
+        android:layout_marginTop="@dimen/item_padding"
+        android:layout_marginBottom="@dimen/item_padding"
+        android:layout_marginLeft="@dimen/item_padding_small"
+        android:layout_marginRight="@dimen/item_padding_small"
+        android:padding="@dimen/item_padding_large"
+        android:gravity="center"
+        android:text="确定"
+        android:textSize="@dimen/font2"
+        android:textColor="@color/font1"
+        android:layout_alignParentBottom="true"
+        />
+
+</RelativeLayout>
