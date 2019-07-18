@@ -11,8 +11,9 @@
         android:id="@+id/check_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="@dimen/item_padding"
         android:layout_alignParentRight="true"
+        android:paddingTop="@dimen/item_padding"
+        android:paddingBottom="@dimen/item_padding"
         android:layout_centerVertical="true"
         />
 
@@ -44,37 +45,36 @@
 
         <LinearLayout
             android:id="@+id/name_layout"
-            android:layout_toRightOf="@+id/icon_type"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="-362dp"
             android:layout_toLeftOf="@+id/icon_navi"
-            >
+            android:layout_toRightOf="@+id/icon_type"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
             <TextView
                 android:id="@+id/name"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:text="采集名称采集名称采集名称"
+                android:layout_toRightOf="@+id/icon_type"
                 android:paddingTop="@dimen/item_padding"
                 android:paddingBottom="@dimen/item_padding"
-                android:textSize="@dimen/font2"
-                android:textColor="@color/font1"
                 android:singleLine="true"
-                android:layout_toRightOf="@+id/icon_type"
-                />
+                android:text="采集名称采集名称采集名称"
+                android:textColor="@color/font1"
+                android:textSize="@dimen/font2" />
+
             <TextView
                 android:id="@+id/time"
-                android:layout_below="@+id/location"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="2019-06-03 12:32:65"
-                android:singleLine="true"
+                android:layout_below="@+id/location"
                 android:layout_marginLeft="@dimen/item_padding_small"
-                android:textSize="@dimen/font6"
-                />
-
-
+                android:singleLine="true"
+                android:text="2019-06-03 12:32:65"
+                android:textSize="@dimen/font6" />
 
 
         </LinearLayout>
