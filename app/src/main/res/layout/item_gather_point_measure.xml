@@ -20,6 +20,7 @@
     <RelativeLayout
         android:id="@+id/data_layout"
         android:layout_toRightOf="@+id/sort_layout"
+        android:layout_toLeftOf="@+id/check_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -45,7 +46,7 @@
 
         <LinearLayout
             android:id="@+id/name_layout"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="-362dp"
@@ -75,7 +76,6 @@
                 android:singleLine="true"
                 android:text="2019-06-03 12:32:65"
                 android:textSize="@dimen/font6" />
-
 
         </LinearLayout>
 
