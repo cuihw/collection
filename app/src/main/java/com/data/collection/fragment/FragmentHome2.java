@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -56,12 +57,12 @@ import com.esri.arcgisruntime.data.FeatureTable;
 import com.esri.arcgisruntime.data.GeoPackage;
 import com.esri.arcgisruntime.data.GeoPackageFeatureTable;
 import com.esri.arcgisruntime.data.ShapefileFeatureTable;
+import com.esri.arcgisruntime.data.ShapefileInfo;
 import com.esri.arcgisruntime.geometry.Envelope;
 import com.esri.arcgisruntime.geometry.GeometryEngine;
+import com.esri.arcgisruntime.geometry.GeometryType;
 import com.esri.arcgisruntime.geometry.Point;
-import com.esri.arcgisruntime.geometry.PointCollection;
 import com.esri.arcgisruntime.geometry.Polygon;
-import com.esri.arcgisruntime.geometry.Polyline;
 import com.esri.arcgisruntime.geometry.SpatialReferences;
 import com.esri.arcgisruntime.layers.FeatureLayer;
 import com.esri.arcgisruntime.layers.RasterLayer;
@@ -84,13 +85,16 @@ import com.esri.arcgisruntime.mapping.view.WrapAroundMode;
 import com.esri.arcgisruntime.raster.GeoPackageRaster;
 import com.esri.arcgisruntime.raster.Raster;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
+import com.esri.arcgisruntime.symbology.SimpleFillSymbol;
+import com.esri.arcgisruntime.symbology.SimpleLineSymbol;
+import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
+import com.esri.arcgisruntime.symbology.SimpleRenderer;
 import com.google.gson.Gson;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.leon.lfilepickerlibrary.LFilePicker;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.io.File;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -160,7 +164,6 @@ public class FragmentHome2 extends FragmentBase {
     @BindView(R.id.calibration_coordinate)
     TextView calibrationCoordinate;
 
-    private View infoView;
     private boolean hasOfflineLay = false;
 
     @BindView(R.id.hint_title_tv)
@@ -176,7 +179,7 @@ public class FragmentHome2 extends FragmentBase {
     List<GeoPackageRaster> geoPackageRasters;
     List<RasterLayer> geoPackageRasterLayers = new ArrayList<>();  // 离线底图包gpkg
     List<RasterLayer> imageryRasterLayers = new ArrayList<>(); // tiff 图层
-    List<FeatureLayer> geoFeatureLayers = new ArrayList<>();  //
+    List<FeatureLayer> geoFeatureLayers = new ArrayList<>();  // shp图
 
     ArcGISMap mArcGISMap;
 
@@ -215,17 +218,13 @@ public class FragmentHome2 extends FragmentBase {
         initView();
         initListener();
 
-        infoView = creatInfoView();
-
         hud = KProgressHUD.create(getContext())
                 .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
                 .setCancellable(true);
         return view;
     }
 
-    private View creatInfoView() {
-        return LayoutInflater.from(getActivity()).inflate(R.layout.info_window, null);
-    }
+
 
     private void initView() {
         // 初始化，没有开始记录
@@ -612,8 +611,8 @@ public class FragmentHome2 extends FragmentBase {
             mGraphicsOverlay = new GraphicsOverlay();
             mMapView.getGraphicsOverlays().add(mGraphicsOverlay);
 
-            ArcGisMeasure arcGisMeasure = new ArcGisMeasure(getContext(), mMapView);
-            Measurehelper.init(arcGisMeasure);
+//            ArcGisMeasure arcGisMeasure = new ArcGisMeasure(getContext(), mMapView);
+//            Measurehelper.init(arcGisMeasure);
         }
         initMylocaltion();
     }
@@ -727,19 +726,38 @@ public class FragmentHome2 extends FragmentBase {
             }
         }
     }
-
+    ShapefileFeatureTable shapefileFeatureTable;
     private void loadShp(String filename) {
         File file = new File(filename);
         if (file.exists() && file.isFile()) {
-            ShapefileFeatureTable shapefileFeatureTable = new ShapefileFeatureTable(filename);
+            shapefileFeatureTable = new ShapefileFeatureTable(filename);
             shapefileFeatureTable.loadAsync();
             shapefileFeatureTable.addDoneLoadingListener(new Runnable() {
                 @Override
                 public void run() {
                     if (shapefileFeatureTable.getLoadStatus() == LoadStatus.LOADED) {
                         // create a feature layer to display the shapefile
+                        ShapefileInfo info = shapefileFeatureTable.getInfo();
                         FeatureLayer shapefileFeatureLayer = new FeatureLayer(shapefileFeatureTable);
-                        shapefileFeatureLayer.setSelectionColor(R.color.yellow);
+                        GeometryType geometryType = shapefileFeatureTable.getGeometryType();
+
+                        if (geometryType == GeometryType.POINT) {
+                            SimpleMarkerSymbol pointSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.BLUE, 5);
+                            SimpleRenderer pointRenderer = new SimpleRenderer(pointSymbol);
+                            shapefileFeatureLayer.setRenderer(pointRenderer);
+                        } else if (geometryType == GeometryType.POLYLINE) {
+                            SimpleLineSymbol lineSymbol = new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.RED, 2);
+                            SimpleRenderer lineRenderer = new SimpleRenderer(lineSymbol);
+                            shapefileFeatureLayer.setRenderer(lineRenderer);
+                        } else if (geometryType == GeometryType.POLYGON) {
+                            SimpleLineSymbol lineSymbol = new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.GREEN, 1);
+                            SimpleRenderer lineRenderer = new SimpleRenderer(lineSymbol);
+                            shapefileFeatureLayer.setRenderer(lineRenderer);
+
+                            SimpleFillSymbol fillSymbol = new SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, 0x66225500, lineSymbol);
+                            SimpleRenderer fillRenderer = new SimpleRenderer(fillSymbol);
+                            shapefileFeatureLayer.setRenderer(fillRenderer);
+                        }
                         // add the feature layer to the map
                         geoFeatureLayers.add(shapefileFeatureLayer);  // 加载shp图
                         refreshOperstionLayer();
@@ -769,8 +787,15 @@ public class FragmentHome2 extends FragmentBase {
             Raster imageryRaster = new Raster(filename);
             RasterLayer rasterLayer = new RasterLayer(imageryRaster);
             rasterLayer.loadAsync();
+            rasterLayer.addDoneLoadingListener(()->{
+                if (rasterLayer.getLoadStatus() == LoadStatus.LOADED) {
+                    mMapView.setViewpointAsync(new Viewpoint(rasterLayer.getFullExtent()));
+                }
+            });
+
             imageryRasterLayers.add(rasterLayer);
             refreshOperstionLayer();
+
         } else {
             ToastUtil.showTextToast(getContext(), filename + " 不是一个地图文件，请重新选择");
         }
@@ -996,6 +1021,7 @@ public class FragmentHome2 extends FragmentBase {
                 Measurehelper.getInstance().getArcGisMeasure().startMeasuredLength(point);
             }
         }
+        Measurehelper.getInstance().getArcGisMeasure().endMeasure();
     }
 
     public static class Measurehelper {

@@ -62,4 +62,6 @@ public class Constants {
     public static final double latitude = 34.7967643;
     public static final double longitude = 113.6019350;
     public static final int levelOfDetail = 14;
+
+    public static final long TIFF_FILE_MAXSIZE = 1024 * 1024 * 1024 * 3 / 2;
 }
