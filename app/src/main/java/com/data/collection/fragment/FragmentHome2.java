@@ -67,6 +67,8 @@ import com.esri.arcgisruntime.geometry.SpatialReferences;
 import com.esri.arcgisruntime.layers.FeatureLayer;
 import com.esri.arcgisruntime.layers.RasterLayer;
 import com.esri.arcgisruntime.loadable.LoadStatus;
+import com.esri.arcgisruntime.loadable.LoadStatusChangedEvent;
+import com.esri.arcgisruntime.loadable.LoadStatusChangedListener;
 import com.esri.arcgisruntime.location.AndroidLocationDataSource;
 import com.esri.arcgisruntime.location.LocationDataSource;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
@@ -152,36 +154,49 @@ public class FragmentHome2 extends FragmentBase {
 
     @BindView(R.id.load_local_map)
     TextView loadLocalMap;
-
-    private SensorManager mSensorManager;
-
     @BindView(R.id.mapview)
     MapView mMapView;
-
     @BindView(R.id.map_my_position)
     TextView myPosition;
-
     @BindView(R.id.calibration_coordinate)
     TextView calibrationCoordinate;
-
-    private boolean hasOfflineLay = false;
-
     @BindView(R.id.hint_title_tv)
     TextView openationHint;
-
     @BindView(R.id.measure_action)
     TextView measureAction;
-
     KProgressHUD hud;
-
     List<GatherPoint> showCollectMarkerList = new ArrayList<>(); // 当前显示的采集点
-
     List<GeoPackageRaster> geoPackageRasters;
     List<RasterLayer> geoPackageRasterLayers = new ArrayList<>();  // 离线底图包gpkg
     List<RasterLayer> imageryRasterLayers = new ArrayList<>(); // tiff 图层
     List<FeatureLayer> geoFeatureLayers = new ArrayList<>();  // shp图
-
     ArcGISMap mArcGISMap;
+    GraphicsOverlay mGraphicsOverlay;
+    String[] items = new String[]{"开放街区图", "矢量图", "带标签影像图",
+            "拓扑图", "灰白底图"};
+    List<Basemap.Type> mapTypeList = new ArrayList<>();
+
+    Map<String, MyPicMarkerSymbol> myPicMarkerSymbolMap = new HashMap<>();
+
+    Handler handlerScroll = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.what == GET_BOUNDS) {
+                if (FragmentHome2.this.isVisible()) {
+                    getMapBounds();
+                }
+            }
+        }
+    };
+    LocationDisplay locationDisplay;
+
+    ShapefileFeatureTable shapefileFeatureTable;
+    GeoPackage geoPackage;
+
+    AdjustPosDialog2 dialog;
+    private SensorManager mSensorManager;
+    private boolean hasOfflineLay = false;
+    private boolean isShowImageLayer = false;
 
     private void refreshOperstionLayer() {
         LayerList operationalLayers = mMapView.getMap().getOperationalLayers();
@@ -190,15 +205,6 @@ public class FragmentHome2 extends FragmentBase {
         operationalLayers.addAll(imageryRasterLayers);
         operationalLayers.addAll(geoFeatureLayers);
     }
-
-    GraphicsOverlay mGraphicsOverlay;
-
-    String[] items = new String[]{"开放街区图", "矢量图", "带标签影像图",
-            "拓扑图", "灰白底图"};
-
-    List<Basemap.Type> mapTypeList = new ArrayList<>();
-
-    private boolean isShowImageLayer = false;
 
     //private DatumTransformation mSR3857;
     //private SpatialReference mSR3857 = SpatialReference.create(3857);
@@ -223,8 +229,6 @@ public class FragmentHome2 extends FragmentBase {
                 .setCancellable(true);
         return view;
     }
-
-
 
     private void initView() {
         // 初始化，没有开始记录
@@ -464,17 +468,6 @@ public class FragmentHome2 extends FragmentBase {
         dialog.show();
     }
 
-    Handler handlerScroll = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            if (msg.what == GET_BOUNDS) {
-                if (FragmentHome2.this.isVisible()) {
-                    getMapBounds();
-                }
-            }
-        }
-    };
-
     private void beginScroll() {
         handlerScroll.removeMessages(GET_BOUNDS);
         handlerScroll.sendEmptyMessageDelayed(GET_BOUNDS, 1000);
@@ -483,6 +476,7 @@ public class FragmentHome2 extends FragmentBase {
     private void getMapBounds() {
         if (mMapView == null) return;
         Polygon visibleArea = mMapView.getVisibleArea();
+        if (visibleArea == null) return;
         Envelope extent = visibleArea.getExtent();
         extent = (Envelope) GeometryEngine.project(extent, SpatialReferences.getWgs84());
 
@@ -517,8 +511,6 @@ public class FragmentHome2 extends FragmentBase {
         }
         showCollectMarkerList.addAll(newPoints);
     }
-
-    Map<String, MyPicMarkerSymbol> myPicMarkerSymbolMap = new HashMap<>();
 
     private MyPicMarkerSymbol creatMyPicMarker(GatherPoint point) {
 
@@ -568,7 +560,6 @@ public class FragmentHome2 extends FragmentBase {
         return drawable;
     }
 
-
     private void showImageShpLayer(boolean isShow) {
 
     }
@@ -603,21 +594,28 @@ public class FragmentHome2 extends FragmentBase {
         mapTypeList.add(Basemap.Type.LIGHT_GRAY_CANVAS);
 
         if (mMapView != null) {
-            mArcGISMap = new ArcGISMap(Basemap.Type.OPEN_STREET_MAP, Constants.latitude,
+            mArcGISMap = new ArcGISMap(Basemap.Type.OPEN_STREET_MAP , Constants.latitude,
                     Constants.longitude, Constants.levelOfDetail);
+            mArcGISMap.loadAsync();
+            mArcGISMap.addLoadStatusChangedListener(new LoadStatusChangedListener() {
+                @Override
+                public void loadStatusChanged(LoadStatusChangedEvent loadStatusChangedEvent) {
+                    ArcGISRuntimeException loadError = mArcGISMap.getLoadError();
+                    LsLog.w(TAG, "ArcGISRuntimeException loadError " + loadError.getMessage());
+                }
+            });
+
             mMapView.setMap(mArcGISMap);
             mMapView.setWrapAroundMode(WrapAroundMode.ENABLE_WHEN_SUPPORTED);
             mMapView.buildDrawingCache();
             mGraphicsOverlay = new GraphicsOverlay();
             mMapView.getGraphicsOverlays().add(mGraphicsOverlay);
 
-//            ArcGisMeasure arcGisMeasure = new ArcGisMeasure(getContext(), mMapView);
-//            Measurehelper.init(arcGisMeasure);
+            ArcGisMeasure arcGisMeasure = new ArcGisMeasure(getContext(), mMapView);
+            Measurehelper.init(arcGisMeasure);
         }
         initMylocaltion();
     }
-
-    LocationDisplay locationDisplay;
 
     private void initMylocaltion() {
 
@@ -656,29 +654,8 @@ public class FragmentHome2 extends FragmentBase {
         // TODO: 查找边界，显示采集点信息
     }
 
-    SensorEventListener sensorEventListener = new SensorEventListener() {
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            // The X axis is horizontal and points to the right,
-            // the Y axis is vertical and points up ,
-            // the Z axis points towards the outside of the front face of the screen.
-            // In this system, coordinates behind the screen have negative Z values.
-//            double x = event.values[SensorManager.DATA_X];
-//            if (Math.abs(x - lastX) > 1.0) {
-//                mCurrentDirection = (int) x;
-//            }
-//            lastX = x;
-        }
-
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-        }
-    };
-
     @Override
     public void onPause() {
-        mSensorManager.unregisterListener(sensorEventListener);
         if (mMapView != null) {
             mMapView.pause();
         }
@@ -726,7 +703,7 @@ public class FragmentHome2 extends FragmentBase {
             }
         }
     }
-    ShapefileFeatureTable shapefileFeatureTable;
+
     private void loadShp(String filename) {
         File file = new File(filename);
         if (file.exists() && file.isFile()) {
@@ -801,9 +778,6 @@ public class FragmentHome2 extends FragmentBase {
         }
     }
 
-
-    GeoPackage geoPackage;
-
     // 离线地图图层
     private void loadOfflineMapLayer(String filename) {
 
@@ -871,7 +845,6 @@ public class FragmentHome2 extends FragmentBase {
     private synchronized void showListPoint(List<GatherPoint> list, MapView mapView) {
     }
 
-    Variable.DrawType drawType;
     private void showMeasureTypeDialog() {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -953,8 +926,6 @@ public class FragmentHome2 extends FragmentBase {
         builder.show();
     }
 
-    AdjustPosDialog2 dialog;
-
     /**
      * @fromPoint 地图上的点击点
      * @toPoint 要调整到的点
@@ -1010,37 +981,32 @@ public class FragmentHome2 extends FragmentBase {
             Point point = new Point(Double.parseDouble(longitude), Double.parseDouble(latitude), SpatialReferences.getWgs84());
             point = (Point) GeometryEngine.project(point, SpatialReferences.getWebMercator());
             list.add(point);
-        }
-        // PointCollection points = new PointCollection(list);
-        if (measureType == AREA_TYPE) {
-            for (Point point : list) {
+            if (measureType == AREA_TYPE) {
                 Measurehelper.getInstance().getArcGisMeasure().startMeasuredArea(point);
-            }
-        } else  {
-            for (Point point : list) {
+            } else {
                 Measurehelper.getInstance().getArcGisMeasure().startMeasuredLength(point);
             }
         }
+
         Measurehelper.getInstance().getArcGisMeasure().endMeasure();
     }
 
     public static class Measurehelper {
         static Measurehelper instance;
-
-        public static void init(ArcGisMeasure arcGisMeasure){
-            instance = new Measurehelper(arcGisMeasure);
-        };
-
-        public static Measurehelper getInstance() {
-            return instance;
-        }
+        private Variable.DrawType drawType = Variable.DrawType.LINE;;
+        private ArcGisMeasure arcGisMeasure;
 
         private Measurehelper(ArcGisMeasure arcGisMeasure){
             this.arcGisMeasure = arcGisMeasure;
         }
 
-        private Variable.DrawType drawType = Variable.DrawType.LINE;
-        private ArcGisMeasure arcGisMeasure;
+public static void init(ArcGisMeasure arcGisMeasure){
+            instance = new Measurehelper(arcGisMeasure);
+        }
+
+        public static Measurehelper getInstance() {
+            return instance;
+        }
 
         public Variable.DrawType getDrawType() {
             return drawType;
