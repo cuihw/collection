@@ -91,6 +91,18 @@ public class Draw {
         return spatialReference;
     }
 
+
+    protected Object drawByScreenPoint(Point point) {
+        if(drawType==Variable.DrawType.POINT){
+            return drawPointByScreenPoint(point);
+        }else if(drawType==Variable.DrawType.LINE){
+            return drawLineByScreenPoint(point);
+        }else if(drawType==Variable.DrawType.POLYGON){
+            return drawPolygonByScreenPoint(point);
+        }
+        return null;
+    }
+
     protected Object drawByScreenPoint(android.graphics.Point point){
         if(drawType==Variable.DrawType.POINT){
             return drawPointByScreenPoint(point);
@@ -164,7 +176,7 @@ public class Draw {
         }
     }
 
-    private PolylineBuilder drawLine(Point point1,Point point2){
+    private PolylineBuilder drawLine(Point point1, Point point2){
         //绘制面板为空，说明重新绘制一个linr，在地图和线集合里添加一个新line
         if(drawLineGraphicOverlay==null){
             drawLineGraphicOverlay = new GraphicsOverlay();
@@ -196,6 +208,12 @@ public class Draw {
         return polygonGeometry;
 
     }
+
+    private Point drawPointByScreenPoint(Point point){
+        this.drawPoint(point);
+        return point;
+    }
+
     private Point drawPointByScreenPoint(android.graphics.Point point){
         Point center = mapView.screenToLocation(point);
         this.drawPoint(center);
@@ -217,8 +235,18 @@ public class Draw {
         this.drawPoint(center);
         return center;
     }
+
+    private PolylineBuilder drawLineByScreenPoint(Point point){
+        Point nextPoint = this.drawPointByScreenPoint(point);
+        if(getPointSize()>1) {
+            Point prvPoint=getLastPoint();
+            return this.drawLine(prvPoint, nextPoint);
+        }
+        return null;
+    }
+
     private PolylineBuilder drawLineByScreenPoint(android.graphics.Point point){
-        Point nextPoint=this.drawPointByScreenPoint(point);
+        Point nextPoint= this.drawPointByScreenPoint(point);
         if(getPointSize()>1) {
             Point prvPoint=getLastPoint();
             return this.drawLine(prvPoint,nextPoint);
@@ -256,6 +284,14 @@ public class Draw {
 
     private PolygonBuilder drawPolygonByScreenXY(float x, float y){
         drawLineByScreenXY(x,y);
+        if(getPointSize()>=3) {
+            return drawPolygon();
+        }
+        return null;
+    }
+
+    private PolygonBuilder drawPolygonByScreenPoint(Point point){
+        drawLineByScreenPoint(point);
         if(getPointSize()>=3) {
             return drawPolygon();
         }

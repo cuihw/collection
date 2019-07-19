@@ -1,11 +1,13 @@
 package com.data.collection.activity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RadioButton;
@@ -22,6 +24,7 @@ import com.data.collection.data.greendao.DaoSession;
 import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.data.greendao.GatherPointDao;
 import com.data.collection.module.CollectType;
+import com.data.collection.module.MeasurePoint;
 import com.data.collection.module.UserInfoBean;
 import com.data.collection.network.HttpRequest;
 import com.data.collection.util.LsLog;
@@ -32,9 +35,11 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.greenrobot.greendao.query.QueryBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import cn.sddman.arcgistool.common.Variable;
 
 // 测量采集点
 
@@ -65,17 +70,15 @@ public class MeasureCollectionListActivity extends BaseActivity {
     @BindView(R.id.no_data_tv)
     TextView noDataTv;
 
-    CommonAdapter<GatherPoint> adapter;
+    CommonAdapter<MeasurePoint> adapter;
 
-    List<GatherPoint> dataList;       // 所有数据
+    List<MeasurePoint> dataList;       // 所有数据
 
     List<CollectType> collectTypes;
 
-    int needUploadSize = 0;
-
-    public static void start(Context context) {
-        Intent intent = new Intent(context, MeasureCollectionListActivity.class);
-        context.startActivity(intent);
+    public static void start(Activity act, int getMeasure) {
+        Intent intent = new Intent(act, MeasureCollectionListActivity.class);
+        act.startActivityForResult(intent, getMeasure);
     }
 
     QueryBuilder<GatherPoint> collectDateQb;
@@ -94,7 +97,6 @@ public class MeasureCollectionListActivity extends BaseActivity {
         hud = KProgressHUD.create(this)
                 .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
                 .setCancellable(false);
-
     }
 
     private void initQueryBuilder() {
@@ -124,9 +126,9 @@ public class MeasureCollectionListActivity extends BaseActivity {
 
         collectTypes = userInfoBean.getData().getProject().getTypes();
 
-        adapter = new CommonAdapter<GatherPoint>(this, R.layout.item_gather_point_measure, dataList) {
+        adapter = new CommonAdapter<MeasurePoint>(this, R.layout.item_gather_point_measure, dataList) {
             @Override
-            public void onUpdate(BaseAdapterHelper helper, GatherPoint item, int position) {
+            public void onUpdate(BaseAdapterHelper helper, MeasurePoint item, int position) {
                 helper.setText(R.id.name, item.getName());
                 String type_id = item.getType_id();
                 CollectType thisType = null;
@@ -135,6 +137,23 @@ public class MeasureCollectionListActivity extends BaseActivity {
                         thisType = type;
                     }
                 }
+                CheckBox checkBox = helper.getView(R.id.check_btn);
+                checkBox.setChecked(item.isSelected());
+                if (item.isSelected()) {
+                    checkBox.setText((position + 1) + "");
+                } else {
+                    checkBox.setText("");
+                }
+
+                checkBox.setOnClickListener(v->{
+                    item.setSelected(checkBox.isChecked());
+                    addSelectItem(item);
+                });
+                ImageView upIndex = helper.getView(R.id.up_index);
+                ImageView downIndex = helper.getView(R.id.down_index);
+                upIndex.setOnClickListener(v->upIndexItem(item,true));
+                downIndex.setOnClickListener(v->upIndexItem(item,false));
+
                 // helper.setText(R.id.report_tv, "采集人:" + item.getReport());
                 ImageView imageView = helper.getView(R.id.icon_type);
 
@@ -150,25 +169,105 @@ public class MeasureCollectionListActivity extends BaseActivity {
         listView.setAdapter(adapter);
     }
 
-    private List<GatherPoint> getData() {
-        return collectDateQb.list();
+
+
+    private void addSelectItem(MeasurePoint item) {
+        int index = dataList.indexOf(item);
+
+        if (index > -1) {
+            int i = 0;
+            for (; i < dataList.size(); i++) {
+                if (!dataList.get(i).isSelected()) {
+                    break;
+                }
+            }
+
+            if (i > 0 && item.isSelected()){
+                dataList.remove(item);
+                dataList.add(i-1,item);
+            } else if (i > 0 && i < dataList.size()){
+                dataList.remove(item);
+                dataList.add(i,item);
+            }
+        }
+        dataList = sortDataList(dataList);
+        adapter.replaceAll(dataList);
+    }
+    List<MeasurePoint> selected;
+    private List<MeasurePoint> sortDataList(List<MeasurePoint> dataList) {
+        selected = new ArrayList<>();
+
+        List<MeasurePoint> unselected = new ArrayList<>();
+        for (MeasurePoint point : dataList) {
+            if (point.isSelected()) {
+                selected.add(point);
+            } else {
+                unselected.add(point);
+            }
+        }
+        dataList.clear();
+        dataList.addAll(selected);
+        dataList.addAll(unselected);
+        return dataList;
+    }
+
+    private void upIndexItem(MeasurePoint item, boolean isUp) {
+        int index = dataList.indexOf(item);
+        if (index > 0 && isUp) {
+            --index;
+            if (index >= 0) {
+                dataList.remove(item);
+                dataList.add(index, item);
+            }
+        } else if (index < (dataList.size()-1) && !isUp && dataList.get(index++).isSelected()) {
+            dataList.remove(item);
+            dataList.add(index, item);
+        }
+        dataList = sortDataList(dataList);
+        adapter.replaceAll(dataList);
+    }
+
+    private List<MeasurePoint> getData() {
+        List<GatherPoint> list = collectDateQb.list();
+        List<MeasurePoint> list1 = new ArrayList<>();
+        for (GatherPoint point: list) {
+            MeasurePoint measurePoint = new MeasurePoint(point);
+            list1.add(measurePoint);
+        }
+        return list1;
     }
 
     private void initListener() {
-        titleView.getLefticon().setOnClickListener(v -> finish());
-        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if (R.id.length_button == checkedId) {
-                    // 长度测量
-
-                } else {
-                    // 面积测量
-                }
-            }
+        titleView.getLefticon().setOnClickListener(v ->{
+            Intent intent = new Intent();
+            setResult(RESULT_CANCELED,  intent);
+            finish();
         });
 
-        actionConfirmTV.setOnClickListener(v -> {;});
+        actionConfirmTV.setOnClickListener(v -> {
+            if (lengthButton.isChecked()) {
+                if (selected.size() < 2) {
+                    ToastUtil.showTextToast(this, "长度测量选择点不能少于2个");
+                    return;
+                }
+                Intent intent = new Intent();
+                MeasurePoint[] measurePoints = selected.toArray(new MeasurePoint[0]);
+                intent.putExtra("data", measurePoints);
+                intent.putExtra("type", 1);
+                setResult(RESULT_OK,  intent);//保存数据
+            } else {
+                if (selected.size() < 3) {
+                    ToastUtil.showTextToast(this, "长度测量选择点不能少于3个");
+                    return;
+                }
+                Intent intent = new Intent();
+                MeasurePoint[] measurePoints = selected.toArray(new MeasurePoint[0]);
+                intent.putExtra("data", measurePoints);
+                intent.putExtra("type", 2);
+                setResult(RESULT_OK,  intent);//保存数据
+            }
+            finish();
+        });
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

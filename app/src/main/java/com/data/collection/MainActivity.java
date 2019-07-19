@@ -134,7 +134,10 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == LOGIN_REQUEST && resultCode == RESULT_OK) {
+        if (resultCode != RESULT_OK) {
+            return;
+        }
+        if (requestCode == LOGIN_REQUEST ) {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -142,7 +145,8 @@ public class MainActivity extends BaseActivity {
                     jpTabBar.setSelectTab(0);
                 }
             }, 1000);
-        } else if (requestCode == Constants.GET_FILE_PATH && resultCode == RESULT_OK){
+        } else if (requestCode == Constants.GET_FILE_PATH ||
+                    requestCode == Constants.GET_MEASURE){
             fragmentHome.onActivityResult(requestCode, resultCode,data);
         }
     }

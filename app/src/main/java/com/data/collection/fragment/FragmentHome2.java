@@ -1,5 +1,6 @@
 package com.data.collection.fragment;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -42,13 +43,13 @@ import com.data.collection.dialog.PopupInfoWindow;
 import com.data.collection.listener.IAdjustPosListener2;
 import com.data.collection.listener.IGatherDataListener;
 import com.data.collection.module.CollectType;
+import com.data.collection.module.MeasurePoint;
 import com.data.collection.util.BitmapUtil;
 import com.data.collection.util.FileUtils;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.ToastUtil;
 import com.data.collection.view.MyPicMarkerSymbol;
 import com.data.collection.view.TitleView;
-import com.esri.arcgisruntime.ArcGISRuntimeEnvironment;
 import com.esri.arcgisruntime.ArcGISRuntimeException;
 import com.esri.arcgisruntime.concurrent.ListenableFuture;
 import com.esri.arcgisruntime.data.FeatureTable;
@@ -89,6 +90,7 @@ import com.leon.lfilepickerlibrary.LFilePicker;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -115,7 +117,6 @@ public class FragmentHome2 extends FragmentBase {
 
     private static final int LINE_TYPE = 1;
     private static final int AREA_TYPE = 2;
-
 
     int mapType = 1;
 
@@ -706,17 +707,23 @@ public class FragmentHome2 extends FragmentBase {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == Constants.GET_FILE_PATH) {
-            List<String> list = data.getStringArrayListExtra("paths");
-            for (String file : list) {
-                Log.w(TAG, "list get file name: " + file);
-                if (isPictureFile(file)) {
-                    loadTiff(file);
-                } else if (isSharpFile(file)) {
-                    loadShp(file);
-                } else {
-                    loadOfflineMapLayer(file);
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == Constants.GET_FILE_PATH) {
+                List<String> list = data.getStringArrayListExtra("paths");
+                for (String file : list) {
+                    Log.w(TAG, "list get file name: " + file);
+                    if (isPictureFile(file)) {
+                        loadTiff(file);
+                    } else if (isSharpFile(file)) {
+                        loadShp(file);
+                    } else {
+                        loadOfflineMapLayer(file);
+                    }
                 }
+            } else  if (requestCode == Constants.GET_MEASURE) {
+                MeasurePoint[] data1 = (MeasurePoint[]) data.getSerializableExtra("data");
+                int type = (int) data.getIntExtra("type", 0);
+                measure(type, data1);
             }
         }
     }
@@ -863,7 +870,7 @@ public class FragmentHome2 extends FragmentBase {
                         break;
                     case 2:
                         // 选取采集点进行测量
-                        MeasureCollectionListActivity.start(getContext());
+                        MeasureCollectionListActivity.start(getActivity(), Constants.GET_MEASURE);
                         break;
                 }
                 measureLayout.setVisibility(View.VISIBLE);
@@ -969,18 +976,25 @@ public class FragmentHome2 extends FragmentBase {
     //
 
     //
-    private void measure(int measureType, List<Point> list) {
-        PointCollection points = new PointCollection(list);
+    private void measure(int measureType, MeasurePoint[] pointsMeasure) {
 
-        switch (measureType) {
-            case LINE_TYPE:
-                Polyline line = new Polyline(points);
-                GeometryEngine.length(line);
-                break;
-            case AREA_TYPE:
-                Polygon polygon = new Polygon(points);
-                double area = GeometryEngine.area(polygon);
-                break;
+        List<Point> list = new ArrayList<>();
+        for (MeasurePoint pt: pointsMeasure) {
+            String longitude = pt.getLongitude();
+            String latitude = pt.getLatitude();
+            Point point = new Point(Double.parseDouble(longitude), Double.parseDouble(latitude), SpatialReferences.getWgs84());
+            point = (Point) GeometryEngine.project(point, SpatialReferences.getWebMercator());
+            list.add(point);
+        }
+        // PointCollection points = new PointCollection(list);
+        if (measureType == AREA_TYPE) {
+            for (Point point : list) {
+                Measurehelper.getInstance().getArcGisMeasure().startMeasuredArea(point);
+            }
+        } else  {
+            for (Point point : list) {
+                Measurehelper.getInstance().getArcGisMeasure().startMeasuredLength(point);
+            }
         }
     }
 

@@ -35,6 +35,14 @@ public class ArcGisMeasure extends Draw {
         tmpLengthList=new ArrayList<>();
     }
 
+    public void startMeasuredLength(Point point){
+        if(drawType==null) {
+            super.startLine();
+            drawType=Variable.DrawType.LINE;
+        }
+        drawScreenPoint(point);
+    }
+
     public void startMeasuredLength(float screenX,  float screenY){
         if(drawType==null) {
             super.startLine();
@@ -57,6 +65,15 @@ public class ArcGisMeasure extends Draw {
         }
         drawScreenXY(screenX,screenY);
     }
+
+    public void startMeasuredArea(Point point){
+        if(drawType==null) {
+            super.startPolygon();
+            drawType=Variable.DrawType.POLYGON;
+        }
+        drawScreenPoint(point);
+    }
+
     public void startMeasuredArea(android.graphics.Point screenPoint){
         if(drawType==null) {
             super.startPolygon();
@@ -136,6 +153,17 @@ public class ArcGisMeasure extends Draw {
             showArea(polygon);
         }
     }
+
+    private void drawScreenPoint(Point geoPoint){
+        if( drawType==Variable.DrawType.LINE){
+            PolylineBuilder line=(PolylineBuilder)super.drawByScreenPoint(geoPoint);
+            showLength(line,geoPoint);
+        }else if(drawType==Variable.DrawType.POLYGON){
+            PolygonBuilder polygon=(PolygonBuilder)super.drawByScreenPoint(geoPoint);
+            showArea(polygon);
+        }
+    }
+
     private void showLength(PolylineBuilder line,Point point){
         if(line!=null) {
             double length = GeometryEngine.length(line.toGeometry());
