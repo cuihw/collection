@@ -7,9 +7,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -690,7 +687,7 @@ public class FragmentHome2 extends FragmentBase {
                     Log.w(TAG, "list get file name: " + file);
                     if (isPictureFile(file)) {
                         loadTiff(file);
-                    } else if (isSharpFile(file)) {
+                    } else if (isShapeFile(file)) {
                         loadShp(file);
                     } else {
                         loadOfflineMapLayer(file);
@@ -719,7 +716,7 @@ public class FragmentHome2 extends FragmentBase {
                         GeometryType geometryType = shapefileFeatureTable.getGeometryType();
 
                         if (geometryType == GeometryType.POINT) {
-                            SimpleMarkerSymbol pointSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.BLUE, 5);
+                            SimpleMarkerSymbol pointSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.BLUE, 10);
                             SimpleRenderer pointRenderer = new SimpleRenderer(pointSymbol);
                             shapefileFeatureLayer.setRenderer(pointRenderer);
                         } else if (geometryType == GeometryType.POLYLINE) {
@@ -750,7 +747,7 @@ public class FragmentHome2 extends FragmentBase {
         }
     }
 
-    private boolean isSharpFile(String file) {
+    private boolean isShapeFile(String file) {
         return file.endsWith(".shp");
     }
 
@@ -837,7 +834,6 @@ public class FragmentHome2 extends FragmentBase {
 
     private void delayRun(int i) {
         new Handler().postDelayed(() -> {
-            goToMyLocation();
             getMapBounds();
         }, i);
     }
