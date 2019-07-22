@@ -87,6 +87,20 @@
         android:background="@drawable/button_selector"
         android:layout_marginLeft="@dimen/item_padding"
         />
+    <TextView
+        android:id="@+id/color_palette"
+        android:layout_width="@dimen/home_button"
+        android:layout_height="@dimen/home_button"
+        android:layout_below="@+id/read_tiff"
+        android:layout_margin="@dimen/item_padding"
+        android:text="样式\n编辑"
+        android:textSize="@dimen/font4"
+        android:textColor="@color/font6"
+        android:gravity="center"
+        android:clickable="true"
+        android:background="@drawable/button_selector"
+        android:layout_marginLeft="@dimen/item_padding"
+        />
 
     <TextView
         android:id="@+id/map_type"

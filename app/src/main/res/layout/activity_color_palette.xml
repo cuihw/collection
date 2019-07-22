@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:title="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background5">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/action_sync_all"
+        android:orientation="vertical">
+
+        <com.data.collection.view.TitleView
+            android:id="@+id/title_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            title:IconLeft="@mipmap/top_back"
+            title:TitleText="Shape 样式编辑" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/item_padding"
+            android:layout_marginTop="@dimen/item_padding_large"
+            android:layout_marginRight="@dimen/item_padding"
+            android:background="@drawable/round_background"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/text_hint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/item_padding"
+                android:text="选择点的颜色"
+                android:textSize="@dimen/font2" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="@dimen/item_padding">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="点色彩：" />
+
+                <View
+                    android:id="@+id/point_color"
+                    android:layout_width="80dp"
+                    android:layout_height="30dp"
+                    android:background="#0b6dfd" />
+                <TextView
+                    android:id="@+id/point_color_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="#FF0b6dfd"
+                    android:layout_margin="@dimen/item_padding"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="@dimen/item_padding">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="线色彩：" />
+
+                <View
+                    android:id="@+id/line_color"
+                    android:layout_width="80dp"
+                    android:layout_height="30dp"
+                    android:background="#FF00FF00" />
+                <TextView
+                    android:id="@+id/line_color_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="#66225500"
+                    android:layout_margin="@dimen/item_padding"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="@dimen/item_padding">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="线色彩：" />
+
+                <View
+                    android:id="@+id/polygon_color"
+                    android:layout_width="80dp"
+                    android:layout_height="30dp"
+                    android:background="#66225500" />
+
+                <TextView
+                    android:id="@+id/polygon_color_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="#66225500"
+                    android:layout_margin="@dimen/item_padding"
+                    />
+            </LinearLayout>
+        </LinearLayout>
+
+        <com.duan.colorpicker.ColorPickerView
+            android:id="@+id/picker"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginLeft="@dimen/item_padding"
+            android:layout_marginTop="100dp"
+            android:layout_marginRight="@dimen/item_padding" />
+    </LinearLayout>
+</RelativeLayout>

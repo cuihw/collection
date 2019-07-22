@@ -31,6 +31,7 @@ import com.data.collection.Constants;
 import com.data.collection.R;
 import com.data.collection.activity.AddCollectionActivity;
 import com.data.collection.activity.CollectionListActivity;
+import com.data.collection.activity.ColorPaletteActivity;
 import com.data.collection.activity.MeasureCollectionListActivity;
 import com.data.collection.data.CacheData;
 import com.data.collection.data.MapDataUtils;
@@ -45,6 +46,7 @@ import com.data.collection.module.MeasurePoint;
 import com.data.collection.util.BitmapUtil;
 import com.data.collection.util.FileUtils;
 import com.data.collection.util.LsLog;
+import com.data.collection.util.PreferencesUtils;
 import com.data.collection.util.ToastUtil;
 import com.data.collection.view.MyPicMarkerSymbol;
 import com.data.collection.view.TitleView;
@@ -149,6 +151,9 @@ public class FragmentHome2 extends FragmentBase {
     @BindView(R.id.read_tiff)
     TextView readTiff;
 
+    @BindView(R.id.color_palette)
+    TextView colorPalette;
+
     @BindView(R.id.load_local_map)
     TextView loadLocalMap;
     @BindView(R.id.mapview)
@@ -170,7 +175,7 @@ public class FragmentHome2 extends FragmentBase {
     ArcGISMap mArcGISMap;
     GraphicsOverlay mGraphicsOverlay;
     String[] items = new String[]{"开放街区图", "矢量图", "带标签影像图",
-            "拓扑图", "灰白底图"};
+            "拓扑图", "灰白底图", "空地图" };
     List<Basemap.Type> mapTypeList = new ArrayList<>();
 
     Map<String, MyPicMarkerSymbol> myPicMarkerSymbolMap = new HashMap<>();
@@ -266,6 +271,7 @@ public class FragmentHome2 extends FragmentBase {
     }
 
     private void initListener() {
+        colorPalette.setOnClickListener(v-> ColorPaletteActivity.start(getContext()));
 
         measureAction.setOnClickListener(v->{
             // showMeasureTypeDialog()
@@ -563,9 +569,14 @@ public class FragmentHome2 extends FragmentBase {
 
     private void setMapType(int mapType) {
         this.mapType = mapType;
-        Basemap.Type type = mapTypeList.get(mapType - 1);
-        mArcGISMap = new ArcGISMap(type, Constants.latitude,
-                Constants.longitude, Constants.levelOfDetail);
+        if (mapType == 6) {
+            mArcGISMap = new ArcGISMap();
+        } else {
+            Basemap.Type type = mapTypeList.get(mapType - 1);
+            mArcGISMap = new ArcGISMap(type, Constants.latitude,
+                    Constants.longitude, Constants.levelOfDetail);
+        }
+
         mArcGISMap.loadAsync();
         mMapView.setMap(mArcGISMap);
         mMapView.setWrapAroundMode(WrapAroundMode.ENABLE_WHEN_SUPPORTED);
@@ -588,6 +599,7 @@ public class FragmentHome2 extends FragmentBase {
         mapTypeList.add(Basemap.Type.STREETS_VECTOR);
         mapTypeList.add(Basemap.Type.IMAGERY_WITH_LABELS_VECTOR);
         mapTypeList.add(Basemap.Type.STREETS_WITH_RELIEF_VECTOR);
+        mapTypeList.add(Basemap.Type.LIGHT_GRAY_CANVAS);
         mapTypeList.add(Basemap.Type.LIGHT_GRAY_CANVAS);
 
         if (mMapView != null) {
@@ -716,19 +728,22 @@ public class FragmentHome2 extends FragmentBase {
                         GeometryType geometryType = shapefileFeatureTable.getGeometryType();
 
                         if (geometryType == GeometryType.POINT) {
-                            SimpleMarkerSymbol pointSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.BLUE, 10);
+                            int pointValue = PreferencesUtils.getInt(getContext(),"pointValue", Color.BLUE);
+                            SimpleMarkerSymbol pointSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, pointValue, 10);
                             SimpleRenderer pointRenderer = new SimpleRenderer(pointSymbol);
                             shapefileFeatureLayer.setRenderer(pointRenderer);
                         } else if (geometryType == GeometryType.POLYLINE) {
-                            SimpleLineSymbol lineSymbol = new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.RED, 2);
+                            int lineValue = PreferencesUtils.getInt(getContext(), "lineValue", Color.RED);
+                            SimpleLineSymbol lineSymbol = new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, lineValue, 2);
                             SimpleRenderer lineRenderer = new SimpleRenderer(lineSymbol);
                             shapefileFeatureLayer.setRenderer(lineRenderer);
                         } else if (geometryType == GeometryType.POLYGON) {
-                            SimpleLineSymbol lineSymbol = new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.GREEN, 1);
+                            int polygonValue = PreferencesUtils.getInt(getContext(), "polygonValue", 0x50225500);
+                            int polygonValueEdge = 0xFF000000 | polygonValue;
+                            SimpleLineSymbol lineSymbol = new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, polygonValueEdge, 1);
                             SimpleRenderer lineRenderer = new SimpleRenderer(lineSymbol);
                             shapefileFeatureLayer.setRenderer(lineRenderer);
-
-                            SimpleFillSymbol fillSymbol = new SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, 0x66225500, lineSymbol);
+                            SimpleFillSymbol fillSymbol = new SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, polygonValue, lineSymbol);
                             SimpleRenderer fillRenderer = new SimpleRenderer(fillSymbol);
                             shapefileFeatureLayer.setRenderer(fillRenderer);
                         }
@@ -800,6 +815,8 @@ public class FragmentHome2 extends FragmentBase {
 
     private void loadGeoPackage(GeoPackage geoPackage) {
         geoPackageRasters = geoPackage.getGeoPackageRasters();
+        boolean empty = geoPackage.getGeoPackageRasters().isEmpty();
+        LsLog.w(TAG, "loadFeatureTables ...empty = " + empty);
         loadRasters(geoPackageRasters);
         List<GeoPackageFeatureTable> geoPackageFeatureTables = geoPackage.getGeoPackageFeatureTables();
         loadFeatureTables(geoPackageFeatureTables);
@@ -836,9 +853,6 @@ public class FragmentHome2 extends FragmentBase {
         new Handler().postDelayed(() -> {
             getMapBounds();
         }, i);
-    }
-
-    private synchronized void showListPoint(List<GatherPoint> list, MapView mapView) {
     }
 
     private void showMeasureTypeDialog() {

@@ -80,6 +80,11 @@
             android:windowSoftInputMode="adjustPan|stateHidden"></activity>
 
         <activity
+            android:name=".activity.ColorPaletteActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan|stateHidden"></activity>
+
+        <activity
             android:name=".activity.NaviCollectionListActivity"
             android:screenOrientation="portrait"
             ></activity>
