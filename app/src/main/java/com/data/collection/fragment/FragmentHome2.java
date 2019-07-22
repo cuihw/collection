@@ -192,7 +192,7 @@ public class FragmentHome2 extends FragmentBase {
     };
     LocationDisplay locationDisplay;
 
-    ShapefileFeatureTable shapefileFeatureTable;
+    List<ShapefileFeatureTable> shapefileFeatureTables = new ArrayList<>();
     GeoPackage geoPackage;
 
     AdjustPosDialog2 dialog;
@@ -205,7 +205,11 @@ public class FragmentHome2 extends FragmentBase {
         operationalLayers.clear();
         operationalLayers.addAll(geoPackageRasterLayers);
         operationalLayers.addAll(imageryRasterLayers);
+
+
         operationalLayers.addAll(geoFeatureLayers);
+
+
     }
 
     //private DatumTransformation mSR3857;
@@ -661,7 +665,34 @@ public class FragmentHome2 extends FragmentBase {
         mMapView.resume();
         delayRun(1000);
         // TODO: 查找边界，显示采集点信息
+
+        if (geoFeatureLayers.size() > 0) {
+            for (FeatureLayer featureLayer: geoFeatureLayers) {
+                GeometryType geometryType = featureLayer.getFeatureTable().getGeometryType();
+                if (geometryType == GeometryType.POINT) {
+                    int pointValue = PreferencesUtils.getInt(getContext(),"pointValue", Color.BLUE);
+                    SimpleMarkerSymbol pointSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, pointValue, 10);
+                    SimpleRenderer pointRenderer = new SimpleRenderer(pointSymbol);
+                    featureLayer.setRenderer(pointRenderer);
+                } else if (geometryType == GeometryType.POLYLINE) {
+                    int lineValue = PreferencesUtils.getInt(getContext(), "lineValue", Color.RED);
+                    SimpleLineSymbol lineSymbol = new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, lineValue, 2);
+                    SimpleRenderer lineRenderer = new SimpleRenderer(lineSymbol);
+                    featureLayer.setRenderer(lineRenderer);
+                } else if (geometryType == GeometryType.POLYGON) {
+                    int polygonValue = PreferencesUtils.getInt(getContext(), "polygonValue", 0x50225500);
+                    int polygonValueEdge = 0xFF000000 | polygonValue;
+                    SimpleLineSymbol lineSymbol = new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, polygonValueEdge, 1);
+                    SimpleRenderer lineRenderer = new SimpleRenderer(lineSymbol);
+                    featureLayer.setRenderer(lineRenderer);
+                    SimpleFillSymbol fillSymbol = new SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, polygonValue, lineSymbol);
+                    SimpleRenderer fillRenderer = new SimpleRenderer(fillSymbol);
+                    featureLayer.setRenderer(fillRenderer);
+                }
+            }
+        }
     }
+
 
     @Override
     public void onPause() {
@@ -713,10 +744,43 @@ public class FragmentHome2 extends FragmentBase {
         }
     }
 
+
+    private void refreshShapeLayer(ShapefileFeatureTable shapefileFeatureTable) {
+        if (shapefileFeatureTable != null) {
+            shapefileFeatureTable.loadAsync();
+            shapefileFeatureTable.addDoneLoadingListener(()->{
+                FeatureLayer shapefileFeatureLayer = new FeatureLayer(shapefileFeatureTable);
+                GeometryType geometryType = shapefileFeatureTable.getGeometryType();
+                if (geometryType == GeometryType.POINT) {
+                    int pointValue = PreferencesUtils.getInt(getContext(),"pointValue", Color.BLUE);
+                    SimpleMarkerSymbol pointSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, pointValue, 10);
+                    SimpleRenderer pointRenderer = new SimpleRenderer(pointSymbol);
+                    shapefileFeatureLayer.setRenderer(pointRenderer);
+                } else if (geometryType == GeometryType.POLYLINE) {
+                    int lineValue = PreferencesUtils.getInt(getContext(), "lineValue", Color.RED);
+                    SimpleLineSymbol lineSymbol = new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, lineValue, 2);
+                    SimpleRenderer lineRenderer = new SimpleRenderer(lineSymbol);
+                    shapefileFeatureLayer.setRenderer(lineRenderer);
+                } else if (geometryType == GeometryType.POLYGON) {
+                    int polygonValue = PreferencesUtils.getInt(getContext(), "polygonValue", 0x50225500);
+                    int polygonValueEdge = 0xFF000000 | polygonValue;
+                    SimpleLineSymbol lineSymbol = new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, polygonValueEdge, 1);
+                    SimpleRenderer lineRenderer = new SimpleRenderer(lineSymbol);
+                    shapefileFeatureLayer.setRenderer(lineRenderer);
+                    SimpleFillSymbol fillSymbol = new SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, polygonValue, lineSymbol);
+                    SimpleRenderer fillRenderer = new SimpleRenderer(fillSymbol);
+                    shapefileFeatureLayer.setRenderer(fillRenderer);
+                }
+                geoFeatureLayers.add(shapefileFeatureLayer);  // 加载shp图
+                refreshOperstionLayer();
+            });
+        }
+    }
+
     private void loadShp(String filename) {
         File file = new File(filename);
         if (file.exists() && file.isFile()) {
-            shapefileFeatureTable = new ShapefileFeatureTable(filename);
+            ShapefileFeatureTable shapefileFeatureTable = new ShapefileFeatureTable(filename);
             shapefileFeatureTable.loadAsync();
             shapefileFeatureTable.addDoneLoadingListener(new Runnable() {
                 @Override
@@ -724,6 +788,8 @@ public class FragmentHome2 extends FragmentBase {
                     if (shapefileFeatureTable.getLoadStatus() == LoadStatus.LOADED) {
                         // create a feature layer to display the shapefile
                         ShapefileInfo info = shapefileFeatureTable.getInfo();
+                        shapefileFeatureTables.add(shapefileFeatureTable);
+
                         FeatureLayer shapefileFeatureLayer = new FeatureLayer(shapefileFeatureTable);
                         GeometryType geometryType = shapefileFeatureTable.getGeometryType();
 
@@ -816,7 +882,7 @@ public class FragmentHome2 extends FragmentBase {
     private void loadGeoPackage(GeoPackage geoPackage) {
         geoPackageRasters = geoPackage.getGeoPackageRasters();
         boolean empty = geoPackage.getGeoPackageRasters().isEmpty();
-        LsLog.w(TAG, "loadFeatureTables ...empty = " + empty);
+        LsLog.w(TAG, "loadGeoPackage ...empty = " + empty);
         loadRasters(geoPackageRasters);
         List<GeoPackageFeatureTable> geoPackageFeatureTables = geoPackage.getGeoPackageFeatureTables();
         loadFeatureTables(geoPackageFeatureTables);
@@ -843,7 +909,7 @@ public class FragmentHome2 extends FragmentBase {
         for (GeoPackageRaster raster : geoPackageRasters) {
             geoPackageRasterLayer = new RasterLayer(raster);
 
-            geoPackageRasterLayer.setOpacity(0.6f);
+            geoPackageRasterLayer.setOpacity(0.4f);
             geoPackageRasterLayers.add(geoPackageRasterLayer);
         }
         refreshOperstionLayer();

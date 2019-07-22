@@ -59,5 +59,6 @@
         android:layout_marginTop="-30dp"
         android:layout_marginLeft="@dimen/button_margin"
         android:text="检查"
+        android:singleLine="true"
         />
 </RelativeLayout>

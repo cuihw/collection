@@ -49,7 +49,7 @@ public class PopupInfoWindow extends AlertDialog {
         super(context, R.style.Dialog_Common);
         this.context = context;
         double deviceWidth = getScreenWidth(this.context);
-        width = (int) (deviceWidth * 0.7);
+        width = (int) (deviceWidth * 0.9);
         setCanceledOnTouchOutside(canceledOnTouchOutside);
         LayoutInflater inflater = LayoutInflater.from(this.context);
         view = inflater.inflate(R.layout.info_window, null);
