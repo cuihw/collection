@@ -6,7 +6,7 @@ public class Constants {
     public static final String HOST3 =  "http://218.28.225.140/collection"; // test public server
     public static final String HOST4 =  "http://192.168.1.215/collect"; // test ziyin
 
-    public static final String HOST = HOST2;
+    public static final String HOST = HOST3;
 
     public static final String BASE_URL_V1 = HOST + "/index.php/app/v1/";
 

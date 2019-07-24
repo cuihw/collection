@@ -3,6 +3,8 @@ package com.data.collection.service;
 import android.app.Service;
 import android.content.Intent;
 import android.location.Location;
+import android.location.LocationListener;
+import android.os.Bundle;
 import android.os.IBinder;
 
 import com.data.collection.App;
@@ -34,13 +36,38 @@ public class TraceService extends Service {
         return super.onStartCommand(intent, flags, startId);
     }
 
-    Timer timer;
-    SaveLocationTask task;
-
     private synchronized void startTrace() {
-        timer = new Timer();
-        task = new SaveLocationTask();
-        timer.schedule(task, 100, Constants.TRACE_INTERVAL);
+        LocationController.getInstance().setListener(new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                if (location == null) {
+                    LsLog.w(TAG, "Location is null , can't record trace. ");
+                    return;
+                }
+                TraceLocation tl = new TraceLocation();
+                tl.setLatitude(location.getLatitude() + "");
+                tl.setLongitude(location.getLongitude() + "");
+                tl.setTime(System.currentTimeMillis() / 1000 + "");
+                LsLog.w(TAG, "trace loaction = " + new Gson().toJson(tl));
+                long insert = App.getInstence().getDaoSession().insert(tl);
+                LsLog.w(TAG, "trace loaction insert = " + insert);
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        });
     }
 
     /**
@@ -54,30 +81,8 @@ public class TraceService extends Service {
     }
 
     private void stopTrace() {
-        if (timer != null) {
-            task.cancel();
-            timer.cancel();
-        }
-        task = null;
-        timer = null;
+        LocationController.getInstance().setListener(null);
     }
 
-    class SaveLocationTask extends TimerTask {
-        @Override
-        public void run() {
-            Location loc = LocationController.getInstance().getLocation();
-            if (loc == null) {
-                LsLog.w(TAG, "Location is null , can't record trace. ");
-                return;
-            }
-            TraceLocation tl = new TraceLocation();
-            tl.setLatitude(loc.getLatitude() + "");
-            tl.setLongitude(loc.getLongitude() + "");
-            tl.setTime(System.currentTimeMillis() / 1000 + "");
-            LsLog.w(TAG, "trace loaction = " + new Gson().toJson(tl));
-            long insert = App.getInstence().getDaoSession().insert(tl);
-            LsLog.w(TAG, "trace loaction insert = " + insert);
-        }
-    }
 
 }

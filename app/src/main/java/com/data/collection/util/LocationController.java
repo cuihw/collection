@@ -33,7 +33,12 @@ public class LocationController implements LocationListener {
 
     private boolean isLocating;
 
-    private LocationController() {
+    private LocationListener listener;
+
+    private LocationController() {}
+
+    public void setListener(LocationListener listener) {
+        this.listener = listener;
     }
 
     public static synchronized LocationController getInstance() {
@@ -59,17 +64,9 @@ public class LocationController implements LocationListener {
         }
         mLocation = location;
         Log.e("onLocationChanged: ", location.toString());
-        mLocData = new BNLocationData.Builder()
-                .latitude(location.getLatitude())
-                .longitude(location.getLongitude())
-                .accuracy(location.getAccuracy())
-                .speed(location.getSpeed())
-                .direction(location.getBearing())
-                .altitude((int) location.getAltitude())
-                .time(location.getTime())
-                .build();
-        BaiduNaviManagerFactory.getMapManager().setMyLocationData(mLocData);
-
+        if (listener != null) {
+            listener.onLocationChanged(location);
+        }
     }
 
     public void startLocation(Context ctx) {
@@ -87,11 +84,10 @@ public class LocationController implements LocationListener {
             return;
         }
         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                1000, 1000, this);
+                1000, 1, this);
         mLocation = getLastKnownLocation(ctx);
         isLocating = true;
     }
-
 
     private Location getLastKnownLocation(Context ctx) {
         if (mLocationManager == null) {

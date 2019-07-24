@@ -3,12 +3,10 @@ package com.data.collection.fragment;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.graphics.Color;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,9 +38,7 @@ import com.esri.arcgisruntime.mapping.view.WrapAroundMode;
 import com.esri.arcgisruntime.symbology.SimpleLineSymbol;
 import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
 import com.esri.arcgisruntime.symbology.SimpleRenderer;
-import com.google.gson.Gson;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -151,7 +147,7 @@ public class FragmentTrace extends FragmentBase {
         showTrace(list);
     }
 
-    Map<String, TraceLocation> traceMap= new HashMap<>();
+    Map<String, TraceLocation> traceMap = new HashMap<>();
 
     private void showTrace(List<TraceLocation> list) {
         mMapView.getGraphicsOverlays().clear();

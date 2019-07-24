@@ -1,6 +1,7 @@
 package com.data.collection.fragment;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -84,7 +85,9 @@ import com.esri.arcgisruntime.mapping.view.MapScaleChangedListener;
 import com.esri.arcgisruntime.mapping.view.MapView;
 import com.esri.arcgisruntime.mapping.view.WrapAroundMode;
 import com.esri.arcgisruntime.raster.GeoPackageRaster;
+import com.esri.arcgisruntime.raster.ImageServiceRaster;
 import com.esri.arcgisruntime.raster.Raster;
+import com.esri.arcgisruntime.raster.RasterRenderer;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
 import com.esri.arcgisruntime.symbology.SimpleFillSymbol;
 import com.esri.arcgisruntime.symbology.SimpleLineSymbol;
@@ -446,7 +449,7 @@ public class FragmentHome2 extends FragmentBase {
                         .withRequestCode(Constants.GET_FILE_PATH)
                         .withStartPath(fileDir)
                         //.withFileFilter(new String[]{".txt", ".png", ".docx"})
-                        .withFileFilter(new String[]{".gpkg"})
+                        .withFileFilter(new String[]{".gpkg", ".geodatabase"})
                         .withMutilyMode(false)
                         .withTitle("打开离线文件")
                         .start();
@@ -553,6 +556,8 @@ public class FragmentHome2 extends FragmentBase {
     }
 
     private BitmapDrawable createMarkerBitmap(GatherPoint point) {
+        Context context = getContext();
+        if (context== null) return null;
         View view = View.inflate(getContext(), R.layout.view_point_marker, null);
         TextView viewById = view.findViewById(R.id.name_tv);
         viewById.setText(point.getName());
@@ -618,6 +623,8 @@ public class FragmentHome2 extends FragmentBase {
                 }
             });
 
+
+
             mMapView.setMap(mArcGISMap);
             mMapView.setWrapAroundMode(WrapAroundMode.ENABLE_WHEN_SUPPORTED);
             mMapView.buildDrawingCache();
@@ -626,6 +633,8 @@ public class FragmentHome2 extends FragmentBase {
 
             ArcGisMeasure arcGisMeasure = new ArcGisMeasure(getContext(), mMapView);
             Measurehelper.init(arcGisMeasure);
+
+            mMapView.setViewpointRotationAsync(0);
         }
         initMylocaltion();
     }
@@ -654,8 +663,10 @@ public class FragmentHome2 extends FragmentBase {
     private void goToMyLocation() {
         // 4326   GCS_WGS_1984  和  102100    WGS_1984_web_mercator_auxiliary_sphere 。  EPSG:3857 -- WGS84 Web Mercator (Auxiliary Sphere)
         LocationDataSource.Location location = locationDisplay.getLocation();
-        if (location != null && location.getPosition() != null&& mMapView!= null)
+        if (location != null && location.getPosition() != null&& mMapView!= null) {
             mMapView.setViewpointCenterAsync(location.getPosition());
+            mMapView.setViewpointRotationAsync(0);
+        }
     }
 
     @Override
@@ -668,28 +679,32 @@ public class FragmentHome2 extends FragmentBase {
 
         if (geoFeatureLayers.size() > 0) {
             for (FeatureLayer featureLayer: geoFeatureLayers) {
-                GeometryType geometryType = featureLayer.getFeatureTable().getGeometryType();
-                if (geometryType == GeometryType.POINT) {
-                    int pointValue = PreferencesUtils.getInt(getContext(),"pointValue", Color.BLUE);
-                    SimpleMarkerSymbol pointSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, pointValue, 10);
-                    SimpleRenderer pointRenderer = new SimpleRenderer(pointSymbol);
-                    featureLayer.setRenderer(pointRenderer);
-                } else if (geometryType == GeometryType.POLYLINE) {
-                    int lineValue = PreferencesUtils.getInt(getContext(), "lineValue", Color.RED);
-                    SimpleLineSymbol lineSymbol = new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, lineValue, 2);
-                    SimpleRenderer lineRenderer = new SimpleRenderer(lineSymbol);
-                    featureLayer.setRenderer(lineRenderer);
-                } else if (geometryType == GeometryType.POLYGON) {
-                    int polygonValue = PreferencesUtils.getInt(getContext(), "polygonValue", 0x50225500);
-                    int polygonValueEdge = 0xFF000000 | polygonValue;
-                    SimpleLineSymbol lineSymbol = new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, polygonValueEdge, 1);
-                    SimpleRenderer lineRenderer = new SimpleRenderer(lineSymbol);
-                    featureLayer.setRenderer(lineRenderer);
-                    SimpleFillSymbol fillSymbol = new SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, polygonValue, lineSymbol);
-                    SimpleRenderer fillRenderer = new SimpleRenderer(fillSymbol);
-                    featureLayer.setRenderer(fillRenderer);
-                }
+                setFillColor(featureLayer);
             }
+        }
+    }
+
+    private void setFillColor(FeatureLayer featureLayer) {
+        GeometryType geometryType = featureLayer.getFeatureTable().getGeometryType();
+        if (geometryType == GeometryType.POINT) {
+            int pointValue = PreferencesUtils.getInt(getContext(),"pointValue", Color.BLUE);
+            SimpleMarkerSymbol pointSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, pointValue, 10);
+            SimpleRenderer pointRenderer = new SimpleRenderer(pointSymbol);
+            featureLayer.setRenderer(pointRenderer);
+        } else if (geometryType == GeometryType.POLYLINE) {
+            int lineValue = PreferencesUtils.getInt(getContext(), "lineValue", Color.RED);
+            SimpleLineSymbol lineSymbol = new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, lineValue, 2);
+            SimpleRenderer lineRenderer = new SimpleRenderer(lineSymbol);
+            featureLayer.setRenderer(lineRenderer);
+        } else if (geometryType == GeometryType.POLYGON) {
+            int polygonValue = PreferencesUtils.getInt(getContext(), "polygonValue", 0x50225500);
+            int polygonValueEdge = 0xFF000000 | polygonValue;
+            SimpleLineSymbol lineSymbol = new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, polygonValueEdge, 1);
+            SimpleRenderer lineRenderer = new SimpleRenderer(lineSymbol);
+            featureLayer.setRenderer(lineRenderer);
+            SimpleFillSymbol fillSymbol = new SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, polygonValue, lineSymbol);
+            SimpleRenderer fillRenderer = new SimpleRenderer(fillSymbol);
+            featureLayer.setRenderer(fillRenderer);
         }
     }
 
@@ -744,39 +759,6 @@ public class FragmentHome2 extends FragmentBase {
         }
     }
 
-
-    private void refreshShapeLayer(ShapefileFeatureTable shapefileFeatureTable) {
-        if (shapefileFeatureTable != null) {
-            shapefileFeatureTable.loadAsync();
-            shapefileFeatureTable.addDoneLoadingListener(()->{
-                FeatureLayer shapefileFeatureLayer = new FeatureLayer(shapefileFeatureTable);
-                GeometryType geometryType = shapefileFeatureTable.getGeometryType();
-                if (geometryType == GeometryType.POINT) {
-                    int pointValue = PreferencesUtils.getInt(getContext(),"pointValue", Color.BLUE);
-                    SimpleMarkerSymbol pointSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, pointValue, 10);
-                    SimpleRenderer pointRenderer = new SimpleRenderer(pointSymbol);
-                    shapefileFeatureLayer.setRenderer(pointRenderer);
-                } else if (geometryType == GeometryType.POLYLINE) {
-                    int lineValue = PreferencesUtils.getInt(getContext(), "lineValue", Color.RED);
-                    SimpleLineSymbol lineSymbol = new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, lineValue, 2);
-                    SimpleRenderer lineRenderer = new SimpleRenderer(lineSymbol);
-                    shapefileFeatureLayer.setRenderer(lineRenderer);
-                } else if (geometryType == GeometryType.POLYGON) {
-                    int polygonValue = PreferencesUtils.getInt(getContext(), "polygonValue", 0x50225500);
-                    int polygonValueEdge = 0xFF000000 | polygonValue;
-                    SimpleLineSymbol lineSymbol = new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, polygonValueEdge, 1);
-                    SimpleRenderer lineRenderer = new SimpleRenderer(lineSymbol);
-                    shapefileFeatureLayer.setRenderer(lineRenderer);
-                    SimpleFillSymbol fillSymbol = new SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, polygonValue, lineSymbol);
-                    SimpleRenderer fillRenderer = new SimpleRenderer(fillSymbol);
-                    shapefileFeatureLayer.setRenderer(fillRenderer);
-                }
-                geoFeatureLayers.add(shapefileFeatureLayer);  // 加载shp图
-                refreshOperstionLayer();
-            });
-        }
-    }
-
     private void loadShp(String filename) {
         File file = new File(filename);
         if (file.exists() && file.isFile()) {
@@ -791,29 +773,8 @@ public class FragmentHome2 extends FragmentBase {
                         shapefileFeatureTables.add(shapefileFeatureTable);
 
                         FeatureLayer shapefileFeatureLayer = new FeatureLayer(shapefileFeatureTable);
-                        GeometryType geometryType = shapefileFeatureTable.getGeometryType();
+                        setFillColor(shapefileFeatureLayer);
 
-                        if (geometryType == GeometryType.POINT) {
-                            int pointValue = PreferencesUtils.getInt(getContext(),"pointValue", Color.BLUE);
-                            SimpleMarkerSymbol pointSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, pointValue, 10);
-                            SimpleRenderer pointRenderer = new SimpleRenderer(pointSymbol);
-                            shapefileFeatureLayer.setRenderer(pointRenderer);
-                        } else if (geometryType == GeometryType.POLYLINE) {
-                            int lineValue = PreferencesUtils.getInt(getContext(), "lineValue", Color.RED);
-                            SimpleLineSymbol lineSymbol = new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, lineValue, 2);
-                            SimpleRenderer lineRenderer = new SimpleRenderer(lineSymbol);
-                            shapefileFeatureLayer.setRenderer(lineRenderer);
-                        } else if (geometryType == GeometryType.POLYGON) {
-                            int polygonValue = PreferencesUtils.getInt(getContext(), "polygonValue", 0x50225500);
-                            int polygonValueEdge = 0xFF000000 | polygonValue;
-                            SimpleLineSymbol lineSymbol = new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, polygonValueEdge, 1);
-                            SimpleRenderer lineRenderer = new SimpleRenderer(lineSymbol);
-                            shapefileFeatureLayer.setRenderer(lineRenderer);
-                            SimpleFillSymbol fillSymbol = new SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, polygonValue, lineSymbol);
-                            SimpleRenderer fillRenderer = new SimpleRenderer(fillSymbol);
-                            shapefileFeatureLayer.setRenderer(fillRenderer);
-                        }
-                        // add the feature layer to the map
                         geoFeatureLayers.add(shapefileFeatureLayer);  // 加载shp图
                         refreshOperstionLayer();
                         // zoom the map to the extent of the shapefile
@@ -908,8 +869,12 @@ public class FragmentHome2 extends FragmentBase {
         RasterLayer geoPackageRasterLayer = null;
         for (GeoPackageRaster raster : geoPackageRasters) {
             geoPackageRasterLayer = new RasterLayer(raster);
+//            RasterRenderer rasterRenderer = new RasterRenderer()
+//            geoPackageRasterLayer.setRasterRenderer(rasterRenderer);
+//            final ImageServiceRaster imageServiceRaster = new ImageServiceRaster(raster);
 
             geoPackageRasterLayer.setOpacity(0.4f);
+
             geoPackageRasterLayers.add(geoPackageRasterLayer);
         }
         refreshOperstionLayer();

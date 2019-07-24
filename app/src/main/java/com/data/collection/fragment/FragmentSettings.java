@@ -177,8 +177,6 @@ public class FragmentSettings extends FragmentBase {
                 }
             }, 1000);
         }
-
     }
-
     // 同步数据：1. 采集点   2. 兴趣点， 3 trace轨迹， 4. 项目内容，包含项目类型的图标。 5. 所在省份的离线地图
 }

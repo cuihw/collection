@@ -11,7 +11,6 @@ import com.data.collection.activity.LoginActivity;
 import com.data.collection.data.CacheData;
 import com.data.collection.data.UserTrace;
 import com.data.collection.fragment.FragmentCheckRecord;
-import com.data.collection.fragment.FragmentHome;
 import com.data.collection.fragment.FragmentHome2;
 import com.data.collection.fragment.FragmentNavi2;
 import com.data.collection.fragment.FragmentSettings;

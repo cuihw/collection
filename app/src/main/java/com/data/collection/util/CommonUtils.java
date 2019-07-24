@@ -10,6 +10,7 @@ import android.os.Build;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
 
+import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.module.NaviData;
 import com.data.navidata.LocaltionData;
 import com.data.navidata.NaviDataSS;
@@ -22,6 +23,27 @@ import java.io.InputStream;
 public class CommonUtils {
 
     private static final String TAG = "CommonUtils";
+
+    public static boolean  navito(Activity act, GatherPoint item, int requestCode) {
+
+        NaviDataSS naviDataSS = new NaviDataSS();
+        LocaltionData endNode = new LocaltionData();
+        endNode.setName(item.getName());
+        endNode.setLatitude(Double.parseDouble(item.getLatitude()));
+        endNode.setLongitude(Double.parseDouble(item.getLongitude()));
+        naviDataSS.setEndNode(endNode);
+
+        if (PackageUtils.isInstalledApp(act, "com.data.zwnavi")) {
+            String activity = "com.data.zwnavi.MainActivity";
+            ComponentName component = new ComponentName("com.data.zwnavi", activity);
+            Intent intent = new Intent();
+            intent.setComponent(component);
+            intent.putExtra("NaviDataSS", new Gson().toJson(naviDataSS));
+            act.startActivityForResult(intent, requestCode);
+            return true;
+        }
+        return false;
+    }
 
     public static boolean navito(Activity act, NaviData item, int requestCode) {
 

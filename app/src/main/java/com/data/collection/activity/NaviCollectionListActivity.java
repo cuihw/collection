@@ -1,5 +1,6 @@
 package com.data.collection.activity;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -21,9 +22,12 @@ import com.data.collection.data.CacheData;
 import com.data.collection.data.greendao.DaoSession;
 import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.data.greendao.GatherPointDao;
+import com.data.collection.dialog.PopupDialog;
 import com.data.collection.module.CollectType;
+import com.data.collection.module.NaviData;
 import com.data.collection.module.UserInfoBean;
 import com.data.collection.network.HttpRequest;
+import com.data.collection.util.CommonUtils;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.ToastUtil;
 import com.data.collection.view.TitleView;
@@ -129,23 +133,32 @@ public class NaviCollectionListActivity extends BaseActivity {
         showData();
     }
 
-    private void naviTo(GatherPoint item) {
-        LsLog.w(TAG, "naviTo() = " + item.getName());
-        NaviDataSS naviDataSS = new NaviDataSS();
-        LocaltionData endNode  = new  LocaltionData();
-        endNode.setName(item.getName());
-        endNode.setLatitude(Double.parseDouble(item.getLatitude()));
-        endNode.setLongitude(Double.parseDouble(item.getLongitude()));
-        naviDataSS.setEndNode(endNode);
-
-        String activity = "com.data.zwnavi.MainActivity";
-        ComponentName component = new ComponentName("com.data.zwnavi", activity);
-        Intent intent = new Intent();
-        intent.setComponent(component);
-        intent.putExtra("NaviDataSS", new Gson().toJson(naviDataSS));
-        startActivityForResult(intent, START_NAVI);
+    private void naviToPos(NaviData item) {
+        if (!CommonUtils.navito(this, item, START_NAVI)) {
+            CommonUtils.copy(this);
+            PopupDialog popupDialog = PopupDialog.create(this, "提醒", "开始安装导航插件",
+                    "确定", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            CommonUtils.install(NaviCollectionListActivity.this);
+                        }
+                    });
+            popupDialog.show();
+        }
     }
-
+    private void naviTo(GatherPoint item) {
+        if (!CommonUtils.navito(this, item, START_NAVI)) {
+            CommonUtils.copy(this);
+            PopupDialog popupDialog = PopupDialog.create(this, "提醒", "开始安装导航插件",
+                    "确定", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            CommonUtils.install(NaviCollectionListActivity.this);
+                        }
+                    });
+            popupDialog.show();
+        }
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -158,8 +171,6 @@ public class NaviCollectionListActivity extends BaseActivity {
                     }
                     break;
             }
-        } else if (resultCode == RESULT_CANCELED){
-
         }
     }
 

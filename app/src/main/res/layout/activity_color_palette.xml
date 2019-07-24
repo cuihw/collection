@@ -99,7 +99,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="线色彩：" />
+                    android:text="区域色彩：" />
 
                 <View
                     android:id="@+id/polygon_color"

@@ -34,7 +34,15 @@ public class PositionUtilTest {
     }
 
     @Test
-    public void gpsToBaiduLatLng() {
+    public void gpsSting() {
+        String a = "aaaaa";
+        operationString(a);
+        System.out.println("a = " + a);
+    }
+
+    private void operationString(String a){
+        a = a + "bbbb";
+        System.out.println("a = " + a);
     }
 
     @Test
