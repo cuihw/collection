@@ -96,6 +96,7 @@ import static android.content.Context.SENSOR_SERVICE;
  * Use the {@link FragmentHome#} factory method to
  * create an instance of this fragment.
  */
+@Deprecated
 public class FragmentHome extends FragmentBase {
     private static final String TAG = "FragmentHome";
 
@@ -134,7 +135,6 @@ public class FragmentHome extends FragmentBase {
 
     @BindView(R.id.calibration_coordinate)
     TextView calibrationCoordinate;
-
 
     private View infoView;
     private boolean hasOfflineLay = false;

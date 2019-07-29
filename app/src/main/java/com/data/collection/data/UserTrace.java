@@ -12,6 +12,7 @@ import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.data.greendao.TraceLocation;
 import com.data.collection.data.greendao.TraceLocationDao;
 import com.data.collection.listener.ITraceListener;
+import com.data.collection.module.TraceData;
 import com.data.collection.module.TraceListBean;
 import com.data.collection.network.HttpRequest;
 import com.data.collection.service.TraceService;
@@ -77,6 +78,7 @@ public class UserTrace {
         } else {
             calendar.setTimeInMillis(startTime * 1000);
         }
+        final long startTime1 = startTime;
 
         calendar.set(Calendar.HOUR ,23);
         calendar.set(Calendar.MINUTE ,59);
@@ -109,10 +111,9 @@ public class UserTrace {
 
             @Override
             protected void onPostExecute(List<TraceLocation> traceLocations) {
-                traceListener.onTraceList(traceLocations);
+                traceListener.onTraceList(startTime1, traceLocations);
             }
         }.execute(startTime, endTime);
-
     }
 
     public void getDataFromServer(Context context, long startTime, ITraceListener traceListener) {
@@ -123,16 +124,30 @@ public class UserTrace {
             @Override
             public void onResponse(int status, TraceListBean bean) {
                 if (bean == null) {
-                    traceListener.onTraceList(null);
+                    traceListener.onTraceList(startTime,null);
                     return;
                 }
                 if (bean.getCode().equals(Constants.SUCCEED)) {
-                    List<TraceLocation> traceList = bean.getData().getTraceList();
-                    traceListener.onTraceList(traceList);
-                } else {
-                    traceListener.onTraceList(null);
-                }
+                    List<TraceData> data = bean.getData();
+                    if (data == null) {
+                        traceListener.onTraceList(startTime, null);
+                    } else if (data.size() > 0){
+                        List<TraceLocation> traceList = data.get(0).getTrace();
+                        traceListener.onTraceList(startTime, traceList);
 
+                        // 写入本地数据库
+                        for (TraceData item: data ) {
+                            List<TraceLocation> trace = item.getTrace();
+                            for (TraceLocation ele: trace) {
+                                ele.setIsUpload(true);
+                            }
+                            App.getInstence().getDaoSession().getTraceLocationDao().insertOrReplaceInTx(trace);
+                        }
+                    }
+
+                } else {
+                    traceListener.onTraceList(startTime, null);
+                }
             }
         });
     }

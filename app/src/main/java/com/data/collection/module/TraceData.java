@@ -7,7 +7,7 @@ import java.util.List;
 public class TraceData {
     private String date; //
 
-    private List<TraceLocation> traceList ;
+    private List<TraceLocation> trace ;
 
     public String getDate() {
         return date;
@@ -17,11 +17,11 @@ public class TraceData {
         this.date = date;
     }
 
-    public List<TraceLocation> getTraceList() {
-        return traceList;
+    public List<TraceLocation> getTrace() {
+        return trace;
     }
 
-    public void setTraceList(List<TraceLocation> traceList) {
-        this.traceList = traceList;
+    public void setTrace(List<TraceLocation> trace) {
+        this.trace = trace;
     }
 }

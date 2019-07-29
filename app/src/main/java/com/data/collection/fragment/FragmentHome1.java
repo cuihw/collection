@@ -79,6 +79,7 @@ import static android.content.Context.SENSOR_SERVICE;
  * Use the {@link FragmentHome1#} factory method to
  * create an instance of this fragment.
  */
+@Deprecated
 public class FragmentHome1 extends FragmentBase {
     private static final String TAG = "FragmentHome";
 

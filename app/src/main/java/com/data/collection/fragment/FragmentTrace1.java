@@ -56,6 +56,7 @@ import butterknife.BindView;
  * Use the {@link FragmentTrace1#} factory method to
  * create an instance of this fragment.
  */
+@Deprecated
 public class FragmentTrace1 extends FragmentBase {
     private static final String TAG = "FragmentTrace1";
 
@@ -130,8 +131,8 @@ public class FragmentTrace1 extends FragmentBase {
     ITraceListener traceListener = new ITraceListener(){
 
         @Override
-        public void onTraceList(List<TraceLocation> list) {
-            showLocalTrace(0, list);
+        public void onTraceList(long startTime, List<TraceLocation> list) {
+            showLocalTrace(startTime, list);
         }
     };
 
@@ -145,7 +146,7 @@ public class FragmentTrace1 extends FragmentBase {
         if (list == null || list.size() == 0) {
             UserTrace.getInstance().getDataFromServer(getContext(),time, new ITraceListener(){
                 @Override
-                public void onTraceList(List<TraceLocation> list) {
+                public void onTraceList(long startTime, List<TraceLocation> list) {
                     showTrace(list);
                 }
             } );

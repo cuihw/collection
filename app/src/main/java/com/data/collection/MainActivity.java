@@ -64,6 +64,7 @@ public class MainActivity extends BaseActivity {
         }
 
         UpLocationTask.getInstance().startUpload();
+
     }
 
     private void initLisenter() {
@@ -101,7 +102,7 @@ public class MainActivity extends BaseActivity {
         });
     }
 
-    private void initTab() {
+    private void initTab(){
         setTitle("导航");
         jpTabBar.setTitles(collect, navi, record, settings)
                 .setNormalIcons(R.mipmap.tab_home, R.mipmap.tab_navigation, R.mipmap.tab_check, R.mipmap.tab_setting)

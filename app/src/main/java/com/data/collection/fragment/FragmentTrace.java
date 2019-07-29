@@ -128,26 +128,34 @@ public class FragmentTrace extends FragmentBase {
         UserTrace.getInstance().getHistoryTrace(0, traceListener);
     }
 
-    ITraceListener traceListener = (list)->{showLocalTrace(0, list);};
+    ITraceListener traceListener = (starTime, list)->{showLocalTrace(starTime, list);};
 
     private void initView() {
         dateView.setText(DateUtils.formatDate(Calendar.getInstance(),DateUtils.fmtYYYYMMDD));
     }
 
     private void showLocalTrace(long time ,List<TraceLocation> list) {
-        if (list == null || list.size() == 0) {
+//        if (list == null || list.size() == 0) {
             UserTrace.getInstance().getDataFromServer(getContext(),time, new ITraceListener(){
                 @Override
-                public void onTraceList(List<TraceLocation> list) {
+                public void onTraceList(long startTime, List<TraceLocation> list) {
                     showTrace(list);
                 }
-            } );
-            return ;
-        }
+            });
+//            return ;
+//        }
         showTrace(list);
     }
 
     Map<String, TraceLocation> traceMap = new HashMap<>();
+
+
+    private void clearLineGraphic() {
+        mMapView.getGraphicsOverlays().clear();
+        mGraphicsOverlay = new GraphicsOverlay();
+        mMapView.getGraphicsOverlays().add(mGraphicsOverlay);
+    }
+
 
     private void showTrace(List<TraceLocation> list) {
         mMapView.getGraphicsOverlays().clear();
@@ -224,6 +232,8 @@ public class FragmentTrace extends FragmentBase {
         long time = calendar.getTimeInMillis()/1000;
 
         UserTrace.getInstance().getHistoryTrace(time, traceListener);
+
+        clearLineGraphic();
     }
 
     private void initListener() {

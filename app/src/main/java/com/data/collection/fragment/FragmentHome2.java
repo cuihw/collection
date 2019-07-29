@@ -39,6 +39,7 @@ import com.data.collection.data.MapDataUtils;
 import com.data.collection.data.UserTrace;
 import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.dialog.AdjustPosDialog2;
+import com.data.collection.dialog.PopupDialog;
 import com.data.collection.dialog.PopupInfoWindow;
 import com.data.collection.listener.IAdjustPosListener2;
 import com.data.collection.listener.IGatherDataListener;
@@ -47,6 +48,7 @@ import com.data.collection.module.MeasurePoint;
 import com.data.collection.util.BitmapUtil;
 import com.data.collection.util.FileUtils;
 import com.data.collection.util.LsLog;
+import com.data.collection.util.OffLineMap;
 import com.data.collection.util.PreferencesUtils;
 import com.data.collection.util.ToastUtil;
 import com.data.collection.view.MyPicMarkerSymbol;
@@ -74,6 +76,7 @@ import com.esri.arcgisruntime.location.LocationDataSource;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
 import com.esri.arcgisruntime.mapping.Basemap;
 import com.esri.arcgisruntime.mapping.LayerList;
+import com.esri.arcgisruntime.mapping.MobileMapPackage;
 import com.esri.arcgisruntime.mapping.Viewpoint;
 import com.esri.arcgisruntime.mapping.view.DefaultMapViewOnTouchListener;
 import com.esri.arcgisruntime.mapping.view.Graphic;
@@ -178,7 +181,7 @@ public class FragmentHome2 extends FragmentBase {
     ArcGISMap mArcGISMap;
     GraphicsOverlay mGraphicsOverlay;
     String[] items = new String[]{"开放街区图", "矢量图", "带标签影像图",
-            "拓扑图", "灰白底图", "空地图" };
+            "拓扑图", "灰白底图", "空地图"};
     List<Basemap.Type> mapTypeList = new ArrayList<>();
 
     Map<String, MyPicMarkerSymbol> myPicMarkerSymbolMap = new HashMap<>();
@@ -202,17 +205,15 @@ public class FragmentHome2 extends FragmentBase {
     private SensorManager mSensorManager;
     private boolean hasOfflineLay = false;
     private boolean isShowImageLayer = false;
+    private MobileMapPackage mapPackage;
+
 
     private void refreshOperstionLayer() {
         LayerList operationalLayers = mMapView.getMap().getOperationalLayers();
         operationalLayers.clear();
         operationalLayers.addAll(geoPackageRasterLayers);
         operationalLayers.addAll(imageryRasterLayers);
-
-
         operationalLayers.addAll(geoFeatureLayers);
-
-
     }
 
     //private DatumTransformation mSR3857;
@@ -278,9 +279,10 @@ public class FragmentHome2 extends FragmentBase {
     }
 
     private void initListener() {
-        colorPalette.setOnClickListener(v-> ColorPaletteActivity.start(getContext()));
 
-        measureAction.setOnClickListener(v->{
+        colorPalette.setOnClickListener(v -> ColorPaletteActivity.start(getContext()));
+
+        measureAction.setOnClickListener(v -> {
             // showMeasureTypeDialog()
             if (measureLayout.getVisibility() == View.VISIBLE) {
                 // 测量完成
@@ -292,10 +294,23 @@ public class FragmentHome2 extends FragmentBase {
             }
         });
 
-        measureEndLayout.setOnClickListener(v->{
+        measureEndLayout.setOnClickListener(v -> {
             Measurehelper.getInstance().getArcGisMeasure().endMeasure();
+
+            PopupDialog popupDialog = PopupDialog.create(getContext(), "测量保存", "是否保存测量结果", "保存", new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            }, "取消", new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
+            popupDialog.show();
         });
-        measureClearLayout.setOnClickListener(v->{
+        measureClearLayout.setOnClickListener(v -> {
             Measurehelper.getInstance().getArcGisMeasure().clearMeasure();
         });
 
@@ -317,7 +332,6 @@ public class FragmentHome2 extends FragmentBase {
         });
 
         mMapView.setOnTouchListener(new DefaultMapViewOnTouchListener(getContext(), mMapView) {
-
             @Override
             public boolean onSingleTapConfirmed(MotionEvent v) {
                 android.graphics.Point screenPoint = new android.graphics.Point(Math.round(v.getX()), Math.round(v.getY()));
@@ -331,7 +345,6 @@ public class FragmentHome2 extends FragmentBase {
                     }
                     return true;
                 }
-
 
                 Point clickPoint = mMapView.screenToLocation(screenPoint); // 地理坐标点；
                 // Project the point to WGS84, using the transformation
@@ -358,7 +371,7 @@ public class FragmentHome2 extends FragmentBase {
                     List<Graphic> graphic = identifyGraphicsOverlayResult.getGraphics();
                     if (!graphic.isEmpty()) {
                         Graphic graphic1 = graphic.get(0);
-                        String gatherPoint = (String)graphic1.getAttributes().get("GatherPoint");
+                        String gatherPoint = (String) graphic1.getAttributes().get("GatherPoint");
                         GatherPoint point = new Gson().fromJson(gatherPoint, GatherPoint.class);
                         showInfoWindow(point);
                         return true;
@@ -449,7 +462,7 @@ public class FragmentHome2 extends FragmentBase {
                         .withRequestCode(Constants.GET_FILE_PATH)
                         .withStartPath(fileDir)
                         //.withFileFilter(new String[]{".txt", ".png", ".docx"})
-                        .withFileFilter(new String[]{".gpkg", ".geodatabase"})
+                        .withFileFilter(new String[]{".gpkg", ".mmpk"})
                         .withMutilyMode(false)
                         .withTitle("打开离线文件")
                         .start();
@@ -461,9 +474,9 @@ public class FragmentHome2 extends FragmentBase {
         });
     }
 
-    private void showInfoWindow(final  GatherPoint point) {
+    private void showInfoWindow(final GatherPoint point) {
         CollectType typeIconUrl = MapDataUtils.getTypeIconUrl(point);
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(),R.mipmap.five_sided);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.five_sided);
         if (typeIconUrl != null) {
             bitmap = ImageLoader.getInstance().loadImageSync(typeIconUrl.getIcon());
         }
@@ -557,7 +570,7 @@ public class FragmentHome2 extends FragmentBase {
 
     private BitmapDrawable createMarkerBitmap(GatherPoint point) {
         Context context = getContext();
-        if (context== null) return null;
+        if (context == null) return null;
         View view = View.inflate(getContext(), R.layout.view_point_marker, null);
         TextView viewById = view.findViewById(R.id.name_tv);
         viewById.setText(point.getName());
@@ -596,7 +609,7 @@ public class FragmentHome2 extends FragmentBase {
         imageryRasterLayers = new ArrayList<>(); // tiff 图层
         geoFeatureLayers = new ArrayList<>();  //
         initMylocaltion();
-}
+    }
 
     private void removeOffLineLay() {
         hasOfflineLay = false;
@@ -607,12 +620,12 @@ public class FragmentHome2 extends FragmentBase {
         mapTypeList.add(Basemap.Type.OPEN_STREET_MAP);
         mapTypeList.add(Basemap.Type.STREETS_VECTOR);
         mapTypeList.add(Basemap.Type.IMAGERY_WITH_LABELS_VECTOR);
-        mapTypeList.add(Basemap.Type.STREETS_WITH_RELIEF_VECTOR);
-        mapTypeList.add(Basemap.Type.LIGHT_GRAY_CANVAS);
-        mapTypeList.add(Basemap.Type.LIGHT_GRAY_CANVAS);
+        mapTypeList.add(Basemap.Type.STREETS);
+        mapTypeList.add(Basemap.Type.LIGHT_GRAY_CANVAS_VECTOR);
+        mapTypeList.add(Basemap.Type.NAVIGATION_VECTOR);
 
         if (mMapView != null) {
-            mArcGISMap = new ArcGISMap(Basemap.Type.OPEN_STREET_MAP , Constants.latitude,
+            mArcGISMap = new ArcGISMap(Basemap.Type.OPEN_STREET_MAP, Constants.latitude,
                     Constants.longitude, Constants.levelOfDetail);
             mArcGISMap.loadAsync();
             mArcGISMap.addLoadStatusChangedListener(new LoadStatusChangedListener() {
@@ -622,8 +635,6 @@ public class FragmentHome2 extends FragmentBase {
                     LsLog.w(TAG, "ArcGISRuntimeException loadError " + loadError.getMessage());
                 }
             });
-
-
 
             mMapView.setMap(mArcGISMap);
             mMapView.setWrapAroundMode(WrapAroundMode.ENABLE_WHEN_SUPPORTED);
@@ -663,7 +674,7 @@ public class FragmentHome2 extends FragmentBase {
     private void goToMyLocation() {
         // 4326   GCS_WGS_1984  和  102100    WGS_1984_web_mercator_auxiliary_sphere 。  EPSG:3857 -- WGS84 Web Mercator (Auxiliary Sphere)
         LocationDataSource.Location location = locationDisplay.getLocation();
-        if (location != null && location.getPosition() != null&& mMapView!= null) {
+        if (location != null && location.getPosition() != null && mMapView != null) {
             mMapView.setViewpointCenterAsync(location.getPosition());
             mMapView.setViewpointRotationAsync(0);
         }
@@ -678,7 +689,7 @@ public class FragmentHome2 extends FragmentBase {
         // TODO: 查找边界，显示采集点信息
 
         if (geoFeatureLayers.size() > 0) {
-            for (FeatureLayer featureLayer: geoFeatureLayers) {
+            for (FeatureLayer featureLayer : geoFeatureLayers) {
                 setFillColor(featureLayer);
             }
         }
@@ -687,7 +698,7 @@ public class FragmentHome2 extends FragmentBase {
     private void setFillColor(FeatureLayer featureLayer) {
         GeometryType geometryType = featureLayer.getFeatureTable().getGeometryType();
         if (geometryType == GeometryType.POINT) {
-            int pointValue = PreferencesUtils.getInt(getContext(),"pointValue", Color.BLUE);
+            int pointValue = PreferencesUtils.getInt(getContext(), "pointValue", Color.BLUE);
             SimpleMarkerSymbol pointSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, pointValue, 10);
             SimpleRenderer pointRenderer = new SimpleRenderer(pointSymbol);
             featureLayer.setRenderer(pointRenderer);
@@ -747,16 +758,46 @@ public class FragmentHome2 extends FragmentBase {
                         loadTiff(file);
                     } else if (isShapeFile(file)) {
                         loadShp(file);
+                    } else if (isMmpk(file)) {
+                        loadMmpk(file);
                     } else {
                         loadOfflineMapLayer(file);
                     }
                 }
-            } else  if (requestCode == Constants.GET_MEASURE) {
+            } else if (requestCode == Constants.GET_MEASURE) {
                 MeasurePoint[] data1 = (MeasurePoint[]) data.getSerializableExtra("data");
                 int type = (int) data.getIntExtra("type", 0);
                 measure(type, data1);
             }
         }
+    }
+
+    private void loadMmpk(String mmpkFile) {
+
+        //[DocRef: Name=Open Mobile Map Package-android, Category=Work with maps, Topic=Create an offline map]
+        // create the mobile map package
+        mapPackage = new MobileMapPackage(mmpkFile);
+        // load the mobile map package asynchronously
+        mapPackage.loadAsync();
+
+        // add done listener which will invoke when mobile map package has loaded
+        mapPackage.addDoneLoadingListener(new Runnable() {
+            @Override
+            public void run() {
+                // check load status and that the mobile map package has maps
+                if (mapPackage.getLoadStatus() == LoadStatus.LOADED && !mapPackage.getMaps().isEmpty()) {
+                    // add the map from the mobile map package to the MapView
+                    mMapView.setMap(mapPackage.getMaps().get(0));
+                } else {
+                    // log an issue if the mobile map package fails to load
+                    Log.e(TAG, mapPackage.getLoadError().getMessage());
+                }
+            }
+        });
+    }
+
+    private boolean isMmpk(String file) {
+        return file.endsWith(".mmpk");
     }
 
     private void loadShp(String filename) {
@@ -803,15 +844,14 @@ public class FragmentHome2 extends FragmentBase {
             Raster imageryRaster = new Raster(filename);
             RasterLayer rasterLayer = new RasterLayer(imageryRaster);
             rasterLayer.loadAsync();
-            rasterLayer.addDoneLoadingListener(()->{
+            rasterLayer.setOpacity(0.6f);
+            rasterLayer.addDoneLoadingListener(() -> {
                 if (rasterLayer.getLoadStatus() == LoadStatus.LOADED) {
                     mMapView.setViewpointAsync(new Viewpoint(rasterLayer.getFullExtent()));
                 }
             });
-
             imageryRasterLayers.add(rasterLayer);
             refreshOperstionLayer();
-
         } else {
             ToastUtil.showTextToast(getContext(), filename + " 不是一个地图文件，请重新选择");
         }
@@ -896,7 +936,7 @@ public class FragmentHome2 extends FragmentBase {
         builder.setSingleChoiceItems(measureStr, 0, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                switch(which) {
+                switch (which) {
                     case 0:
                         // 点屏测量长度
                         Measurehelper.getInstance().setDrawType(Variable.DrawType.LINE);
@@ -919,7 +959,7 @@ public class FragmentHome2 extends FragmentBase {
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                switch(which) {
+                switch (which) {
                     case 0:
                         // 点屏测量长度
                         Measurehelper.getInstance().setDrawType(Variable.DrawType.LINE);
@@ -1016,15 +1056,17 @@ public class FragmentHome2 extends FragmentBase {
     private void measure(int measureType, MeasurePoint[] pointsMeasure) {
 
         List<Point> list = new ArrayList<>();
-        for (MeasurePoint pt: pointsMeasure) {
+        for (MeasurePoint pt : pointsMeasure) {
             String longitude = pt.getLongitude();
             String latitude = pt.getLatitude();
             Point point = new Point(Double.parseDouble(longitude), Double.parseDouble(latitude), SpatialReferences.getWgs84());
             point = (Point) GeometryEngine.project(point, SpatialReferences.getWebMercator());
             list.add(point);
             if (measureType == AREA_TYPE) {
+                Measurehelper.getInstance().setDrawType(Variable.DrawType.LINE);
                 Measurehelper.getInstance().getArcGisMeasure().startMeasuredArea(point);
             } else {
+                Measurehelper.getInstance().setDrawType(Variable.DrawType.POLYGON);
                 Measurehelper.getInstance().getArcGisMeasure().startMeasuredLength(point);
             }
         }
@@ -1034,14 +1076,15 @@ public class FragmentHome2 extends FragmentBase {
 
     public static class Measurehelper {
         static Measurehelper instance;
-        private Variable.DrawType drawType = Variable.DrawType.LINE;;
+        private Variable.DrawType drawType = Variable.DrawType.LINE;
+
         private ArcGisMeasure arcGisMeasure;
 
-        private Measurehelper(ArcGisMeasure arcGisMeasure){
+        private Measurehelper(ArcGisMeasure arcGisMeasure) {
             this.arcGisMeasure = arcGisMeasure;
         }
 
-public static void init(ArcGisMeasure arcGisMeasure){
+        public static void init(ArcGisMeasure arcGisMeasure) {
             instance = new Measurehelper(arcGisMeasure);
         }
 
@@ -1063,6 +1106,10 @@ public static void init(ArcGisMeasure arcGisMeasure){
 
         public void setArcGisMeasure(ArcGisMeasure arcGisMeasure) {
             this.arcGisMeasure = arcGisMeasure;
+        }
+
+        public void  startMeasured(android.graphics.Point screenPoint){
+
         }
 
         public void endMeasure() {

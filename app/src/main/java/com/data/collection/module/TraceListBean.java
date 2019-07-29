@@ -1,13 +1,15 @@
 package com.data.collection.module;
 
-public class TraceListBean extends Bean {
-    TraceData data;
+import java.util.List;
 
-    public TraceData getData() {
+public class TraceListBean extends Bean {
+    List<TraceData>  data;
+
+    public List<TraceData> getData() {
         return data;
     }
 
-    public void setData(TraceData data) {
+    public void setData(List<TraceData> data) {
         this.data = data;
     }
 }
