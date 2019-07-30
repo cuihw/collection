@@ -15,7 +15,7 @@ import org.osmdroid.util.GeoPoint;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-
+@Deprecated
 public class AdjustPosDialog extends Dialog {
     IAdjustPosListener listener;
 

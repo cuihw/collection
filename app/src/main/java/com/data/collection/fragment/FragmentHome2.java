@@ -28,6 +28,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.data.collection.App;
 import com.data.collection.Constants;
 import com.data.collection.R;
 import com.data.collection.activity.AddCollectionActivity;
@@ -38,15 +39,21 @@ import com.data.collection.data.CacheData;
 import com.data.collection.data.MapDataUtils;
 import com.data.collection.data.UserTrace;
 import com.data.collection.data.greendao.GatherPoint;
+import com.data.collection.data.greendao.Ploygon;
+import com.data.collection.data.greendao.SimplePoint;
 import com.data.collection.dialog.AdjustPosDialog2;
 import com.data.collection.dialog.PopupDialog;
 import com.data.collection.dialog.PopupInfoWindow;
+import com.data.collection.dialog.SavePloygonDialog;
 import com.data.collection.listener.IAdjustPosListener2;
 import com.data.collection.listener.IGatherDataListener;
+import com.data.collection.listener.ISavePolygonListener;
 import com.data.collection.module.CollectType;
 import com.data.collection.module.MeasurePoint;
 import com.data.collection.util.BitmapUtil;
+import com.data.collection.util.DateUtils;
 import com.data.collection.util.FileUtils;
+import com.data.collection.util.LocationController;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.OffLineMap;
 import com.data.collection.util.PreferencesUtils;
@@ -102,6 +109,7 @@ import com.leon.lfilepickerlibrary.LFilePicker;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -287,7 +295,7 @@ public class FragmentHome2 extends FragmentBase {
             if (measureLayout.getVisibility() == View.VISIBLE) {
                 // 测量完成
                 measureLayout.setVisibility(View.INVISIBLE);
-                Measurehelper.getInstance().getArcGisMeasure().clearMeasure();
+                Measurehelper.getInstance().clearMeasure();
                 Measurehelper.getInstance().endMeasure();
             } else { // 进入测量模式
                 showMeasureTypeDialog();
@@ -295,23 +303,26 @@ public class FragmentHome2 extends FragmentBase {
         });
 
         measureEndLayout.setOnClickListener(v -> {
-            Measurehelper.getInstance().getArcGisMeasure().endMeasure();
-
-            PopupDialog popupDialog = PopupDialog.create(getContext(), "测量保存", "是否保存测量结果", "保存", new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                }
-            }, "取消", new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                }
-            });
-            popupDialog.show();
+            Measurehelper.getInstance().endMeasure();
+            List<Point> pointList = Measurehelper.getInstance().getPointList();
+            if (pointList != null && pointList.size() > 0) {
+                PopupDialog popupDialog = PopupDialog.create(getContext(), "测量保存", "是否保存测量结果",
+                        "保存",
+                        new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showSaveDialog();
+                    }
+                }, "取消", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {}
+                });
+                popupDialog.show();
+            }
         });
+
         measureClearLayout.setOnClickListener(v -> {
-            Measurehelper.getInstance().getArcGisMeasure().clearMeasure();
+            Measurehelper.getInstance().clearMeasure();
         });
 
         //openation Hint
@@ -337,12 +348,7 @@ public class FragmentHome2 extends FragmentBase {
                 android.graphics.Point screenPoint = new android.graphics.Point(Math.round(v.getX()), Math.round(v.getY()));
 
                 if (measureLayout.getVisibility() == View.VISIBLE) { // 测量模式
-                    Variable.DrawType drawType = Measurehelper.getInstance().getDrawType();
-                    if (drawType == Variable.DrawType.LINE) {
-                        Measurehelper.getInstance().getArcGisMeasure().startMeasuredLength(screenPoint);
-                    } else {
-                        Measurehelper.getInstance().getArcGisMeasure().startMeasuredArea(screenPoint);
-                    }
+                    Measurehelper.getInstance().startMeasured(screenPoint);
                     return true;
                 }
 
@@ -472,6 +478,21 @@ public class FragmentHome2 extends FragmentBase {
         myPosition.setOnClickListener(v -> {
             goToMyLocation();
         });
+    }
+
+    private void showSaveDialog() {
+        SavePloygonDialog dialog = new SavePloygonDialog(getContext(), new ISavePolygonListener() {
+            @Override
+            public void onConfirm(String name, String comments) {
+                savePolygonResult(name, comments);
+            }
+
+            @Override
+            public void onCancel() {
+                // 取消保存
+            }
+        });
+        dialog.show();
     }
 
     private void showInfoWindow(final GatherPoint point) {
@@ -959,13 +980,8 @@ public class FragmentHome2 extends FragmentBase {
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case 0:
-                        // 点屏测量长度
-                        Measurehelper.getInstance().setDrawType(Variable.DrawType.LINE);
-                        Measurehelper.getInstance().endMeasure();
-                        break;
-                }
+                Measurehelper.getInstance().setDrawType(Variable.DrawType.LINE);
+                Measurehelper.getInstance().endMeasure();
                 measureLayout.setVisibility(View.VISIBLE);
             }
         });
@@ -1056,29 +1072,51 @@ public class FragmentHome2 extends FragmentBase {
     private void measure(int measureType, MeasurePoint[] pointsMeasure) {
 
         List<Point> list = new ArrayList<>();
+        if (measureType == AREA_TYPE) {
+            Measurehelper.getInstance().setDrawType(Variable.DrawType.POLYGON);
+        } else {
+            Measurehelper.getInstance().setDrawType(Variable.DrawType.LINE);
+        }
         for (MeasurePoint pt : pointsMeasure) {
             String longitude = pt.getLongitude();
             String latitude = pt.getLatitude();
             Point point = new Point(Double.parseDouble(longitude), Double.parseDouble(latitude), SpatialReferences.getWgs84());
             point = (Point) GeometryEngine.project(point, SpatialReferences.getWebMercator());
             list.add(point);
-            if (measureType == AREA_TYPE) {
-                Measurehelper.getInstance().setDrawType(Variable.DrawType.LINE);
-                Measurehelper.getInstance().getArcGisMeasure().startMeasuredArea(point);
-            } else {
-                Measurehelper.getInstance().setDrawType(Variable.DrawType.POLYGON);
-                Measurehelper.getInstance().getArcGisMeasure().startMeasuredLength(point);
-            }
+            Measurehelper.getInstance().startMeasured(point);
         }
 
-        Measurehelper.getInstance().getArcGisMeasure().endMeasure();
+        double area = Measurehelper.getInstance().getArea();
+        double lineLength = Measurehelper.getInstance().getLineLength();
+
+        LsLog.w(TAG, "area = " + area + ", lineLength = " + lineLength);
+
+        Measurehelper.getInstance().endMeasure();
     }
 
     public static class Measurehelper {
         static Measurehelper instance;
         private Variable.DrawType drawType = Variable.DrawType.LINE;
 
+        double area = 0;
+
+        double lineLength = 0;
+
+        List<Point> pointList;
+
         private ArcGisMeasure arcGisMeasure;
+
+        public List<Point> getPointList() {
+            return pointList;
+        }
+
+        public double getLineLength() {
+            return lineLength;
+        }
+
+        public double getArea(){
+            return area;
+        }
 
         private Measurehelper(ArcGisMeasure arcGisMeasure) {
             this.arcGisMeasure = arcGisMeasure;
@@ -1100,21 +1138,81 @@ public class FragmentHome2 extends FragmentBase {
             this.drawType = drawType;
         }
 
-        public ArcGisMeasure getArcGisMeasure() {
-            return arcGisMeasure;
-        }
-
-        public void setArcGisMeasure(ArcGisMeasure arcGisMeasure) {
-            this.arcGisMeasure = arcGisMeasure;
-        }
-
         public void  startMeasured(android.graphics.Point screenPoint){
+            if (drawType == Variable.DrawType.LINE) {
+                arcGisMeasure.startMeasuredLength(screenPoint);
+            } else {
+                arcGisMeasure.startMeasuredArea(screenPoint);
+            }
+            lineLength = arcGisMeasure.getLineLength();
+            area = arcGisMeasure.getArea();
+            pointList = arcGisMeasure.getPointList();
+        }
 
+        public void  startMeasured(Point point){
+            if (drawType == Variable.DrawType.LINE) {
+                arcGisMeasure.startMeasuredLength(point);
+            } else {
+                arcGisMeasure.startMeasuredArea(point);
+            }
+            lineLength = arcGisMeasure.getLineLength();
+            area = arcGisMeasure.getArea();
+            pointList = arcGisMeasure.getPointList();
+        }
+
+        public void  clearMeasure() {
+            lineLength = 0;
+            area = 0;
+            pointList = null;
+            arcGisMeasure.clearMeasure();
         }
 
         public void endMeasure() {
             arcGisMeasure.endMeasure();
         }
+    }
+
+    private void savePolygonResult(String name, String comments) {
+        LsLog.w(TAG, "savePolygonResult");
+        Ploygon ploygon = new Ploygon();
+        ploygon.setName(name);
+        ploygon.setComments(comments);
+
+        Variable.DrawType drawType = Measurehelper.getInstance().getDrawType();
+        List<Point> pointList = Measurehelper.getInstance().getPointList();
+        if (pointList == null || pointList.size() ==0) {
+            ToastUtil.showTextToast(getContext(), "定点数量不正确，保存失败");
+            return;
+        }
+
+        double result = 0;
+        if (drawType == Variable.DrawType.LINE) {
+            double lineLength = Measurehelper.getInstance().getLineLength();
+            ploygon.setIsLine(true);
+            ploygon.setMeasureResult(lineLength);
+        } else {
+            ploygon.setIsLine(false);
+            double area = Measurehelper.getInstance().getArea();
+            ploygon.setMeasureResult(area);
+        }
+
+        ploygon.setPointCount(pointList.size());
+        long insert = App.getInstence().getDaoSession().insert(ploygon);
+
+        DecimalFormat df = new DecimalFormat("#.00000000");
+
+        for (int i = 0; i <pointList.size(); i++) {
+            Point geoPoint = pointList.get(i);
+            geoPoint = (Point) GeometryEngine.project(geoPoint, SpatialReferences.getWgs84());
+            SimplePoint point = new SimplePoint();
+            point.setLatitude(df.format(geoPoint.getX()));
+            point.setLongitude(df.format(geoPoint.getY()));
+            point.setHeight(String.format("%.1f", geoPoint.getY()));
+            point.setIndex(i);
+            point.setPloygonId(insert);
+            App.getInstence().getDaoSession().insert(point);
+        }
+
     }
 
 }

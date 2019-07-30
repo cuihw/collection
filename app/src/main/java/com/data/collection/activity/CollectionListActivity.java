@@ -75,6 +75,11 @@ public class CollectionListActivity extends BaseActivity {
     @BindView(R.id.local_button)
     RadioButton localButton;
 
+
+    @BindView(R.id.ploygon_radio)
+    RadioButton ploygonRadio;
+
+
     @BindView(R.id.radio_group)
     RadioGroup radioGroup;
 
@@ -213,10 +218,13 @@ public class CollectionListActivity extends BaseActivity {
                     myCollectDataList = getData(true);
                     // show local data;
                     showData();
-                } else {
+                } else if (R.id.synced_button == checkedId) {
                     dataList = getData(false);
                     // show synced data;
                     showData();
+                } else if (R.id.ploygon_radio == checkedId){
+                    // show measure data.
+
                 }
             }
         });

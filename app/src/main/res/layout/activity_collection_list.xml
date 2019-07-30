@@ -53,6 +53,19 @@
                 android:text="同步数据"
                 android:textColor="@drawable/button1_text_selector" />
 
+            <RadioButton
+                android:id="@+id/ploygon_radio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/item_padding"
+                android:layout_weight="1"
+                android:background="@drawable/checkbox_selector"
+                android:button="@null"
+                android:textSize="@dimen/font3"
+                android:gravity="center"
+                android:text="测量数据"
+                android:textColor="@drawable/button1_text_selector" />
+
         </RadioGroup>
         <ListView
             android:layout_margin="@dimen/item_padding_small"

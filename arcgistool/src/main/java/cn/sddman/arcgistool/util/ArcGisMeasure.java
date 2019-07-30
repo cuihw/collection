@@ -27,6 +27,24 @@ public class ArcGisMeasure extends Draw {
     private double lineLength=0;
     private List<Double> lengthList;
     private List<Double> tmpLengthList;
+    private double area = 0;
+
+    public double getLineLength() {
+        return lineLength;
+    }
+
+    public void setLineLength(double lineLength) {
+        this.lineLength = lineLength;
+    }
+
+    public double getArea() {
+        return area;
+    }
+
+    public void setArea(double area) {
+        this.area = area;
+    }
+
     public ArcGisMeasure(Context context, MapView mapView) {
         super(context, mapView);
         this.context=context;
@@ -178,11 +196,10 @@ public class ArcGisMeasure extends Draw {
 
     private void showArea(PolygonBuilder polygon){
         if(polygon!=null) {
-            double area = GeometryEngine.area(polygon.toGeometry());
-            String s=Util.forMatDouble(Math.abs(Util.areaChange(area,measureAreaType)));
+            area = GeometryEngine.area(polygon.toGeometry());
+            area = Math.abs(area);
+            String s=Util.forMatDouble(Math.abs(Util.areaChange(area, measureAreaType)));
             super.drawText(polygon.toGeometry().getExtent().getCenter(),s+Util.lengthEnameToCname(measureAreaType),true);
         }
     }
-
-
 }

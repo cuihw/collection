@@ -53,6 +53,10 @@ public class Draw {
         init();
     }
 
+    public List<Point> getPointList() {
+        return pointList;
+    }
+
     private void init(){
         pointList=new ArrayList<>();
         tmpPointList=new ArrayList<>();
