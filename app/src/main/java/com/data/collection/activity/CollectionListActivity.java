@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -22,6 +23,8 @@ import com.data.collection.data.CacheData;
 import com.data.collection.data.greendao.DaoSession;
 import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.data.greendao.GatherPointDao;
+import com.data.collection.data.greendao.Ploygon;
+import com.data.collection.data.greendao.PloygonDao;
 import com.data.collection.module.BaseBean;
 import com.data.collection.module.CollectType;
 import com.data.collection.module.CollectionImage;
@@ -90,6 +93,8 @@ public class CollectionListActivity extends BaseActivity {
     TextView noDataTv;
 
     CommonAdapter<GatherPoint> adapter;
+
+    CommonAdapter<Ploygon> adapterPloygon;
 
     List<GatherPoint> dataList;       // 同步网络数据
 
@@ -201,6 +206,44 @@ public class CollectionListActivity extends BaseActivity {
         showData();
     }
 
+    private void initAdapterPloygon(){
+        //layout/item_gather_ploygon.xml
+        List<Ploygon> list = getPloygon();
+        adapterPloygon = new CommonAdapter<Ploygon>(this, R.layout.item_gather_ploygon, list) {
+            @Override
+            public void onUpdate(BaseAdapterHelper helper, Ploygon item, int position) {
+                helper.setText(R.id.name ,item.getName());
+                helper.setText(R.id.time ,item.getTime());
+                String comments = item.getComments();
+                if (TextUtils.isEmpty(comments)) {
+                    helper.setVisible(R.id.comments_tv ,View.GONE);
+                } else {
+                    helper.setVisible(R.id.comments_tv ,View.VISIBLE);
+                    helper.setText(R.id.comments_tv ,"备注： " + item.getComments());
+                }
+
+                StringBuffer sb = new StringBuffer();
+                sb.append("顶点数量:  " + item.getPointCount());
+
+                if (item.getIsLine()) {
+                    sb.append("; 测量类型: 长度")
+                        .append("; 测量结果: " + String.format("%.2f", item.getMeasureResult()) + "米");
+                } else {
+                    sb.append("; 测量类型: 面积")
+                        .append("; 测量结果: " + String.format("%.2f", item.getMeasureResult()) + "平方米");
+                }
+                helper.setText(R.id.result_tv ,sb.toString());
+            }
+        };
+    }
+
+    private List<Ploygon> getPloygon() {
+        QueryBuilder<Ploygon> ploygonQueryBuilder = App.getInstence().getDaoSession().queryBuilder(Ploygon.class)
+                .orderDesc(PloygonDao.Properties.Time).limit(30);
+        List<Ploygon> list = ploygonQueryBuilder.list();
+        return list;
+    }
+
     private List<GatherPoint> getData(boolean isMyCollectionData) {
         if (isMyCollectionData) { //
             return myCollectDateQb.list();
@@ -217,14 +260,22 @@ public class CollectionListActivity extends BaseActivity {
                 if (R.id.local_button == checkedId) {
                     myCollectDataList = getData(true);
                     // show local data;
+                    listView.setAdapter(adapter);
+                    actionSyncAll.setVisibility(View.VISIBLE);
                     showData();
                 } else if (R.id.synced_button == checkedId) {
                     dataList = getData(false);
                     // show synced data;
+                    listView.setAdapter(adapter);
+                    actionSyncAll.setVisibility(View.VISIBLE);
                     showData();
                 } else if (R.id.ploygon_radio == checkedId){
                     // show measure data.
-
+                    if (adapterPloygon == null) {
+                        initAdapterPloygon();
+                    }
+                    listView.setAdapter(adapterPloygon);
+                    actionSyncAll.setVisibility(View.GONE);
                 }
             }
         });
@@ -233,11 +284,10 @@ public class CollectionListActivity extends BaseActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                GatherPoint item = adapter.getItem(position);
-                AddCollectionActivity.start(CollectionListActivity.this, item);
-//                Bundle bundle = new Bundle();
-//                bundle.putString("GatherPoint", new Gson().toJson(item));
-//                ShowPointActivity.start(CollectionListActivity.this, bundle);
+                if (!ploygonRadio.isChecked()) {
+                    GatherPoint item = CollectionListActivity.this.adapter.getItem(position);
+                    AddCollectionActivity.start(CollectionListActivity.this, item);
+                }
             }
         });
     }
