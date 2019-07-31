@@ -38,6 +38,7 @@ import com.data.collection.activity.MeasureCollectionListActivity;
 import com.data.collection.data.CacheData;
 import com.data.collection.data.MapDataUtils;
 import com.data.collection.data.UserTrace;
+import com.data.collection.data.dxf.DxfDocument;
 import com.data.collection.data.greendao.GatherPoint;
 import com.data.collection.data.greendao.Ploygon;
 import com.data.collection.data.greendao.SimplePoint;
@@ -107,6 +108,9 @@ import com.google.gson.Gson;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.leon.lfilepickerlibrary.LFilePicker;
 import com.nostra13.universalimageloader.core.ImageLoader;
+
+import org.kabeja.dxf.Bounds;
+import org.kabeja.dxf.DXFLWPolyline;
 
 import java.io.File;
 import java.text.DecimalFormat;
@@ -428,7 +432,7 @@ public class FragmentHome2 extends FragmentBase {
                         .withRequestCode(Constants.GET_FILE_PATH)
                         .withStartPath(fileDir)
                         //.withFileFilter(new String[]{".txt", ".png", ".docx"})
-                        .withFileFilter(new String[]{".tif", ".shp"})
+                        .withFileFilter(new String[]{".tif", ".shp","dxf"})
                         .withMutilyMode(false)
                         .withTitle("加载图层文件")
                         .start();
@@ -781,6 +785,8 @@ public class FragmentHome2 extends FragmentBase {
                         loadShp(file);
                     } else if (isMmpk(file)) {
                         loadMmpk(file);
+                    } else if (isDxfFile(file)) {      //DxfDocument
+                        loadDxf(file);
                     } else {
                         loadOfflineMapLayer(file);
                     }
@@ -791,6 +797,18 @@ public class FragmentHome2 extends FragmentBase {
                 measure(type, data1);
             }
         }
+    }
+
+    private void loadDxf(String file) {
+        DxfDocument dxfDocument = new DxfDocument(file);
+        Bounds bounds = dxfDocument.getBounds();
+        List<DXFLWPolyline> entities = dxfDocument.getENTITIES();
+        
+    }
+
+    private boolean isDxfFile(String file) {
+        String lowerCase = file.toLowerCase();
+        return  lowerCase.endsWith(".dxf");
     }
 
     private void loadMmpk(String mmpkFile) {
@@ -818,7 +836,8 @@ public class FragmentHome2 extends FragmentBase {
     }
 
     private boolean isMmpk(String file) {
-        return file.endsWith(".mmpk");
+        String lowerCase = file.toLowerCase();
+        return lowerCase.endsWith(".mmpk");
     }
 
     private void loadShp(String filename) {
@@ -852,11 +871,13 @@ public class FragmentHome2 extends FragmentBase {
     }
 
     private boolean isShapeFile(String file) {
-        return file.endsWith(".shp");
+        String lowerCase = file.toLowerCase();
+        return lowerCase.endsWith(".shp");
     }
 
     private boolean isPictureFile(String file) {
-        return file.endsWith(".tif");
+        String lowerCase = file.toLowerCase();
+        return lowerCase.endsWith(".tif");
     }
 
     private void loadTiff(String filename) {

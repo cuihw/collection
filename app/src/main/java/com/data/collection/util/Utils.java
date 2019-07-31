@@ -238,6 +238,7 @@ public class Utils {
 
 
     public static String bytes2hex(byte[] bytes) {
+        if (bytes == null) return "";
         StringBuilder sb = new StringBuilder();
         String tmp = null;
         for (byte b : bytes) {

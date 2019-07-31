@@ -496,7 +496,7 @@ public class AddCollectionActivity extends BaseActivity {
 
     private void callCamera() {
         if (!hasProjectInfo()) return;
-        takeCameraFilename = FileUtils.getFileDir() + "zw" + System.currentTimeMillis() + ".jpg";
+        takeCameraFilename = FileUtils.getFileDir() + "pic/zw" + System.currentTimeMillis() + ".jpg";
         // 如果没有设置图片名称，则根据当前系统时间设置默认的图片名称
 
         File takePhotoTempFile = new File(takeCameraFilename);
