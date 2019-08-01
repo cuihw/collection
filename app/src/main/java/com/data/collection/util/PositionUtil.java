@@ -3,6 +3,9 @@ package com.data.collection.util;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.CoordinateConverter;
 import com.data.collection.module.Gps;
+import com.esri.arcgisruntime.geometry.GeometryEngine;
+import com.esri.arcgisruntime.geometry.Point;
+import com.esri.arcgisruntime.geometry.SpatialReferences;
 
 /**
  * 各地图API坐标转换;
@@ -30,6 +33,14 @@ public class PositionUtil {
         y =  (double)(y * 20037508.342789 / 180);
         Gps mercator = new Gps(x, y);
         return mercator;
+    }
+
+    public static Point toMercator(Point point) {
+        return (Point)GeometryEngine.project(point, SpatialReferences.getWebMercator());
+    }
+
+    public static Point toWgs84(Point point) {
+        return (Point)GeometryEngine.project(point, SpatialReferences.getWgs84());
     }
 
     /**

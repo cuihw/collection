@@ -48,6 +48,7 @@ import com.data.collection.dialog.PopupInfoWindow;
 import com.data.collection.dialog.SavePloygonDialog;
 import com.data.collection.listener.IAdjustPosListener2;
 import com.data.collection.listener.IGatherDataListener;
+import com.data.collection.listener.IListenerDxfReady;
 import com.data.collection.listener.ISavePolygonListener;
 import com.data.collection.module.CollectType;
 import com.data.collection.module.MeasurePoint;
@@ -57,6 +58,7 @@ import com.data.collection.util.FileUtils;
 import com.data.collection.util.LocationController;
 import com.data.collection.util.LsLog;
 import com.data.collection.util.OffLineMap;
+import com.data.collection.util.PositionUtil;
 import com.data.collection.util.PreferencesUtils;
 import com.data.collection.util.ToastUtil;
 import com.data.collection.view.MyPicMarkerSymbol;
@@ -355,8 +357,8 @@ public class FragmentHome2 extends FragmentBase {
                     Measurehelper.getInstance().startMeasured(screenPoint);
                     return true;
                 }
-
                 Point clickPoint = mMapView.screenToLocation(screenPoint); // 地理坐标点；
+                Log.i("tap location = ", clickPoint.toString());
                 // Project the point to WGS84, using the transformation
                 clickPoint = (Point) GeometryEngine.project(clickPoint, SpatialReferences.getWgs84());
                 Log.i("sss", clickPoint.toString());
@@ -802,8 +804,24 @@ public class FragmentHome2 extends FragmentBase {
     private void loadDxf(String file) {
         DxfDocument dxfDocument = new DxfDocument(file);
         Bounds bounds = dxfDocument.getBounds();
-        List<DXFLWPolyline> entities = dxfDocument.getENTITIES();
-        
+        double minimumX = bounds.getMinimumX(); // 最小经度
+        double maximumX = bounds.getMaximumX();// 最大经度
+        double minimumY = bounds.getMinimumY(); //最小纬度
+        double maximumY = bounds.getMaximumY();// 最大纬度
+
+        Envelope env= new  Envelope(minimumX,  minimumY, maximumX, maximumY, SpatialReferences.getWebMercator());
+        mMapView.setViewpoint(new Viewpoint(env));
+
+        Point center = env.getCenter();
+        center = PositionUtil.toWgs84(center);
+        LsLog.w(TAG, "loadDxf center = " + center.toString());
+
+        dxfDocument.getGraphicsOverlay(new IListenerDxfReady() {
+            @Override
+            public void onReady(List<GraphicsOverlay> overlays) {
+                mMapView.getGraphicsOverlays().addAll(overlays);
+            }
+        });
     }
 
     private boolean isDxfFile(String file) {
